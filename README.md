@@ -1,7 +1,4 @@
-Original App Design Project - README Template
-===
-
-# APP_NAME_HERE Fludde
+# Fludde
 
 ## Table of Contents
 1. [Overview](#Overview)
@@ -11,14 +8,12 @@ Original App Design Project - README Template
 
 ## Overview
 ### Description
-[Description of your app] 
 
 An application to share and review other opinions of contents such as books, music, movies that they have seen, read, or heard. Think Twitter meets Rotten Tomatoes. 
 
 A user can follow other users. The user will be able to visit a home page timeline of reviews by those they follow, a search functionality that utilizes different API sources, and a user’s profile of their reviews.
 
 ### App Evaluation
-[Evaluation of your app across the following attributes]
 - **Category:** Social Networking 
 - **Mobile:** Mobile, first experience.
 - **Story:** Allows users to share reviews on various content (ex. movies, music, books).
@@ -83,5 +78,4 @@ A user can follow other users. The user will be able to visit a home page timeli
    * Detail
 
 ## Wireframes
-[Add picture of your hand sketched wireframes in this section]
-<img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+<img src="https://i.imgur.com/BNGuswR.jpg" width=600>
