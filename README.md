@@ -155,7 +155,7 @@ newUser.signUpInBackground(new SignUpCallback() {
 
 
 -Home Timeline Screen
-	-(Read/GET) Posts from other users
+-	(Read/GET) Posts from other users
 	-(Create/Post) Post with rating and review
 	
 -Search
