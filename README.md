@@ -107,7 +107,7 @@ if(ParseUser.getCurrentUser() != null){
 
   - 	POST request to authenticate user
 
- private void loginUser(String username, String password) {
+	private void loginUser(String username, String password) {
   
         ParseUser.logInInBackground(username, password, new LogInCallback() {
             @Override
