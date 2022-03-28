@@ -125,7 +125,8 @@ if(ParseUser.getCurrentUser() != null){
         newUser.setUsername(userName);
         newUser.setEmail(userEmail);
         newUser.setPassword(userPass);
-newUser.signUpInBackground(new SignUpCallback() {
+	
+	newUser.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
                 if (e != null){
