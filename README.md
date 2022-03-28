@@ -98,7 +98,6 @@ Post
 
 
 ### Networking
-- [Add list of network requests by screen ]
 
 Login Screen 
 -	GET request verify if user is already login
@@ -116,8 +115,6 @@ SignUp Screen
 	-(Create/Post) Post with rating and review
 
 
-
-- [Create basic snippets for each Parse network request]
 
 Login Screen 
 -	GET request verify if user is already login
@@ -160,8 +157,10 @@ newUser.signUpInBackground(new SignUpCallback() {
 -Home Timeline Screen
 	-(Read/GET) Posts from other users
 	-(Create/Post) Post with rating and review
+	
 -Search
 	-(Read/GET) Existing users or reviews on specific content by search or category
+	
 -User Profile
 	-(Read/GET) All posts created by user
 	-(Create/Post) Post with rating and review
