@@ -122,6 +122,7 @@ if(ParseUser.getCurrentUser() != null){
 - SignUp Screen
   -	POST create new user
       
+      ```
         newUser.setUsername(userName);
         newUser.setEmail(userEmail);
         newUser.setPassword(userPass);
@@ -136,6 +137,7 @@ if(ParseUser.getCurrentUser() != null){
 
 
                 } } })
+	```
 
 
 - Home Timeline Screen
