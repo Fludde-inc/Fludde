@@ -100,14 +100,14 @@ Post
 ### Networking
 
 - Login Screen 
-  -	GET request verify if user is already login
+  - GET request verify if user is already login
 	
 	```
 	if(ParseUser.getCurrentUser() != null){
        		goMainActivity();    }
 	```
 
-  - 	POST request to authenticate user
+  - POST request to authenticate user
 	
 	```
 	private void loginUser(String username, String password) {
@@ -124,7 +124,7 @@ Post
 	```
 
 - SignUp Screen
-  -	POST create new user
+  - POST create new user
       
       ```
         newUser.setUsername(userName);
