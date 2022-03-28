@@ -106,7 +106,8 @@ if(ParseUser.getCurrentUser() != null){
        goMainActivity();    }
 
   - 	POST request to authenticate user
-
+	
+	```
 	private void loginUser(String username, String password) {
   
         ParseUser.logInInBackground(username, password, new LogInCallback() {
@@ -117,7 +118,8 @@ if(ParseUser.getCurrentUser() != null){
                 } else {
                   
                 }
- }
+ 	}
+	```
 
 - SignUp Screen
   -	POST create new user
