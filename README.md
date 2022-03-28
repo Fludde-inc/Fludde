@@ -99,13 +99,13 @@ Post
 
 ### Networking
 
--Login Screen 
- -	GET request verify if user is already login
+- Login Screen 
+  -	GET request verify if user is already login
 
 if(ParseUser.getCurrentUser() != null){
        goMainActivity();    }
 
- - 	POST request to authenticate user
+  - 	POST request to authenticate user
 
  private void loginUser(String username, String password) {
   
@@ -119,8 +119,8 @@ if(ParseUser.getCurrentUser() != null){
                 }
  }
 
--SignUp Screen
- -	POST create new user
+- SignUp Screen
+  -	POST create new user
       
         newUser.setUsername(userName);
         newUser.setEmail(userEmail);
@@ -137,16 +137,16 @@ newUser.signUpInBackground(new SignUpCallback() {
                 } } })
 
 
--Home Timeline Screen
- -	(Read/GET) Posts from other users
- -	(Create/Post) Post with rating and review
+- Home Timeline Screen
+  -	(Read/GET) Posts from other users
+  -	(Create/Post) Post with rating and review
 	
--Search
- -	(Read/GET) Existing users or reviews on specific content by search or category
+- Search
+  -	(Read/GET) Existing users or reviews on specific content by search or category
 	
--User Profile
- -	(Read/GET) All posts created by user
- -	(Create/Post) Post with rating and review
+- User Profile
+  -	(Read/GET) All posts created by user
+  -	(Create/Post) Post with rating and review
 
 	
 
