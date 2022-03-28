@@ -101,9 +101,11 @@ Post
 
 - Login Screen 
   -	GET request verify if user is already login
-
-if(ParseUser.getCurrentUser() != null){
-       goMainActivity();    }
+	
+	```
+	if(ParseUser.getCurrentUser() != null){
+       		goMainActivity();    }
+	```
 
   - 	POST request to authenticate user
 	
