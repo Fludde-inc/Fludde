@@ -79,3 +79,92 @@ A user can follow other users. The user will be able to visit a home page timeli
 
 ## Wireframes
 <img src="https://i.imgur.com/BNGuswR.jpg" width=600>
+
+## Schema 
+
+### Models
+
+Post
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `objectId` | String | Unique id for the user to post (default field) |
+| `author` | Pointer to User | Review author |
+| `createdAt` | DateTime | Date when post is created (default field) |
+| `description` | String | Title of content |
+| `review` | String | Review typed up by author |
+| `category` | String | Type of content (movie, book or music) |
+
+
+
+### Networking
+- [Add list of network requests by screen ]
+
+Login Screen 
+-	GET request verify if user is already login
+- 	POST request to authenticate user
+SignUp Screen
+-	POST create new user
+
+-Home Timeline Screen
+	-(Read/GET) Posts from other users
+	-(Create/Post) Post with rating and review
+-Search
+	-(Read/GET) Existing users or reviews on specific content by search or category
+-User Profile
+	-(Read/GET) All posts created by user
+	-(Create/Post) Post with rating and review
+
+
+
+- [Create basic snippets for each Parse network request]
+
+Login Screen 
+-	GET request verify if user is already login
+
+if(ParseUser.getCurrentUser() != null){
+       goMainActivity();    }
+
+- 	POST request to authenticate user
+
+ private void loginUser(String username, String password) {
+  
+        ParseUser.logInInBackground(username, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e != null) {
+
+                } else {
+                  
+                }
+ }
+
+SignUp Screen
+-	POST create new user
+      
+        newUser.setUsername(userName);
+        newUser.setEmail(userEmail);
+        newUser.setPassword(userPass);
+newUser.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null){
+   
+                }
+                else {
+
+
+                } } })
+
+
+-Home Timeline Screen
+	-(Read/GET) Posts from other users
+	-(Create/Post) Post with rating and review
+-Search
+	-(Read/GET) Existing users or reviews on specific content by search or category
+-User Profile
+	-(Read/GET) All posts created by user
+	-(Create/Post) Post with rating and review
+
+	
+
