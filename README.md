@@ -27,20 +27,20 @@ A user can follow other users. The user will be able to visit a home page timeli
 
 **Required Must-have Stories**
 
-* Users can register a new account
-* User can log in
-* User can see timeline that includes reviews of users they follow
-* User can search for other users profiles
-* User can search for other content (music, movie, books)
-* User can view their own profile
-* User can create review that can be seen from their profile and on timeline
+- [x] Users can register a new account
+- [x] User can log in
+- [ ] User can see timeline that includes reviews of users they follow
+- [ ] User can search for other users profiles
+- [ ] User can search for other content (music, movie, books)
+- [ ] User can view their own profile
+- [ ] User can create review that can be seen from their profile and on timeline
 
 **Optional Nice-to-have Stories**
 
-* User can favorite content
-* User can reshare reviews, think “re-tweet”
-* User can do a search reviews on specific content
-* User can click on content and see detail on content (ex. Trailer, description of content)
+- [ ] User can favorite content
+- [ ] User can reshare reviews, think “re-tweet”
+- [ ] User can do a search reviews on specific content
+- [ ] User can click on content and see detail on content (ex. Trailer, description of content)
 
 ### 2. Screen Archetypes
 
