@@ -29,10 +29,10 @@ A user can follow other users. The user will be able to visit a home page timeli
 
 - [x] Users can register a new account
 - [x] User can log in
-- [ ] User can see timeline that includes reviews of users they follow
+- [x] User can see timeline that includes reviews of users they follow
 - [ ] User can search for other users profiles
 - [ ] User can search for other content (music, movie, books)
-- [ ] User can view their own profile
+- [x] User can view their own profile
 - [ ] User can create review that can be seen from their profile and on timeline
 
 **Optional Nice-to-have Stories**
