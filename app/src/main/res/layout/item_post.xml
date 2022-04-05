@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cvContent"
+    android:layout_marginTop="1dp"
+    android:layout_marginEnd="1dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="5dp"
+    app:cardMaxElevation="6dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true" >
+
+
+    <RelativeLayout
+        android:id="@+id/cvLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvReview"
+            android:layout_width="248dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvContentDescription"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="29dp"
+            android:layout_marginEnd="19dp"
+            android:layout_marginBottom="10dp"
+            android:layout_toEndOf="@+id/ivUserPic"
+            android:hint="Film criticism is the analysis and evaluation of films and the film medium. In general, film criticism can be divided into two categories"
+            android:padding="2dp" />
+
+        <ImageView
+            android:id="@+id/ivContent"
+            android:layout_width="86dp"
+            android:layout_height="74dp"
+            android:layout_gravity="right"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="15dp"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/tvContentTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ivContent"
+            android:layout_gravity="right"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="31dp"
+            android:layout_toStartOf="@+id/tvContentDescription"
+            android:hint="Bad Boys 2" />
+
+        <TextView
+            android:id="@+id/tvContentDescription"
+            android:layout_width="195dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginBottom="15dp"
+            android:layout_toEndOf="@+id/ivContent"
+            android:ems="10"
+            android:fontFamily="sans-serif-black"
+            android:hint="The drug ecstasy is flowing into Miami, and the police want it stopped. Police Detective Marcus Burnett (Martin Lawrence) and his partner, Mike Lowrey (Will Smith), are just the men to do it."
+            android:inputType="textMultiLine"
+            android:textIsSelectable="false"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvContentCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/tvReview"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/acme"
+            android:hint="Movie"
+            android:inputType="textPersonName"
+            android:textSize="14sp"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageView
+            android:id="@+id/ivUserPic"
+            android:layout_width="86dp"
+            android:layout_height="60dp"
+            android:layout_below="@+id/tvContentTitle"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="35dp"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ivUserPic"
+            android:layout_marginLeft="15dp"
+            android:gravity="center"
+            android:hint="JohnDoe" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
