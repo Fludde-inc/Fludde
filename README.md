@@ -155,5 +155,9 @@ Post
   -	(Read/GET) All posts created by user
   -	(Create/Post) Post with rating and review
 
+### App Walkthough GIF
+
+<img src='fludde.gif' width=250><br>
+
 	
 
