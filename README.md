@@ -160,7 +160,7 @@ Post
 <img src='fludde.gif' width=250><br>
 
 Current view of Review Post:
-<br><br><img src='review_attempt_1.jpg' width=250><br>
+<br><br><img src='review_attempt_1.gif' width=250><br>
 
 Needs to work on choosing different content. (As of 4/11/22)
 
