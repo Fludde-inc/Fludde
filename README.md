@@ -29,10 +29,10 @@ A user can follow other users. The user will be able to visit a home page timeli
 
 - [x] Users can register a new account
 - [x] User can log in
-- [ ] User can see timeline that includes reviews of users they follow
+- [x] User can see timeline that includes reviews of users they follow
 - [ ] User can search for other users profiles
 - [ ] User can search for other content (music, movie, books)
-- [ ] User can view their own profile
+- [x] User can view their own profile
 - [ ] User can create review that can be seen from their profile and on timeline
 
 **Optional Nice-to-have Stories**
@@ -154,6 +154,15 @@ Post
 - User Profile
   -	(Read/GET) All posts created by user
   -	(Create/Post) Post with rating and review
+
+### App Walkthough GIF
+
+<img src='fludde.gif' width=250><br>
+
+Current view of Review Post:
+<br><br><img src='review_attempt_1.gif' width=250><br>
+
+Needs to work on choosing different content. (As of 4/11/22)
 
 	
 
