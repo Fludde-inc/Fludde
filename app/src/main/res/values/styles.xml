@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+
+    <!-- text input layout -->
+    <style name="TextLimitError" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/colorRed</item>
+    </style>
+
+</resources>
