@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.fludde.Post;
-import com.example.fludde.PostAdapter;
+import com.example.fludde.adapters.PostAdapter;
 import com.example.fludde.R;
 import com.parse.FindCallback;
 import com.parse.ParseException;

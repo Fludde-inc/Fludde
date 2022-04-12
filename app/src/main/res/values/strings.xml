@@ -9,8 +9,14 @@
     <string name="clear">Clear</string>
     <string name="create">Create</string>
     <string name="email">Email</string>
+    <!-- NY TIME INFO -->
+    <string name="ny_times_book_current_url">https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json?</string>
+    <string name="ny_times_book_by_title">https://api.nytimes.com/svc/books/v3/reviews.json?/reviews.json?</string>
+    <string name="ny_times_key">w2uK0OgfCp9kftPXBlb3IS3rv8a3l7sd</string>
+    <string name="google_book_api_key">AIzaSyDseJhQYiCBlQdnO8L2lJjtwuudWrnOrlU</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="johndoe2016">JohnDoe2016</string>
     <string name="johndoe_youknow_com">johndoe@youknow.com</string>
+    <string name="helper_text">Characters Remaining</string>
 </resources>
