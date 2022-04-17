@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
-import com.example.fludde.fragments.ComposeFragment;
+import com.example.fludde.fragments.ComposeParentFragment;
 import com.example.fludde.fragments.HomeFragment;
 import com.example.fludde.fragments.PostFragment;
 import com.example.fludde.fragments.ProfileFragment;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new HomeFragment();
                         break;
                     case R.id.action_compose:
-                        fragment = new ComposeFragment();
+                        fragment = new ComposeParentFragment();
                         break;
                     case R.id.action_profile:
                         fragment = new ProfileFragment();

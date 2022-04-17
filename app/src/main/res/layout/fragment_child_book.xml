@@ -2,77 +2,68 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="15dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <Spinner
-            android:id="@+id/spDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="7dp"
-            android:padding="1dp" />
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvHorizontalView"
-        android:layout_width="381dp"
+        android:id="@+id/rvBookHorizontalView"
+        android:layout_width="match_parent"
         android:layout_height="157dp"
-        android:layout_below="@+id/etSearchField"
+        android:layout_below="@+id/etBookSearchField"
         android:layout_alignParentStart="true"
         android:layout_marginStart="3dp"
         android:layout_marginTop="18dp" />
 
     <TextView
-        android:id="@+id/tvSearch"
+        android:id="@+id/tvBookSearch"
         android:layout_width="107dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/spDropdownMenu"
         android:layout_alignParentStart="true"
         android:layout_marginStart="1dp"
         android:layout_marginTop="44dp"
         android:layout_marginEnd="14dp"
-        android:layout_toStartOf="@+id/etSearchField"
+        android:layout_toStartOf="@+id/etBookSearchField"
         android:text="Content Search" />
 
-        <EditText
-            android:id="@+id/etSearchField"
-            android:layout_width="230dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/spDropdownMenu"
-            android:layout_alignParentEnd="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="62dp"
-            android:ems="10"
-            android:hint="Enter title"
-            android:inputType="textPersonName" />
+    <EditText
+        android:id="@+id/etBookSearchField"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="62dp"
+        android:ems="10"
+        android:hint="Enter title"
+        android:inputType="textPersonName" />
 
     <Button
-        android:id="@+id/btGo"
+        android:id="@+id/btBookSearchGo"
         android:layout_width="59dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/spDropdownMenu"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="-4dp"
         android:text="GO" />
 
-        <TextView
-            android:id="@+id/tvReviewlb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/rvHorizontalView"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="22dp"
-            android:layout_marginTop="25dp"
-            android:text="Review:" />
+    <TextView
+        android:id="@+id/tvBookReviewlb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rvBookHorizontalView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="25dp"
+        android:text="Review:" />
 
     <EditText
-        android:id="@+id/etReviewPost"
+        android:id="@+id/etBookReviewPost"
         android:layout_width="339dp"
         android:layout_height="164dp"
-        android:layout_below="@+id/tvReviewlb"
+        android:layout_below="@+id/tvBookReviewlb"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="-1dp"
+        android:layout_marginStart="41dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/back"
         android:ems="10"
         android:gravity="start"
@@ -86,15 +77,14 @@
         app:helperText="@string/helper_text" />
 
     <Button
-        android:id="@+id/btPost"
+        android:id="@+id/btBookPost"
         android:layout_width="104dp"
         android:layout_height="41dp"
-        android:layout_below="@+id/etReviewPost"
+        android:layout_below="@+id/etBookReviewPost"
         android:layout_alignParentStart="true"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="134dp"
         android:layout_marginTop="16dp"
-        android:text="Post" />
-
+        android:text="Post"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </RelativeLayout>

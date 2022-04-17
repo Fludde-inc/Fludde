@@ -46,6 +46,7 @@ public class Post extends ParseObject {
     public void setUser(ParseUser user){
         put(KEY_USER,user);
     }
+    public void setReview(String review){put(KEY_REVIEW,review);}
     public void setCategory(String category){put(KEY_CATEGORY,category);}
     public void setContentTitle(String contentTitle){put(KEY_CONTENT_TITLE,contentTitle);}
     public String getContentTitle() {

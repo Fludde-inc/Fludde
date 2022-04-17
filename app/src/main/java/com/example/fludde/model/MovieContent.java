@@ -1,5 +1,7 @@
 package com.example.fludde.model;
 
+import com.example.fludde.adapters.MovieChildAdapter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -7,7 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieContent implements Contents{
+public class MovieContent {
     String posterPath;
     String backdropPath;
     String title;
@@ -50,9 +52,6 @@ public class MovieContent implements Contents{
         return overview;
     }
 
-    @Override
-    public int getType() {
-        return Contents.TYPE_MOVIES;
-    }
+
 }
 

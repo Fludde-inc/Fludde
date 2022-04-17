@@ -73,6 +73,14 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <meta-data
+            android:name="ny_api_key"
+            android:resource="@string/ny_times_key"/>
+        <meta-data
+            android:name="spotify_key"
+            android:resource="@string/spotify_key"/>
+
+
     </application>
 
 </manifest>
