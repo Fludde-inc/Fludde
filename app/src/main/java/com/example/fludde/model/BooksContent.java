@@ -14,8 +14,6 @@ public class BooksContent {
     String author;
     String isbn;
     JSONArray isbn13 ;
-    final String googleUrl ="https://storage.googleapis.com/du-prd/books/images/";
-    final String coverFormat = ".jpg";
 
 
     public BooksContent(JSONObject jsonObject) throws JSONException {
@@ -75,14 +73,6 @@ public class BooksContent {
         return imageURL;
     }
 
-    private String verifyImage(String bookISBN) {
-        String bookURL;
-
-        bookURL = String.format("https://storage.googleapis.com/du-prd/books/images/%s",bookISBN,".jpg");
-
-
-        return  bookURL;
-    }
 
     public String getTitle() {
         return title;
@@ -91,29 +81,12 @@ public class BooksContent {
     public String getAuthor(){return author;}
 
 
-//    public String getIsbn13(JSONArray isbn13) throws JSONException {
-//
-//      int isbnNum = 0;
-//
-//        for (int i = 0; i< isbn13.length(); i++ ){
-//            if( isbn13.length() > 0){
-//                testIsbnImage(i);
-//            }
-//        JSONObject   isbnObj = isbn13.getJSONObject(0);
-//
-//
-//        }
-//    isbn =  String.format(String.valueOf(isbnNum));
-//        return isbn;
-//    }
-
     private void testIsbnImage(int i) {
 
 
-
-//        imageURL = testImage;
-
     }
+
+
     private String getImageFromIsbn() {
         String testImage =String.format("https://storage.googleapis.com/du-prd/books/images/%s.jpg",isbn);
 

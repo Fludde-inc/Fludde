@@ -71,7 +71,6 @@ public class MovieChildFragment extends Fragment implements MovieChildAdapter.On
     LinearLayoutManager HorizontalLayout;
   MovieChildAdapter movieContentAdapter;
     Button btMoviePost;
-    Context context;
     Button btMovieSearchGo;
     EditText etMovieReviewPost;
     EditText etMovieSearchField;
@@ -79,7 +78,6 @@ public class MovieChildFragment extends Fragment implements MovieChildAdapter.On
     ImageView ivContentImage;
     TextView tvImageContentTitle;
     Fragment postFragment;
-    byte[] image;
     int movieSelectedPosition = -1;
 
 
@@ -120,6 +118,7 @@ public class MovieChildFragment extends Fragment implements MovieChildAdapter.On
 btMoviePost.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View view) {
+
         ParseUser  userPosting = ParseUser.getCurrentUser();
 //        byte[] imgByteArray = new byte[0];
         MovieContent selectedMovie;
@@ -139,7 +138,7 @@ btMoviePost.setOnClickListener(new View.OnClickListener() {
 
 
 
-        String contentPicName = String.format("%s"+".jpg",selectedMovie.getTitle().toString());
+   //     String contentPicName = String.format("%s"+".jpg",selectedMovie.getTitle().toString());
         byte[] bitmapBytes = new byte[0];
 
         String drawableRes=selectMovieUrlImage;

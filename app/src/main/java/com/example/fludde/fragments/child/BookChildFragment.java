@@ -1,6 +1,10 @@
 package com.example.fludde.fragments.child;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +23,25 @@ import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.RequestParams;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.fludde.BuildConfig;
+import com.example.fludde.MainActivity;
+import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.BookChildAdapter;
 import com.example.fludde.model.BooksContent;
 import com.example.fludde.netclients.NYTClient;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +95,63 @@ public class BookChildFragment extends Fragment implements BookChildAdapter.OnBo
             @Override
             public void onClick(View view) {
 
+                final String category = "Book";
+                ParseUser userPosting = ParseUser.getCurrentUser();
+                BooksContent selectedBook;
+                selectedBook = nyTimeList.get(bookSelectedPosition);
+
+
+                String userReview = etBookReviewPost.getText().toString();
+
+
+                String selectBookTitle = selectedBook.getTitle().toString();
+                String selectBookDescription = selectedBook.getSummary().toString();
+                String selectBookUrlImage = selectedBook.getImageURL().toString();
+
+                byte[] bitmapBytes = new byte[0];
+
+                String drawableRes=selectBookUrlImage;
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                try {
+                    URL url = new URL(drawableRes);
+                    Bitmap contentImage = BitmapFactory.decodeStream((InputStream) url.getContent());
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    contentImage.compress(Bitmap.CompressFormat.JPEG, 76, stream);
+                    bitmapBytes = stream.toByteArray();
+                } catch (IOException e) {
+                    //Log.e(TAG, e.getMessage());
+                }
+
+
+                ParseFile coverImage = new ParseFile("myImage.jpg", bitmapBytes);
+
+                coverImage.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e!=null)
+                        {
+                            Log.e("ImageSaving","Issue Saving profile pic");
+                        }
+                        else{
+                            //Calling post method
+                            postUserReview(category,userPosting,userReview,selectBookTitle,selectBookDescription, coverImage);
+                        }
+                    }});
+
+
+                //clearing fields
+                etBookReviewPost.setText("");
+                etBookSearchField.setText("");
+                bookSelectedPosition = -1;
+
+
+
+                //need to navigate out of parent fragment back to main activity post fragment
+                Intent i = new Intent(getContext(), MainActivity.class);
+                startActivity(i);
+
+
             }
         });
 
@@ -104,6 +175,30 @@ public class BookChildFragment extends Fragment implements BookChildAdapter.OnBo
 
 retrieveTopTen();
     }
+
+    private void postUserReview(String category, ParseUser currentUser, String userReview, String selectBookTitle, String selectBookDescription, ParseFile coverImage) {
+        Post reviewPost = new Post();
+
+        reviewPost.setCategory(category);
+        reviewPost.setUser(currentUser);
+        reviewPost.setReview(userReview);
+        reviewPost.setContentTitle(selectBookTitle);
+        reviewPost.setDescription(selectBookDescription);
+        reviewPost.setContentImage(coverImage);
+
+        reviewPost.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e("postIssue", "Issue Saving post");
+                } else {
+
+                }
+            }
+        });
+    }
+
+
 
     private void bookSearch(String query)  {
 

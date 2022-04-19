@@ -37,8 +37,10 @@
         android:layout_marginTop="25dp"
         android:layout_marginEnd="79dp"
         android:ems="10"
+        android:focusableInTouchMode="true"
         android:hint="Enter title"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:nextFocusRight="@id/btMusicSearchGo" />
 
     <Button
         android:id="@+id/btMusicSearchGo"

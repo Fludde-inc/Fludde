@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="1dp"
+    android:layout_marginEnd="1dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="5dp"
+    app:cardMaxElevation="6dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="115dp">
+
+        <ImageView
+            android:id="@+id/ivUserImage"
+            android:layout_width="100dp"
+            android:layout_height="125dp"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/tvUName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@+id/ivUserImage"
+            android:hint="John Doe" />
+
+    </RelativeLayout>
+
+
+</androidx.cardview.widget.CardView>

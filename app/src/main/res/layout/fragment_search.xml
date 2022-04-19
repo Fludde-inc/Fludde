@@ -5,12 +5,41 @@
     android:layout_height="match_parent"
     tools:context=".fragments.SearchFragment">
 
-    <SearchView
-        android:id="@+id/svSearchfield"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:queryHint="Search Here"
-        android:iconifiedByDefault="false"
-        android:layout_alignParentTop="true"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginTop="1dp">
 
+
+        <EditText
+            android:id="@+id/etSearchFieldUser"
+            android:layout_width="274dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:ems="10"
+            android:hint="Search for user"
+            android:inputType="textPersonName" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvUserQuery"
+            android:layout_width="match_parent"
+            android:layout_height="484dp"
+            android:layout_below="@+id/etSearchFieldUser"
+            android:layout_marginTop="20dp"
+            android:padding="1dp" />
+
+        <Button
+            android:id="@+id/btSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginStart="29dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_toEndOf="@+id/etSearchFieldUser"
+            android:text="Search" />
+
+    </RelativeLayout>
 </FrameLayout>
