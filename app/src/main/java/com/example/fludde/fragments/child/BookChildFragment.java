@@ -105,13 +105,16 @@ public class BookChildFragment extends Fragment implements BookChildAdapter.OnBo
 retrieveTopTen();
     }
 
-    private void bookSearch(String query) {
+    private void bookSearch(String query)  {
+
+
 
         final String searchUrl = "https://api.nytimes.com/svc/books/v3/reviews.json";
         String myKey = BuildConfig.NY_TIMES_API_KEY;
         RequestParams params = new RequestParams();
         params.put("title",query);
         params.put("api-key", myKey);
+
 
         AsyncHttpClient client = new AsyncHttpClient();
 
@@ -121,6 +124,7 @@ retrieveTopTen();
                 JSONObject jsonObject = json.jsonObject;
                 try {
                     JSONArray results = jsonObject.getJSONArray("results");
+
                     nyTimeList.clear();
                     nyTimeList.addAll(BooksContent.fromJsonArray(results));
                     bookAdapter.notifyDataSetChanged();
@@ -184,29 +188,6 @@ retrieveTopTen();
 
 
 
-//        bookClient = new NYTClient();
-//
-//        bookClient.getNYTop(que, new JsonHttpResponseHandler() {
-//            @Override
-//            public void onSuccess(int statusCode, Headers headers, JSON json) {
-//
-//                List<BooksContent> topBook;
-//
-//                JSONObject jsonObject = json.jsonObject;
-//
-//                try {
-//                    JSONArray results = jsonObject.getJSONArray("results");
-//                    booksContentList.addAll(BooksContent.fromJsonArray(results));
-//                    bookAdapter.notifyDataSetChanged();
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            @Override
-//            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-//
-//            }
-//        });
     }
 
     @Override
@@ -219,4 +200,6 @@ retrieveTopTen();
     public void onBookContentLongClick(int position) {
 
     }
+
+
 }
