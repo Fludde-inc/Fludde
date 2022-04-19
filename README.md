@@ -31,7 +31,7 @@ A user can follow other users. The user will be able to visit a home page timeli
 - [x] User can log in
 - [x] User can see timeline that includes reviews of users they follow
 - [ ] User can search for other users profiles
-- [ ] User can search for other content (music, movie, books)
+- [x] User can search for other content (music, movie, books)
 - [x] User can view their own profile
 - [x] User can create review that can be seen from their profile and on timeline
 
