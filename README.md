@@ -33,7 +33,7 @@ A user can follow other users. The user will be able to visit a home page timeli
 - [ ] User can search for other users profiles
 - [ ] User can search for other content (music, movie, books)
 - [x] User can view their own profile
-- [ ] User can create review that can be seen from their profile and on timeline
+- [x] User can create review that can be seen from their profile and on timeline
 
 **Optional Nice-to-have Stories**
 
