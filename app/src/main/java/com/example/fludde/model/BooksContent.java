@@ -32,7 +32,7 @@ public class BooksContent {
                 if( isbn13.length() > 0){
                     testIsbnImage(i);
                 }
-                int   isbnObj = isbn13.getInt(0);
+                   isbn = isbn13.getString(0);
 
 //                isbn =  i
 
@@ -115,7 +115,7 @@ public class BooksContent {
 
     }
     private String getImageFromIsbn() {
-        String testImage =String.format(googleUrl,isbn,coverFormat);
+        String testImage =String.format("https://storage.googleapis.com/du-prd/books/images/%s.jpg",isbn);
 
         return testImage;
     }
