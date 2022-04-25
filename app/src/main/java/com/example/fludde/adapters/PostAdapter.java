@@ -19,13 +19,14 @@ import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
+
+
+    private Context context;
+    private List<Post> posts;
     public PostAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
     }
-
-    private Context context;
-    private List<Post> posts;
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

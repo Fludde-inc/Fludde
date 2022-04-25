@@ -16,74 +16,88 @@
     app:cardUseCompatPadding="true" >
 
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cvLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="255dp">
 
         <TextView
             android:id="@+id/tvReview"
-            android:layout_width="248dp"
-            android:layout_height="wrap_content"
+            android:layout_width="249dp"
+            android:layout_height="78dp"
             android:layout_below="@+id/tvContentDescription"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="29dp"
-            android:layout_marginEnd="19dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="56dp"
             android:layout_toEndOf="@+id/ivUserPic"
             android:hint="Film criticism is the analysis and evaluation of films and the film medium. In general, film criticism can be divided into two categories"
-            android:padding="2dp" />
+            android:padding="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.589"
+            app:layout_constraintStart_toEndOf="@+id/ivUserPic"
+            app:layout_constraintTop_toBottomOf="@+id/tvContentDescription" />
 
         <ImageView
             android:id="@+id/ivContent"
-            android:layout_width="86dp"
-            android:layout_height="74dp"
-            android:layout_gravity="right"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="15dp"
+            android:layout_width="94dp"
+            android:layout_height="95dp"
+
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toStartOf="@+id/tvContentDescription"
+            app:layout_constraintHorizontal_bias="0.551"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
             android:id="@+id/tvContentTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="96dp"
+            android:layout_height="37dp"
             android:layout_below="@+id/ivContent"
-            android:layout_gravity="right"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="31dp"
+
             android:layout_toStartOf="@+id/tvContentDescription"
-            android:hint="Bad Boys 2" />
+            android:hint="Bad Boys 2"
+            android:includeFontPadding="true"
+            android:textAlignment="center"
+            android:textStyle="normal"
+            app:flow_horizontalStyle="spread"
+            app:layout_constraintBottom_toTopOf="@+id/ivUserPic"
+            app:layout_constraintEnd_toStartOf="@+id/tvContentDescription"
+            app:layout_constraintHorizontal_bias="0.516"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivContent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/tvContentDescription"
             android:layout_width="195dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginRight="25dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="72dp"
             android:layout_toEndOf="@+id/ivContent"
             android:ems="10"
             android:fontFamily="sans-serif-black"
             android:hint="The drug ecstasy is flowing into Miami, and the police want it stopped. Police Detective Marcus Burnett (Martin Lawrence) and his partner, Mike Lowrey (Will Smith), are just the men to do it."
             android:inputType="textMultiLine"
+            android:maxLines="5"
             android:textIsSelectable="false"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvContentCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@id/tvReview"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="16dp"
             android:fontFamily="@font/acme"
             android:hint="Movie"
             android:inputType="textPersonName"
             android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.578"
+            app:layout_constraintStart_toEndOf="@+id/tvContentDescription"
+            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="TouchTargetSizeCheck" />
 
         <ImageView
@@ -91,20 +105,28 @@
             android:layout_width="86dp"
             android:layout_height="60dp"
             android:layout_below="@+id/tvContentTitle"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="35dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="52dp"
             android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivContent"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
             android:id="@+id/tvUsername"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="86dp"
+            android:layout_height="18dp"
             android:layout_below="@+id/ivUserPic"
-            android:layout_marginLeft="15dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:gravity="center"
-            android:hint="JohnDoe" />
+            android:hint="JohnDoe"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivUserPic"
+            app:layout_constraintVertical_bias="0.0" />
 
-    </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

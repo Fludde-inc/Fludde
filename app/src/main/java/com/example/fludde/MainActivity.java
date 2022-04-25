@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 Fragment fragment;
                 switch (item.getItemId()) {
                     case R.id.action_home:
+                    default:
                         fragment = new HomeFragment();
                         break;
                     case R.id.action_compose:
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                     case R.id.action_feed:
-                    default:
                         fragment = new PostFragment();
                         break;
                     case R.id.action_search:

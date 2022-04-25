@@ -27,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if(ParseUser.getCurrentUser() != null){
             goMainActivity();
+
         }
         etUsername = findViewById(R.id.etUserName);
         etPassword = findViewById(R.id.etPassword);
