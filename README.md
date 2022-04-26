@@ -37,7 +37,7 @@ A user can follow other users. The user will be able to visit a home page timeli
 
 **Optional Nice-to-have Stories**
 
-- [x] User can see content information in Search.
+- [x] User can see content information in final review.
 - [ ] User can favorite content
 - [ ] User can reshare reviews, think “re-tweet”
 - [ ] User can do a search reviews on specific content
