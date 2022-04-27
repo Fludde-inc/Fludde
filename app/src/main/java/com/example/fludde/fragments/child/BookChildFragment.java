@@ -28,7 +28,6 @@ import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.BookChildAdapter;
 import com.example.fludde.model.BooksContent;
-import com.example.fludde.netclients.NYTClient;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -55,12 +54,9 @@ public class BookChildFragment extends Fragment implements BookChildAdapter.OnBo
     EditText etBookReviewPost;
     Button btBookPost;
     LinearLayoutManager HorizontalLayout;
-//    List<BooksContent> booksContentList;
     List<BooksContent> nyTimeList;
     BookChildAdapter bookAdapter;
     int bookSelectedPosition = -1;
-    NYTClient bookClient;
-//    List<Book> aTopBook;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,7 +68,7 @@ public class BookChildFragment extends Fragment implements BookChildAdapter.OnBo
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        booksContentList = new ArrayList<>();
+
         nyTimeList = new ArrayList<>();
         // assigning elements
         etBookReviewPost = view.findViewById(R.id.etBookReviewPost);

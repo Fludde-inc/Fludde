@@ -313,7 +313,7 @@ getCurrentMovies();
     @Override
     public void onMovieContentClick(int position) {
         movieSelectedPosition = position;
-        Toast.makeText(getContext(), String.format("You have clicked %s", movieContentList.get(position).getTitle()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), String.format("You have selected %s", movieContentList.get(position).getTitle()), Toast.LENGTH_SHORT).show();
     }
 
     @Override
