@@ -30,13 +30,14 @@ A user can follow other users. The user will be able to visit a home page timeli
 - [x] Users can register a new account
 - [x] User can log in
 - [x] User can see timeline that includes reviews of users they follow
-- [ ] User can search for other users profiles
+- [x] User can search for other users profiles
 - [x] User can search for other content (music, movie, books)
 - [x] User can view their own profile
 - [x] User can create review that can be seen from their profile and on timeline
 
 **Optional Nice-to-have Stories**
 
+- [x] User can see content information in final review.
 - [ ] User can favorite content
 - [ ] User can reshare reviews, think “re-tweet”
 - [ ] User can do a search reviews on specific content
@@ -161,9 +162,11 @@ Post
 
 <br><br><img src='review_attempt_1.gif' width=250><br>
 
-Needs to work on choosing different content. (As of 4/11/22)
+Needs to work on choosing different content. 
 
-<br><br><img src='fluddeUpdate.gif' width=250><br> (As of 4/18/22)
+<br><br><img src='fluddeUpdate.gif' width=250><br> 
+
+This is the current status of the app. The content info is avaiable when making the review.
 
 	
 
