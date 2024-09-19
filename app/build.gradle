@@ -34,7 +34,6 @@ android {
 
     defaultConfig {
 
-        // should correspond to key/value pairs inside the file
         buildConfigField("String", "NY_TIMES_API_KEY", apikeyProperties['NY_TIMES_API_KEY'])
         buildConfigField("String","SPOTIFY_KEY",apikeyProperties['SPOTIFY_KEY'])
     }

@@ -1,66 +1,67 @@
 package com.example.fludde;
 
+import android.os.Bundle;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.WindowManager;
-
-import com.example.fludde.fragments.ComposeParentFragment;
-import com.example.fludde.fragments.HomeFragment;
-import com.example.fludde.fragments.PostFragment;
-import com.example.fludde.fragments.ProfileFragment;
-import com.example.fludde.fragments.SearchFragment;
+import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
-
-    private BottomNavigationView bottomNavigationView;
-    final FragmentManager fragmentManager = getSupportFragmentManager();
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        bottomNavigationView = findViewById(R.id.bottomNavigation);
-      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-
-                Fragment fragment;
-                switch (item.getItemId()) {
-                    case R.id.action_home:
-                    default:
-                        fragment = new HomeFragment();
-                        break;
-                    case R.id.action_compose:
-                        fragment = new ComposeParentFragment();
-                        break;
-                    case R.id.action_profile:
-                        fragment = new ProfileFragment();
-                        break;
-                    case R.id.action_feed:
-                        fragment = new PostFragment();
-                        break;
-                    case R.id.action_search:
-                        fragment = new SearchFragment();
-                        break;
-
-
-                }
-                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
-                return true;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_home:
+                    loadFragment(new HomeFragment());
+                    Log.d(TAG, "Home fragment selected");
+                    return true;
+                case R.id.nav_profile:
+                    loadFragment(new ProfileFragment());
+                    Log.d(TAG, "Profile fragment selected");
+                    return true;
+                default:
+                    Log.e(TAG, "Unhandled navigation item selected: " + item.getItemId());
+                    return false;
             }
         });
 
+        if (savedInstanceState == null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        }
+    }
+
+    private void loadFragment(Fragment fragment) {
+        try {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            Log.d(TAG, "Fragment loaded successfully: " + fragment.getClass().getSimpleName());
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to load fragment: " + fragment.getClass().getSimpleName(), e);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        try {
+            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                super.onBackPressed();
+            } else {
+                getSupportFragmentManager().popBackStack();
+                Log.d(TAG, "Back pressed: navigating to previous fragment");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error during back navigation", e);
+        }
     }
 }

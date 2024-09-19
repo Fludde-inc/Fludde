@@ -1,16 +1,53 @@
-*.iml
-.gradle
-/local.properties
-/apikey.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# Ignore Mac system files
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# Ignore the local configuration file
 local.properties
+
+# Ignore API keys and sensitive configuration files
+apikey.properties
+apikey.properties.bak
+
+# Ignore Gradle files
+.gradle/
+build/
+
+# Ignore gradle wrapper jar and properties
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+
+# Ignore Android Studio specific files
+.idea/
+*.iml
+
+# Ignore log files
+*.log
+
+# Ignore build output directories
+app/build/
+
+# Ignore generated files (e.g., R.java, compiled classes)
+app/build/
+app/src/main/gen/
+app/src/main/res/drawable/
+
+# Ignore miscellaneous files
+*.bak
+*.swp
+
+# Ignore generated images and videos
+*.gif
+*.mp4
+*.mov
+*.avi
+*.flv
+
+# Ignore any other environment-specific or temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Ignore the entire scripts directory if it contains only build-related files
+scripts/gradlew
+scripts/gradlew.bat
