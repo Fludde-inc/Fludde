@@ -2,171 +2,175 @@
 
 ## Table of Contents
 1. [Overview](#Overview)
-1. [Product Spec](#Product-Spec)
-1. [Wireframes](#Wireframes)
-2. [Schema](#Schema)
+2. [Features](#Features)
+3. [Installation](#Installation)
+4. [Usage](#Usage)
+5. [Schema](#Schema)
+6. [Wireframes](#Wireframes)
 
 ## Overview
+
 ### Description
 
-An application to share and review other opinions of contents such as books, music, movies that they have seen, read, or heard. Think Twitter meets Rotten Tomatoes. 
-
-A user can follow other users. The user will be able to visit a home page timeline of reviews by those they follow, a search functionality that utilizes different API sources, and a user’s profile of their reviews.
+Fludde is a social platform that allows users to share and review various forms of content, such as books, music, and movies. Users can follow others, create posts, and view a personalized timeline filled with reviews from the users they follow. The platform integrates with various APIs to enhance the multimedia experience.
 
 ### App Evaluation
 - **Category:** Social Networking 
-- **Mobile:** Mobile, first experience.
-- **Story:** Allows users to share reviews on various content (ex. movies, music, books).
-- **Market:** Anyone who views content and wants to share their opinion with others.
-- **Habit:** Users can use this application as a journal to leave behind their overall review or initial thoughts while experiencing content. Users can explore their friends’ or influencers’ thoughts on content they have viewed.
-- **Scope:** Fludde would start with a basic interface of viewing feeds and a user profile. We are only focusing on movies, music, and books, we can see this expanding towards TV shows, comics, video games, live performances, ect. After this, we could see a recommendation algorithm being added to the application along with adding pictures/videos to reviews. You can create lists of content that you can share with friends or like minded individuals.
+- **Platform:** Mobile-first experience, primarily for Android.
+- **Purpose:** To provide users with a space to share their opinions on different types of content and explore reviews from their network.
+- **Target Audience:** Anyone interested in sharing their thoughts on content and discovering reviews from others.
+- **Scope:** Initially focusing on movies, music, and books, with potential expansion to other forms of media like TV shows, comics, and video games.
 
-## Product Spec
+## Features
 
-### 1. User Stories (Required and Optional)
+### Core Features
 
-**Required Must-have Stories**
+- User Registration: Users can sign up and create an account.
+- User Authentication: Users can log in and out of their accounts securely.
+- Home Timeline: Users can view a feed of reviews from the people they follow.
+- Content Search: Users can search for content or other users.
+- User Profiles: Users can view their own profile, which includes all their reviews.
+- Review Creation: Users can create and share reviews of content, categorized by type (e.g., movie, music, book).
 
-- [x] Users can register a new account
-- [x] User can log in
-- [x] User can see timeline that includes reviews of users they follow
-- [x] User can search for other users profiles
-- [x] User can search for other content (music, movie, books)
-- [x] User can view their own profile
-- [x] User can create review that can be seen from their profile and on timeline
+### Future Enhancements
 
-**Optional Nice-to-have Stories**
+- Content Information: Users can view additional information about the content in reviews.
+- Favorite Content: Users can favorite content for quick access later.
+- Social Sharing: Users can reshare reviews, similar to a retweet.
+- Advanced Search: Users can search specifically for reviews or detailed content information (e.g., trailers, descriptions).
 
-- [x] User can see content information in final review.
-- [ ] User can favorite content
-- [ ] User can reshare reviews, think “re-tweet”
-- [ ] User can do a search reviews on specific content
-- [ ] User can click on content and see detail on content (ex. Trailer, description of content)
+## Installation
 
-### 2. Screen Archetypes
+### Prerequisites
 
-* Log in
-   * User can login to their account
-* Register - User can sign up or log into their account
-   * User can register a new account
-* Stream - User can scroll through timeline of other user’s reviews
-   * User can follow other user’s and add their reviews to their timeline
-* Creation
-   * User can create review of content
-* Profile
-   * Timeline of user’s own reviews of content
+- Android Studio
+- A configured Android device or emulator
 
-### 3. Navigation
+### Setup
 
-**Tab Navigation** (Tab to Screen)
+1. **Clone the Repository:**
 
-* Stream
-* Search
-* Profile
-* Create
+   ```bash
+   git clone https://github.com/josuejero/Fludde.git
+   ```
 
-**Flow Navigation** (Screen to Screen)
+2. **Navigate to the Project Directory:**
 
-* Log in
-   * Stream
-* Register - User can sign up or log into their account
-   * Stream
-* Stream - User can scroll through timeline of other user’s reviews
-   * Search
-* Creation
-   * Stream
-* Profile
-   * Detail
+   ```bash
+   cd fludde
+   ```
+
+3. **Configure API Keys:**
+
+   Create a file named `apikey.properties` in the root of the project and add your API keys:
+
+   ```
+   NY_TIMES_API_KEY=your-nytimes-api-key-here
+   SPOTIFY_KEY=your-spotify-api-key-here
+   TMDB_API_KEY=your-tmdb-api-key-here
+   ```
+
+4. **Open the Project in Android Studio:**
+
+   Open Android Studio, then go to `File > Open` and select the `fludde` directory.
+
+5. **Build and Run:**
+
+   Build and run the app on your device or emulator by clicking the "Run" button in Android Studio.
+
+## Usage
+
+Once the app is running, you can:
+
+- **Sign Up or Log In:** Create an account or log in to your existing account.
+- **View Timeline:** Explore the timeline filled with reviews from users you follow.
+- **Search Content:** Search for specific content or users to see their reviews.
+- **Create Reviews:** Share your thoughts on movies, music, or books.
+
+## Schema
+
+### Models
+
+#### Post
+
+| Property     | Type            | Description                                      |
+| ------------ | --------------- | ------------------------------------------------ |
+| `objectId`   | String          | Unique id for the post (default field)           |
+| `author`     | Pointer to User | The user who created the review                  |
+| `createdAt`  | DateTime        | Date when the post was created (default field)   |
+| `description`| String          | Description or title of the content              |
+| `review`     | String          | Review text authored by the user                 |
+| `category`   | String          | Type of content (e.g., movie, book, music)       |
+
+### Networking
+
+#### Login Screen
+- **GET**: Verify if the user is already logged in.
+  ```java
+  if (ParseUser.getCurrentUser() != null) {
+      goMainActivity();
+  }
+  ```
+
+- **POST**: Authenticate user credentials.
+  ```java
+  ParseUser.logInInBackground(username, password, new LogInCallback() {
+      @Override
+      public void done(ParseUser user, ParseException e) {
+          if (e != null) {
+
+          } else {
+
+          }
+      }
+  });
+  ```
+
+#### SignUp Screen
+- **POST**: Create a new user account.
+  ```java
+  newUser.setUsername(userName);
+  newUser.setEmail(userEmail);
+  newUser.setPassword(userPass);
+
+  newUser.signUpInBackground(new SignUpCallback() {
+      @Override
+      public void done(ParseException e) {
+          if (e != null) {
+
+          } else {
+
+          }
+      }
+  });
+  ```
+
+#### Home Timeline Screen
+- **GET**: Fetch posts from users the current user follows.
+- **POST**: Create a new post with a review and rating.
+
+#### Search Screen
+- **GET**: Search for users or reviews based on content or categories.
+
+#### User Profile Screen
+- **GET**: Fetch all posts created by the user.
+- **POST**: Create a new post directly from the profile.
 
 ## Wireframes
 <img src="https://i.imgur.com/BNGuswR.jpg" width=600>
 
-## Schema 
 
-### Models
-
-Post
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `objectId` | String | Unique id for the user to post (default field) |
-| `author` | Pointer to User | Review author |
-| `createdAt` | DateTime | Date when post is created (default field) |
-| `description` | String | Title of content |
-| `review` | String | Review typed up by author |
-| `category` | String | Type of content (movie, book or music) |
+This is the current status of the app. The content information is available when making the review.
 
 
 
-### Networking
+---
 
-- Login Screen 
-  - GET request verify if user is already login
-	
-	```
-	if(ParseUser.getCurrentUser() != null){
-       		goMainActivity();    }
-	```
+## Contributing
 
-  - POST request to authenticate user
-	
-	```
-	private void loginUser(String username, String password) {
-  
-        ParseUser.logInInBackground(username, password, new LogInCallback() {
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (e != null) {
+Fludde is an open-source project and contributions are welcome! Whether it's bug fixes, feature requests, or improvements, feel free to open an issue or submit a pull request.
 
-                } else {
-                  
-                }
- 	}
-	```
+## License
 
-- SignUp Screen
-  - POST create new user
-      
-      ```
-        newUser.setUsername(userName);
-        newUser.setEmail(userEmail);
-        newUser.setPassword(userPass);
-	
-	newUser.signUpInBackground(new SignUpCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null){
-   
-                }
-                else {
-
-
-                } } })
-	```
-
-
-- Home Timeline Screen
-  -	(Read/GET) Posts from other users
-  -	(Create/Post) Post with rating and review
-	
-- Search
-  -	(Read/GET) Existing users or reviews on specific content by search or category
-	
-- User Profile
-  -	(Read/GET) All posts created by user
-  -	(Create/Post) Post with rating and review
-
-### App Walkthough GIF
-
-<img src='fludde.gif' width=250><br>
-
-<br><br><img src='review_attempt_1.gif' width=250><br>
-
-Needs to work on choosing different content. 
-
-<br><br><img src='fluddeUpdate.gif' width=250><br> 
-
-This is the current status of the app. The content info is avaiable when making the review.
-
-	
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
