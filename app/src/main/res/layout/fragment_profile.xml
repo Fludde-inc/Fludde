@@ -24,7 +24,7 @@
             android:layout_width="@dimen/avatar_xl"
             android:layout_height="@dimen/avatar_xl"
             android:contentDescription="@string/cd_profile_picture"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
             tools:srcCompat="@drawable/placeholder_avatar" />
 
         <TextView
@@ -122,7 +122,7 @@
             android:text="@string/nav_compose" />
     </LinearLayout>
 
-    <!-- ───────────── Posts list (future enhancement; hidden for now) ───────────── -->
+    <!-- Posts list placeholder (hidden) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProfilePosts"
         android:layout_width="0dp"

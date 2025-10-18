@@ -163,8 +163,6 @@ gradle/
   wrapper/
     gradle-wrapper.jar
     gradle-wrapper.properties
-scripts/
-  sanity.zsh
 .gitignore
 .repomixignore
 build.gradle
@@ -551,10 +549,10 @@ public class User extends ParseUser {
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Selected → emphasize with PrimaryContainer -->
     <item android:state_checked="true" android:color="?attr/colorPrimaryContainer"/>
-    <!-- Pressed/hovered → slightly higher surface container -->
-    <item android:state_pressed="true" android:color="?attr/materialColorSurfaceContainerHigh"/>
+    <!-- Pressed/hovered → use a widely supported surface variant -->
+    <item android:state_pressed="true" android:color="?attr/colorSurfaceVariant"/>
     <!-- Default -->
-    <item android:color="?attr/materialColorSurfaceContainer"/>
+    <item android:color="?attr/colorSurface"/>
 </selector>
 </file>
 
@@ -693,7 +691,7 @@ public class User extends ParseUser {
             android:id="@+id/skPoster"
             android:layout_width="@dimen/poster_md_w"
             android:layout_height="@dimen/poster_md_h"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -703,7 +701,7 @@ public class User extends ParseUser {
             android:id="@+id/skTitle"
             android:layout_width="@dimen/poster_md_w"
             android:layout_height="14dp"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             app:layout_constraintTop_toBottomOf="@id/skPoster"
             app:layout_constraintStart_toStartOf="@id/skPoster"
@@ -714,7 +712,7 @@ public class User extends ParseUser {
             android:id="@+id/skCategory"
             android:layout_width="64dp"
             android:layout_height="12dp"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             app:layout_constraintTop_toTopOf="@id/skPoster"
             app:layout_constraintStart_toEndOf="@id/skPoster"
@@ -725,7 +723,7 @@ public class User extends ParseUser {
             android:id="@+id/skDesc1"
             android:layout_width="0dp"
             android:layout_height="12dp"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             app:layout_constraintStart_toEndOf="@id/skPoster"
             app:layout_constraintEnd_toEndOf="parent"
@@ -737,7 +735,7 @@ public class User extends ParseUser {
             android:id="@+id/skDesc2"
             android:layout_width="0dp"
             android:layout_height="12dp"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             app:layout_constraintStart_toStartOf="@id/skDesc1"
             app:layout_constraintEnd_toEndOf="@id/skDesc1"
@@ -748,7 +746,7 @@ public class User extends ParseUser {
             android:id="@+id/skDesc3"
             android:layout_width="0dp"
             android:layout_height="12dp"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             app:layout_constraintStart_toStartOf="@id/skDesc1"
             app:layout_constraintEnd_toEndOf="@id/skDesc1"
@@ -760,7 +758,7 @@ public class User extends ParseUser {
             android:id="@+id/skAvatar"
             android:layout_width="@dimen/avatar_md"
             android:layout_height="@dimen/avatar_md"
-            android:background="?attr/materialColorSurfaceContainerHigh"
+            android:background="?attr/colorSurfaceVariant"
             android:alpha="0.7"
             android:layout_marginTop="@dimen/space_16"
             app:layout_constraintTop_toBottomOf="@id/skTitle"
@@ -787,8 +785,8 @@ public class User extends ParseUser {
 </file>
 
 <file path="app/src/main/res/values/dimens.xml">
-<!-- app/src/main/res/values/dimens.xml -->
 <?xml version="1.0" encoding="utf-8"?>
+<!-- app/src/main/res/values/dimens.xml -->
 <resources>
 
     <!-- ───────── Spacing scale (8dp baseline; 4dp for tight alignments) ───────── -->
@@ -882,22 +880,23 @@ public class User extends ParseUser {
 </file>
 
 <file path="app/src/main/res/values-v31/themes.xml">
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- API 31+: dynamic color + our navigation bar defaults -->
+    <!-- API 31+: keep Dynamic Color (Material 3). -->
     <style name="Theme.Fludde" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Fludde.Large</item>
 
+        <!-- System bars (transparent for edge-to-edge) -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
 
-        <!-- Apply our NavigationBar style here as well -->
-        <item name="navigationBarStyle">@style/Widget.Fludde.NavigationBar</item>
-
+        <!-- Material widgets -->
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
+        <!-- ⛔ Do not set navigationBarStyle or floatingActionButtonStyle here -->
     </style>
 </resources>
 </file>
@@ -937,266 +936,12 @@ public class User extends ParseUser {
 #-renamesourcefileattribute SourceFile
 </file>
 
-<file path="scripts/sanity.zsh">
-#!/usr/bin/env zsh
-# Sanity checks for Fludde build + ADB readiness (zsh-safe)
-# Usage:
-#   chmod +x scripts/sanity.zsh
-#   zsh ./scripts/sanity.zsh
-#
-# What this does now:
-#   • Verifies Java 17 on PATH
-#   • Verifies Gradle wrapper/version
-#   • Ensures Android SDK tools on PATH
-#   • If no device is online:
-#       - picks an AVD (ANDROID_AVD_NAME or first from `emulator -list-avds`)
-#       - launches it with sensible flags
-#       - waits until sys.boot_completed=1
-#   • Prints one-time commands to create an AVD if none exist
-
-# ---------- strict, zsh-friendly ----------
-emulate -L zsh
-set -o pipefail
-setopt err_return
-setopt no_unset
-setopt no_bg_nice
-setopt no_clobber
-setopt extended_glob
-setopt nonomatch
-
-# ---------- tiny helpers ----------
-has_cmd() { command -v -- "$1" >/dev/null 2>&1 }
-red()    { print -P "%F{1}$*%f" }
-green()  { print -P "%F{2}$*%f" }
-yellow() { print -P "%F{3}$*%f" }
-gray()   { print -P "%F{8}$*%f" }
-
-print "\n🔎 Running environment sanity checks…\n"
-
-# ---------- Android SDK paths ----------
-ensure_android_paths() {
-  # If neither ANDROID_SDK_ROOT nor ANDROID_HOME is set, try macOS default
-  if ! [[ -v ANDROID_SDK_ROOT || -v ANDROID_HOME ]]; then
-    local guess="$HOME/Library/Android/sdk"
-    if [[ -d "$guess" ]]; then
-      export ANDROID_SDK_ROOT="$guess"
-      print "   Using Android SDK at: $ANDROID_SDK_ROOT"
-    fi
-  fi
-
-  # Pick whichever exists
-  local sdk=""
-  if [[ -v ANDROID_SDK_ROOT ]]; then
-    sdk="$ANDROID_SDK_ROOT"
-  elif [[ -v ANDROID_HOME ]]; then
-    sdk="$ANDROID_HOME"
-  fi
-
-  # Prepend platform-tools & emulator to PATH (avoid duplicates)
-  if [[ -n "$sdk" ]]; then
-    for p in "$sdk/platform-tools" "$sdk/emulator" "$sdk/tools/bin"; do
-      if [[ -d "$p" && ":$PATH:" != *":$p:"* ]]; then
-        export PATH="$p:$PATH"
-      fi
-    done
-  fi
-}
-ensure_android_paths
-
-# ---------- Java 17 check ----------
-if has_cmd java; then
-  jver="$(java -version 2>&1 | head -n1)"
-  print "java -version → $jver"
-  if [[ "$jver" == *\"17*\"* ]]; then
-    print "$(green "✅ Java 17 is active on PATH")"
-  else
-    print "$(red "❌ Java 17 not active on PATH")"
-    if has_cmd /usr/libexec/java_home; then
-      local mac_jdk17=""
-      mac_jdk17="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
-      if [[ -n "$mac_jdk17" ]]; then
-        print "   Using macOS JDK 17 at: $mac_jdk17"
-        print "   Tip: export JAVA_HOME=\"$mac_jdk17\""
-      else
-        print "   Tip (macOS): brew install openjdk@17 && export JAVA_HOME=\$(/usr/libexec/java_home -v 17)"
-      fi
-    else
-      print "   Tip: install JDK 17 and set JAVA_HOME."
-    fi
-  fi
-else
-  print "$(red "❌ 'java' not found on PATH")"
-fi
-print ""
-
-# ---------- Gradle wrapper check ----------
-if [[ -x "./gradlew" ]]; then
-  print "$(green "✅ Gradle wrapper exists")"
-else
-  print "$(red "❌ ./gradlew missing")"
-  print "   Run: gradle wrapper --gradle-version 8.9"
-fi
-
-if [[ -x "./gradlew" ]]; then
-  if ./gradlew --version | grep -q "Gradle 8\.9"; then
-    print "$(green "✅ Gradle is 8.9 via wrapper")"
-  else
-    print "$(yellow "⚠️ Gradle version differs (see gradle/wrapper/gradle-wrapper.properties)")"
-  fi
-  print "ℹ️ Gradle JVM details:"
-  ./gradlew -q --version | sed -n 's/^\(JVM:\|Java home:\)/   \1/p'
-fi
-print ""
-
-# ---------- adb + device readiness ----------
-if ! has_cmd adb; then
-  print "$(red "❌ 'adb' not found on PATH")"
-  print "   Tip: ensure \$ANDROID_SDK_ROOT/platform-tools is on your PATH."
-fi
-
-print "adb path → $(command -v adb 2>/dev/null)"
-adb --version | head -n1 | sed 's/^/adb version → /'
-
-# Start or restart server
-adb start-server >/dev/null 2>&1 || true
-
-# List devices with state
-print "\nConnected Android targets:"
-adb devices | awk 'NR==1 || NF==2 {print "  "$0}'
-
-# ---------- helpers ----------
-pick_avd() {
-  # Priority: ANDROID_AVD_NAME env, else first listed AVD
-  if [[ -n "${ANDROID_AVD_NAME:-}" ]]; then
-    print -- "$ANDROID_AVD_NAME"
-    return 0
-  fi
-  has_cmd emulator || return 1
-  local list; list="$(emulator -list-avds 2>/dev/null | sed '/^[[:space:]]*$/d')"
-  [[ -z "$list" ]] && return 1
-  # Prefer a Pixel_7_API_* if present; else first
-  local p7; p7="$(print -- "$list" | awk '/Pixel_7_API_/ {print; found=1} END{if(!found)exit 1}')"
-  if [[ -n "$p7" ]]; then
-    print -- "$p7"
-  else
-    print -- "$list" | head -n1
-  fi
-}
-
-wait_for_boot() {
-  local timeout="${1:-300}"   # seconds
-  local start=$SECONDS
-  local val=""
-  adb wait-for-device >/dev/null 2>&1 || return 1
-  adb shell 'echo -n' >/dev/null 2>&1 || true
-  while true; do
-    val="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
-    if [[ "$val" == "1" ]]; then
-      return 0
-    fi
-    if (( SECONDS - start >= timeout )); then
-      return 2
-    fi
-    sleep 1
-  done
-}
-
-ensure_device() {
-  # Is there already a device in 'device' state?
-  local target
-  target="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
-  if [[ -n "$target" ]]; then
-    print "Using target: $target"
-    export ANDROID_SERIAL="$target"
-    return 0
-  fi
-
-  # None online → try to launch an emulator automatically
-  if ! has_cmd emulator; then
-    print "$(red "No device currently in 'device' state and 'emulator' tool not found.")"
-    print "   Ensure \$ANDROID_SDK_ROOT/emulator is on PATH. See Google docs on running the emulator from the command line."
-    print "   Docs: https://developer.android.com/studio/run/emulator-commandline"
-    return 1
-  fi
-
-  local avd; avd="$(pick_avd || true)"
-  if [[ -z "$avd" ]]; then
-    print "$(red "No AVDs found."))"
-    print "   You can install a system image and create a Pixel 7 AVD via:"
-    print "     yes | sdkmanager --licenses"
-    print "     sdkmanager --install 'platform-tools' 'emulator' 'system-images;android-35;google_apis;arm64-v8a'"
-    print "     avdmanager create avd -n Pixel_7_API_35 -k 'system-images;android-35;google_apis;arm64-v8a' --device 'pixel_7'"
-    print "   Docs:"
-    print "     sdkmanager: https://developer.android.com/tools/sdkmanager"
-    print "     avdmanager: https://developer.android.com/tools/avdmanager"
-    return 1
-  fi
-
-  print "🚀 Launching Android emulator: $avd"
-  # Common flags:
-  #   -no-boot-anim : faster boot
-  #   -netdelay none -netspeed full : stable/fast network
-  #   -no-snapshot-load : avoid stale state
-  #   -feature AllowSnapshotSave=off : also avoid saving snapshot on exit
-  #   -gpu auto : let emulator pick a sane default
-  nohup emulator -avd "$avd" -no-boot-anim -netdelay none -netspeed full \
-        -no-snapshot-load -feature AllowSnapshotSave=off -gpu auto \
-        >/dev/null 2>&1 &
-
-  print -n "⏳ Waiting for emulator to boot (this can take a couple of minutes)… "
-  local rc
-  if wait_for_boot 420; then
-    print "$(green "OK")"
-  else
-    rc=$?
-    if [[ "$rc" -eq 2 ]]; then
-      print "$(red "TIMEOUT")"
-    else
-      print "$(red "FAILED")"
-    fi
-    print "   Troubleshooting:"
-    print "   • Update platform-tools & emulator: yes | sdkmanager --licenses && sdkmanager --install 'platform-tools' 'emulator'"
-    print "   • Kill server: adb kill-server && adb start-server"
-    print "   • Cold-boot or wipe AVD data."
-    return 1
-  fi
-
-  # Re-resolve the now-online target
-  target="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
-  if [[ -n "$target" ]]; then
-    print "Using target: $target"
-    export ANDROID_SERIAL="$target"
-    return 0
-  else
-    print "$(red "Emulator started but not visible to adb."))"
-    return 1
-  fi
-}
-
-# Try to ensure a device is available (auto-launches emulator if needed)
-if ! ensure_device; then
-  print "$(yellow "Exiting early (no target).")"
-  exit 1
-fi
-
-# Quick OS version probe
-os="$(adb shell getprop ro.build.version.release 2>/dev/null | tr -d '\r')"
-sdk="$(adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r')"
-
-if [[ -n "$os" ]]; then
-  print "$(green "✅ adb shell works") — Android $os (API $sdk)"
-else
-  print "$(yellow "⚠️ Could not read OS version despite boot complete")"
-fi
-
-print "\n✅ Sanity checks complete.\n"
-</file>
-
 <file path=".repomixignore">
 *.webp
 TUTORIAL.md
 OUTLINE.md
 app/src/main/res/values/font_certs.xml
+*.zsh
 </file>
 
 <file path="LICENSE">
@@ -1970,16 +1715,16 @@ public class SignupActivity extends AppCompatActivity {
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Bottom nav uses the component’s own container styling from theme;
+         no opaque system bars behind. Always show labels (Material guidance).
+         Uses a clear Material 3 active indicator. -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        <!-- Use the component’s own container styling from theme; no opaque system bars behind -->
         app:menu="@menu/menu_bottom_navigation"
-        <!-- Always show labels (Material guidance) -->
         app:labelVisibilityMode="labeled"
-        <!-- Clear, Material 3 active indicator -->
         app:itemActiveIndicatorStyle="@style/Widget.Fludde.NavigationBar.ActiveIndicator" />
 
 </RelativeLayout>
@@ -2116,7 +1861,7 @@ public class SignupActivity extends AppCompatActivity {
         android:layout_width="@dimen/avatar_xl"
         android:layout_height="@dimen/avatar_xl"
         android:contentDescription="@string/cd_profile_picture"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -2219,9 +1964,10 @@ public class SignupActivity extends AppCompatActivity {
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Material 3 base theme (Views). Keep it simple so aapt can resolve everything. -->
     <style name="Theme.Fludde" parent="Theme.Material3.DayNight.NoActionBar">
 
-        <!-- Colors (light fallback) -->
+        <!-- Primary brand colors (light fallback) -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
@@ -2242,64 +1988,30 @@ public class SignupActivity extends AppCompatActivity {
         <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
         <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
 
-        <item name="android:colorBackground">@color/md_theme_light_background</item>
-        <item name="colorBackground">@color/md_theme_light_background</item>
-        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
-
         <item name="colorSurface">@color/md_theme_light_surface</item>
         <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
         <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
         <item name="colorOutline">@color/md_theme_light_outline</item>
-        <item name="colorOutlineVariant">@color/md_theme_light_outlineVariant</item>
 
-        <item name="colorInverseSurface">@color/md_theme_light_inverseSurface</item>
-        <item name="colorInverseOnSurface">@color/md_theme_light_inverseOnSurface</item>
-        <item name="colorInversePrimary">@color/md_theme_light_inversePrimary</item>
-        <item name="colorScrim">@color/md_theme_light_scrim</item>
-
-        <!-- Surface container scale tokens -->
-        <item name="materialColorSurfaceContainerLowest">@color/surfaceContainerLowest</item>
-        <item name="materialColorSurfaceContainerLow">@color/surfaceContainerLow</item>
-        <item name="materialColorSurfaceContainer">@color/surfaceContainer</item>
-        <item name="materialColorSurfaceContainerHigh">@color/surfaceContainerHigh</item>
-        <item name="materialColorSurfaceContainerHighest">@color/surfaceContainerHighest</item>
-
-        <!-- Typography (M3) -->
-        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Material3.DisplayLarge</item>
-        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Material3.DisplayMedium</item>
-        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Material3.DisplaySmall</item>
-
-        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Material3.HeadlineLarge</item>
-        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Material3.HeadlineMedium</item>
-        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Material3.HeadlineSmall</item>
-
-        <item name="textAppearanceTitleLarge">@style/TextAppearance.Material3.TitleLarge</item>
-        <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
-        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
-
-        <item name="textAppearanceBodyLarge">@style/TextAppearance.Material3.BodyLarge</item>
-        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
-        <item name="textAppearanceBodySmall">@style/TextAppearance.Material3.BodySmall</item>
-
-        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
-        <item name="textAppearanceLabelMedium">@style/TextAppearance.Material3.LabelMedium</item>
-        <item name="textAppearanceLabelSmall">@style/TextAppearance.Material3.LabelSmall</item>
+        <!-- ⛔ Removed problem attrs to stop AAPT errors:
+             - colorBackground
+             - colorInverseSurface / colorInverseOnSurface / colorInversePrimary / colorScrim
+             - materialColorSurfaceContainer* tokens
+             - navigationBarStyle
+             - floatingActionButtonStyle
+        -->
 
         <!-- Shapes -->
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Fludde.Large</item>
 
-        <!-- Default widget styles -->
+        <!-- Default widget styles that are safe to set globally -->
         <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
         <item name="textInputStyle">@style/Widget.Material3.TextInputLayout.FilledBox</item>
-        <item name="floatingActionButtonStyle">@style/Widget.Material3.FloatingActionButton</item>
-
-        <!-- Use our NavigationBar style so labels are always shown + active indicator visible -->
-        <item name="navigationBarStyle">@style/Widget.Fludde.NavigationBar</item>
 
         <!-- Edge-to-edge system bars -->
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -2325,7 +2037,7 @@ public class SignupActivity extends AppCompatActivity {
 
     <style name="Theme.Fludde" parent="Theme.Material3.DayNight.NoActionBar">
 
-        <!-- Colors (dark fallback) -->
+        <!-- Primary brand colors (dark fallback) -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
@@ -2346,32 +2058,24 @@ public class SignupActivity extends AppCompatActivity {
         <item name="colorErrorContainer">@color/md_theme_dark_errorContainer</item>
         <item name="colorOnErrorContainer">@color/md_theme_dark_onErrorContainer</item>
 
-        <item name="android:colorBackground">@color/md_theme_dark_background</item>
-        <item name="colorBackground">@color/md_theme_dark_background</item>
-        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
-
         <item name="colorSurface">@color/md_theme_dark_surface</item>
         <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
         <item name="colorSurfaceVariant">@color/md_theme_dark_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_dark_onSurfaceVariant</item>
         <item name="colorOutline">@color/md_theme_dark_outline</item>
-        <item name="colorOutlineVariant">@color/md_theme_dark_outlineVariant</item>
 
-        <item name="colorInverseSurface">@color/md_theme_dark_inverseSurface</item>
-        <item name="colorInverseOnSurface">@color/md_theme_dark_inverseOnSurface</item>
-        <item name="colorInversePrimary">@color/md_theme_dark_inversePrimary</item>
-        <item name="colorScrim">@color/md_theme_dark_scrim</item>
+        <!-- Same removals as light theme (see notes there). -->
 
-        <!-- Typography / Shapes same as light -->
+        <!-- Shapes -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Fludde.Large</item>
 
+        <!-- Default widget styles -->
         <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
         <item name="textInputStyle">@style/Widget.Material3.TextInputLayout.FilledBox</item>
-        <item name="floatingActionButtonStyle">@style/Widget.Material3.FloatingActionButton</item>
-
-        <!-- Our always-labeled bottom nav with active indicator -->
-        <item name="navigationBarStyle">@style/Widget.Fludde.NavigationBar</item>
 
         <!-- Edge-to-edge (light icons on dark bars) -->
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -3629,7 +3333,7 @@ public class LoginActivity extends AppCompatActivity {
             android:layout_width="@dimen/avatar_xl"
             android:layout_height="@dimen/avatar_xl"
             android:contentDescription="@string/cd_profile_picture"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
             tools:srcCompat="@drawable/placeholder_avatar" />
 
         <TextView
@@ -3727,7 +3431,7 @@ public class LoginActivity extends AppCompatActivity {
             android:text="@string/nav_compose" />
     </LinearLayout>
 
-    <!-- ───────────── Posts list (future enhancement; hidden for now) ───────────── -->
+    <!-- Posts list placeholder (hidden) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProfilePosts"
         android:layout_width="0dp"
@@ -3870,9 +3574,6 @@ public class LoginActivity extends AppCompatActivity {
         android:layout_height="wrap_content"
         android:padding="@dimen/space_16">
 
-        <!-- (unchanged child views) -->
-        <!-- ... keep the same contents from your existing file ... -->
-
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivContent"
             android:layout_width="@dimen/poster_md_w"
@@ -3946,7 +3647,7 @@ public class LoginActivity extends AppCompatActivity {
             android:layout_marginTop="@dimen/space_16"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvContentTitle"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
             android:contentDescription="@string/cd_user_avatar"
             tools:srcCompat="@drawable/placeholder_avatar" />
 
@@ -3989,7 +3690,7 @@ public class LoginActivity extends AppCompatActivity {
             android:layout_width="@dimen/avatar_lg"
             android:layout_height="@dimen/avatar_lg"
             android:contentDescription="@string/cd_user_avatar"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
             tools:srcCompat="@drawable/placeholder_avatar" />
 
         <TextView
@@ -4011,33 +3712,34 @@ public class LoginActivity extends AppCompatActivity {
 <!-- app/src/main/res/values/styles.xml -->
 <resources>
 
+    <!-- ✅ Minimal "do-nothing" base so any accidental style="@style/Widget" resolves -->
+    <style name="Widget" />
+
+    <!-- Keep this tiny alias so any accidental style="Text" compiles safely -->
+    <style name="Text" parent="TextAppearance.Material3.BodyMedium" />
+
     <!-- ───────────────────────────── Text fields ───────────────────────────── -->
-    <!-- Filled text field container (TextInputLayout) -->
     <style name="Widget.Fludde.TextField.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
     </style>
 
-    <!-- Outlined text field container (TextInputLayout) -->
     <style name="Widget.Fludde.TextField.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
     </style>
 
-    <!-- Optional inline error text used near counters, etc. -->
     <style name="TextLimitError" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textColor">?attr/colorError</item>
     </style>
 
-    <!-- Global text casing: sentence case, never all-caps -->
     <style name="Text.NoAllCaps">
         <item name="android:textAllCaps">false</item>
     </style>
 
     <!-- ─────────────────────────────── Buttons ─────────────────────────────── -->
-    <!-- Enforce 48dp min height and sentence case. Ripple uses theme color; good contrast in light/dark. -->
     <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
         <item name="android:minHeight">@dimen/touch_target_min</item>
         <item name="android:paddingHorizontal">24dp</item>
@@ -4091,14 +3793,12 @@ public class LoginActivity extends AppCompatActivity {
         <item name="android:textAllCaps">false</item>
         <item name="rippleColor">@color/ripple_stateful</item>
     </style>
-
     <style name="Widget.Fludde.Chip.Assist" parent="Widget.Fludde.Chip.Base" />
     <style name="Widget.Fludde.Chip.Filter" parent="Widget.Fludde.Chip.Base" />
     <style name="Widget.Fludde.Chip.Input" parent="Widget.Fludde.Chip.Base" />
     <style name="Widget.Fludde.Chip.Suggestion" parent="Widget.Fludde.Chip.Base" />
 
     <!-- ─────────────────────────────── Cards ───────────────────────────────── -->
-    <!-- Uses color roles so contrast stays ≥AA in light/dark/dynamic. -->
     <style name="Widget.Fludde.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="cardUseCompatPadding">true</item>
@@ -4108,18 +3808,22 @@ public class LoginActivity extends AppCompatActivity {
         <item name="rippleColor">@color/ripple_stateful</item>
     </style>
 
-    <!-- Navigation bar with visible active indicator; respects color roles. -->
-    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.NavigationBar">
+    <!-- ───────────────────── BottomNavigation (M3, correct parents) ───────────────────── -->
+    <!-- Tiny base so any legacy references resolve -->
+    <style name="Widget.Fludde" />
+
+    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.BottomNavigationView">
         <item name="labelVisibilityMode">labeled</item>
         <item name="itemActiveIndicatorStyle">@style/Widget.Fludde.NavigationBar.ActiveIndicator</item>
     </style>
 
-    <style name="Widget.Fludde.NavigationBar.ActiveIndicator" parent="Widget.Material3.NavigationBar.ActiveIndicator">
+    <style name="Widget.Fludde.NavigationBar.ActiveIndicator"
+        parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">?attr/colorSecondaryContainer</item>
-        <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
     </style>
 
-    <!-- Stronger ripple + disabled opacity for pressables -->
+    <!-- ───────────────────────────── Pressable helpers ───────────────────────────── -->
     <style name="Widget.Fludde.Pressable">
         <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:clickable">true</item>
@@ -4153,6 +3857,10 @@ org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAM
 android.useAndroidX=true
 android.enableJetifier=true
 android.nonTransitiveRClass=true
+
+# ✅ Ensure BuildConfig is generated (AGP 8.x+ disables it by default)
+# Required because :app defines custom buildConfigField entries used by ParseApplication.
+android.defaults.buildfeatures.buildconfig=true
 
 # (No API keys here; all real secrets come from apikey.properties or env)
 </file>
@@ -5058,11 +4766,88 @@ public class HomeFragment extends Fragment {
 </resources>
 </file>
 
+<file path="app/build.gradle">
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.example.fludde'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.fludde"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        // BuildConfig fields so Parse init compiles even if you haven't provided secrets yet.
+        buildConfigField "String", "BACK4APP_APP_ID", "\"${System.getenv("BACK4APP_APP_ID") ?: ""}\""
+        buildConfigField "String", "BACK4APP_CLIENT_KEY", "\"${System.getenv("BACK4APP_CLIENT_KEY") ?: ""}\""
+        buildConfigField "String", "BACK4APP_SERVER_URL", "\"${System.getenv("BACK4APP_SERVER_URL") ?: ""}\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // handy during local dev; keep if you like
+            crunchPngs false
+        }
+    }
+
+    // Java 17 is recommended for modern AGP
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // If you use viewBinding, flip this to true
+    buildFeatures {
+        viewBinding false
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE']
+        }
+    }
+}
+
+dependencies {
+    // Material Components (gives you MaterialCardView attrs like app:checkable, and M3 widgets)
+    implementation "com.google.android.material:material:1.12.0"
+
+    // AndroidX UI
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "androidx.recyclerview:recyclerview:1.3.2"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+
+    // Glide (image loading)
+    implementation "com.github.bumptech.glide:glide:4.16.0"
+    annotationProcessor "com.github.bumptech.glide:compiler:4.16.0"
+
+    // Parse Android SDK (Back4App)
+    implementation "com.github.parse-community.Parse-SDK-Android:parse:4.4.1"
+
+    // Shimmer
+    implementation "com.facebook.shimmer:shimmer:0.5.0"
+
+    // Unit test
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+}
+</file>
+
 <file path="app/src/main/AndroidManifest.xml">
-<!-- app/src/main/AndroidManifest.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Keep permissions minimal. INTERNET is required for Parse + API calls. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -5073,6 +4858,7 @@ public class HomeFragment extends Fragment {
         android:supportsRtl="true"
         android:theme="@style/Theme.Fludde">
 
+        <!-- Main (single-activity) host that owns bottom navigation & fragment swaps -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -5082,98 +4868,18 @@ public class HomeFragment extends Fragment {
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" android:exported="false" />
-        <activity android:name=".SignupActivity" android:exported="false" />
+        <!-- Auth flow screens (no UI theming here; all styling via themes/styles) -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+
+        <!-- Note: FileProvider is omitted (keep manifest minimal) since we are not
+             currently attaching images from local storage. Add it only when needed. -->
     </application>
 </manifest>
-</file>
-
-<file path="app/build.gradle">
-plugins {
-    id 'com.android.application'
-}
-
-import java.util.Properties
-
-// --- Secrets loader: apikey.properties (or environment variables as fallback) ---
-def secrets = new Properties()
-def secretsFile = rootProject.file("apikey.properties")
-if (secretsFile.exists()) {
-    secrets.load(new FileInputStream(secretsFile))
-}
-def readSecret = { String key, String defVal = "" ->
-    def fromEnv = System.getenv(key)
-    return (fromEnv != null && !fromEnv.isEmpty()) ? fromEnv : (secrets.getProperty(key, defVal) ?: defVal)
-}
-def DEFAULT_BACK4APP_URL = "https://parseapi.back4app.com/"
-// -------------------------------------------------------------------------------
-
-android {
-    namespace 'com.example.fludde'
-    compileSdk 35
-
-    defaultConfig {
-        applicationId "com.example.fludde"
-        minSdk 21
-        targetSdk 35
-        versionCode 1
-        versionName "1.0"
-
-        vectorDrawables {
-            useSupportLibrary true
-        }
-
-        buildConfigField "String", "SPOTIFY_KEY", "\"${readSecret('SPOTIFY_KEY')}\""
-        buildConfigField "String", "TMDB_API_KEY", "\"${readSecret('TMDB_API_KEY')}\""
-        buildConfigField "String", "NY_TIMES_API_KEY", "\"${readSecret('NY_TIMES_API_KEY')}\""
-
-        // Back4App / Parse
-        buildConfigField "String", "BACK4APP_APP_ID", "\"${readSecret('BACK4APP_APP_ID')}\""
-        buildConfigField "String", "BACK4APP_CLIENT_KEY", "\"${readSecret('BACK4APP_CLIENT_KEY')}\""
-        buildConfigField "String", "BACK4APP_SERVER_URL", "\"${readSecret('BACK4APP_SERVER_URL', DEFAULT_BACK4APP_URL)}\""
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug { }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    buildFeatures {
-        buildConfig true
-        viewBinding true
-    }
-}
-
-dependencies {
-    // Parse SDK
-    implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.0"
-
-    // Glide
-    implementation "com.github.bumptech.glide:glide:4.16.0"
-    annotationProcessor "com.github.bumptech.glide:compiler:4.16.0"
-
-    // AndroidX + Material
-    implementation "androidx.appcompat:appcompat:1.7.0"
-    implementation "com.google.android.material:material:1.12.0"
-    implementation "androidx.recyclerview:recyclerview:1.3.2"
-    implementation "androidx.cardview:cardview:1.0.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
-
-    // HTTP (loopj)
-    implementation "com.loopj.android:android-async-http:1.4.11"
-    implementation "cz.msebera.android:httpclient:4.5.8"
-
-    // ✅ Shimmer skeletons for loading states
-    implementation "com.facebook.shimmer:shimmer:0.5.0"
-}
 </file>
 
 <file path="app/src/main/java/com/example/fludde/fragments/child/BookChildFragment.java">
@@ -5206,7 +4912,16 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
+/**
+ * Books tab for Compose:
+ * - Horizontal carousel list with stable item sizing from dimens.
+ * - Only data fetching + adapter hookup; card look from layout/styles XML.
+ */
 public class BookChildFragment extends Fragment {
+
+    // Public Google Books query with friendly defaults (no key required).
+    private static final String BOOKS_URL =
+            "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
 
     private RecyclerView rv;
     private BookChildAdapter adapter;
@@ -5214,7 +4929,9 @@ public class BookChildFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_child_book, container, false);
     }
 
@@ -5224,9 +4941,10 @@ public class BookChildFragment extends Fragment {
 
         rv = v.findViewById(R.id.rvBookHorizontalView);
         rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+
         adapter = new BookChildAdapter(requireContext(), items, new BookChildAdapter.OnBookContentListener() {
-            @Override public void onBookContentClick(int position) {}
-            @Override public void onBookContentLongClick(int position) {}
+            @Override public void onBookContentClick(int position) { /* no-op for now */ }
+            @Override public void onBookContentLongClick(int position) { /* no-op for now */ }
         });
         rv.setAdapter(adapter);
 
@@ -5242,26 +4960,14 @@ public class BookChildFragment extends Fragment {
     }
 
     private void fetchBooks() {
-        String url = "https://www.googleapis.com/books/v1/volumes?q=android";
-        ApiUtils.get(url, new JsonHttpResponseHandler() {
+        ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    JSONArray arr = response.optJSONArray("items");
-                    if (arr != null) {
+                    JSONArray results = response.optJSONArray("items");
+                    if (results != null) {
                         items.clear();
-                        for (int i = 0; i < arr.length(); i++) {
-                            JSONObject item = arr.getJSONObject(i);
-                            JSONObject info = item.optJSONObject("volumeInfo");
-                            if (info == null) continue;
-                            String title = info.optString("title");
-                            String thumb = null;
-                            JSONObject images = info.optJSONObject("imageLinks");
-                            if (images != null) {
-                                thumb = images.optString("thumbnail", null);
-                            }
-                            items.add(new BooksContent(title, thumb));
-                        }
+                        items.addAll(BooksContent.fromJsonArray(results));
                         adapter.notifyDataSetChanged();
                     }
                 } catch (Exception ignore) {}
@@ -5279,6 +4985,14 @@ public class BookChildFragment extends Fragment {
 <file path="app/src/main/java/com/example/fludde/model/BooksContent.java">
 package com.example.fludde.model;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Minimal model for the Books tab (title + cover). */
 public class BooksContent {
     private final String title;
     private final String imageURL;
@@ -5288,13 +5002,36 @@ public class BooksContent {
         this.imageURL = imageURL;
     }
 
-    public String getTitle() {
-        return title;
+    public static List<BooksContent> fromJsonArray(JSONArray items) throws JSONException {
+        List<BooksContent> out = new ArrayList<>();
+        for (int i = 0; i < items.length(); i++) {
+            JSONObject item = items.optJSONObject(i);
+            if (item == null) continue;
+
+            JSONObject info = item.optJSONObject("volumeInfo");
+            if (info == null) continue;
+
+            String title = info.optString("title", "");
+            String img = null;
+
+            JSONObject images = info.optJSONObject("imageLinks");
+            if (images != null) {
+                // Prefer 'thumbnail'; fallback to 'smallThumbnail'
+                img = images.optString("thumbnail", null);
+                if (img == null) img = images.optString("smallThumbnail", null);
+                // Ensure https urls for Glide
+                if (img != null && img.startsWith("http://")) {
+                    img = img.replace("http://", "https://");
+                }
+            }
+
+            out.add(new BooksContent(title, img));
+        }
+        return out;
     }
 
-    public String getImageURL() {
-        return imageURL;
-    }
+    public String getTitle() { return title; }
+    public String getImageURL() { return imageURL; }
 }
 </file>
 
@@ -5303,60 +5040,142 @@ package com.example.fludde;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.example.fludde.fragments.ComposeParentFragment;
 import com.example.fludde.fragments.HomeFragment;
 import com.example.fludde.fragments.PostFragment;
 import com.example.fludde.fragments.ProfileFragment;
 import com.example.fludde.fragments.SearchFragment;
+import com.example.fludde.fragments.ComposeParentFragment;
 import com.example.fludde.utils.FragmentTransitions;
 import com.example.fludde.utils.InsetsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Single-activity host:
+ * - Owns bottom navigation and fragment swaps.
+ * - No styling hardcodes; all appearance driven by theme/styles.
+ * - Edge-to-edge insets handled centrally via InsetsUtils (WindowCompat + ViewCompat).
+ * - Predictable back behavior:
+ *      * If not on Home, back selects Home.
+ *      * If on Home, back finishes Activity.
+ *      * (Per-component back stacks can be added later if a tab pushes details.)
+ */
 public class MainActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigation;
+    private static final String STATE_SELECTED_TAB = "state:selected_tab";
+
+    private BottomNavigationView bottomNav;
+
+    // Keep fragments by tag to avoid re-creating on tab switch.
+    private final Map<Integer, String> tagsById = new HashMap<>();
+    private int currentItemId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bottomNavigation = findViewById(R.id.bottomNavigation);
 
-        // Edge-to-edge with proper insets so content doesn't jump or hide
-        InsetsUtils.applyEdgeToEdge(this, findViewById(R.id.flContainer), bottomNavigation);
+        bottomNav = findViewById(R.id.bottomNavigation);
 
-        bottomNavigation.setOnItemSelectedListener(item -> {
-            Fragment frag;
-            int id = item.getItemId();
-            if (id == R.id.action_home) {
-                frag = new HomeFragment();
-            } else if (id == R.id.action_feed) {
-                frag = new PostFragment();
-            } else if (id == R.id.action_compose) {
-                frag = new ComposeParentFragment();
-            } else if (id == R.id.action_search) {
-                frag = new SearchFragment();
-            } else {
-                frag = new ProfileFragment();
-            }
-            // Subtle fast transition between tabs
-            getSupportFragmentManager().beginTransaction()
-                    .setReorderingAllowed(true)
-                    .setCustomAnimations(
-                            R.anim.fade_in_fast, R.anim.fade_out_fast,
-                            R.anim.fade_in_fast, R.anim.fade_out_fast)
-                    .replace(R.id.flContainer, frag)
-                    .commit();
+        // Edge-to-edge: pad the container and bottom nav for system bars.
+        InsetsUtils.applyEdgeToEdge(
+                this,
+                findViewById(R.id.flContainer),
+                bottomNav
+        );
+
+        // Map menu IDs to stable fragment tags
+        tagsById.put(R.id.action_home, "tab:home");
+        tagsById.put(R.id.action_feed, "tab:feed");
+        tagsById.put(R.id.action_compose, "tab:compose");
+        tagsById.put(R.id.action_search, "tab:search");
+        tagsById.put(R.id.action_profile, "tab:profile");
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            switchTo(item.getItemId());
             return true;
         });
 
-        if (savedInstanceState == null) {
-            bottomNavigation.setSelectedItemId(R.id.action_home);
+        // Re-selection: pop child back stack or scroll-to-top could go here later.
+        bottomNav.setOnItemReselectedListener(item -> {
+            Fragment f = getSupportFragmentManager().findFragmentByTag(tagsById.get(item.getItemId()));
+            if (f != null) {
+                // If a tab uses a nested stack later, you can do:
+                // f.getChildFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                // For now, no-op to keep behavior simple and predictable.
+            }
+        });
+
+        // Back: if not on Home, go Home. If on Home, finish.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() {
+                if (currentItemId != R.id.action_home) {
+                    bottomNav.setSelectedItemId(R.id.action_home);
+                } else {
+                    setEnabled(false);
+                    onBackPressed(); // default finish()
+                }
+            }
+        });
+
+        final int startTab = savedInstanceState != null
+                ? savedInstanceState.getInt(STATE_SELECTED_TAB, R.id.action_home)
+                : R.id.action_home;
+
+        bottomNav.setSelectedItemId(startTab);
+        switchTo(startTab);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_SELECTED_TAB, currentItemId);
+    }
+
+    private void switchTo(@IdRes int itemId) {
+        if (currentItemId == itemId) return;
+        currentItemId = itemId;
+
+        final String tag = tagsById.get(itemId);
+        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        FragmentTransitions.applyFastFade(tx);
+
+        // Hide all current fragments
+        for (Map.Entry<Integer, String> e : tagsById.entrySet()) {
+            Fragment f = getSupportFragmentManager().findFragmentByTag(e.getValue());
+            if (f != null && !f.isHidden()) {
+                tx.hide(f);
+            }
         }
+
+        Fragment target = getSupportFragmentManager().findFragmentByTag(tag);
+        if (target == null) {
+            target = createFragmentFor(itemId);
+            tx.add(R.id.flContainer, target, tag);
+        } else {
+            tx.show(target);
+        }
+
+        tx.commit();
+    }
+
+    private Fragment createFragmentFor(@IdRes int itemId) {
+        if (itemId == R.id.action_home) return new HomeFragment();
+        if (itemId == R.id.action_feed) return new PostFragment();
+        if (itemId == R.id.action_compose) return new ComposeParentFragment();
+        if (itemId == R.id.action_search) return new SearchFragment();
+        if (itemId == R.id.action_profile) return new ProfileFragment();
+        // Fallback
+        return new HomeFragment();
     }
 }
 </file>

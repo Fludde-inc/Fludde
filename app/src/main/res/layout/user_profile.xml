@@ -11,7 +11,7 @@
         android:layout_width="@dimen/avatar_xl"
         android:layout_height="@dimen/avatar_xl"
         android:contentDescription="@string/cd_profile_picture"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

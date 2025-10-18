@@ -3,7 +3,7 @@
 
     <style name="Theme.Fludde" parent="Theme.Material3.DayNight.NoActionBar">
 
-        <!-- Colors (dark fallback) -->
+        <!-- Primary brand colors (dark fallback) -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
@@ -24,32 +24,24 @@
         <item name="colorErrorContainer">@color/md_theme_dark_errorContainer</item>
         <item name="colorOnErrorContainer">@color/md_theme_dark_onErrorContainer</item>
 
-        <item name="android:colorBackground">@color/md_theme_dark_background</item>
-        <item name="colorBackground">@color/md_theme_dark_background</item>
-        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
-
         <item name="colorSurface">@color/md_theme_dark_surface</item>
         <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
         <item name="colorSurfaceVariant">@color/md_theme_dark_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_dark_onSurfaceVariant</item>
         <item name="colorOutline">@color/md_theme_dark_outline</item>
-        <item name="colorOutlineVariant">@color/md_theme_dark_outlineVariant</item>
 
-        <item name="colorInverseSurface">@color/md_theme_dark_inverseSurface</item>
-        <item name="colorInverseOnSurface">@color/md_theme_dark_inverseOnSurface</item>
-        <item name="colorInversePrimary">@color/md_theme_dark_inversePrimary</item>
-        <item name="colorScrim">@color/md_theme_dark_scrim</item>
+        <!-- Same removals as light theme (see notes there). -->
 
-        <!-- Typography / Shapes same as light -->
+        <!-- Shapes -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Fludde.Large</item>
 
+        <!-- Default widget styles -->
         <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
         <item name="textInputStyle">@style/Widget.Material3.TextInputLayout.FilledBox</item>
-        <item name="floatingActionButtonStyle">@style/Widget.Material3.FloatingActionButton</item>
-
-        <!-- Our always-labeled bottom nav with active indicator -->
-        <item name="navigationBarStyle">@style/Widget.Fludde.NavigationBar</item>
 
         <!-- Edge-to-edge (light icons on dark bars) -->
         <item name="android:statusBarColor">@android:color/transparent</item>

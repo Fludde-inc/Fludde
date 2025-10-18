@@ -13,16 +13,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Bottom nav uses the component’s own container styling from theme;
+         no opaque system bars behind. Always show labels (Material guidance).
+         Uses a clear Material 3 active indicator. -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        <!-- Use the component’s own container styling from theme; no opaque system bars behind -->
         app:menu="@menu/menu_bottom_navigation"
-        <!-- Always show labels (Material guidance) -->
         app:labelVisibilityMode="labeled"
-        <!-- Clear, Material 3 active indicator -->
         app:itemActiveIndicatorStyle="@style/Widget.Fludde.NavigationBar.ActiveIndicator" />
 
 </RelativeLayout>

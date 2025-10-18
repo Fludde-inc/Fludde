@@ -1,33 +1,34 @@
 <!-- app/src/main/res/values/styles.xml -->
 <resources>
 
+    <!-- ✅ Minimal "do-nothing" base so any accidental style="@style/Widget" resolves -->
+    <style name="Widget" />
+
+    <!-- Keep this tiny alias so any accidental style="Text" compiles safely -->
+    <style name="Text" parent="TextAppearance.Material3.BodyMedium" />
+
     <!-- ───────────────────────────── Text fields ───────────────────────────── -->
-    <!-- Filled text field container (TextInputLayout) -->
     <style name="Widget.Fludde.TextField.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
     </style>
 
-    <!-- Outlined text field container (TextInputLayout) -->
     <style name="Widget.Fludde.TextField.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
     </style>
 
-    <!-- Optional inline error text used near counters, etc. -->
     <style name="TextLimitError" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textColor">?attr/colorError</item>
     </style>
 
-    <!-- Global text casing: sentence case, never all-caps -->
     <style name="Text.NoAllCaps">
         <item name="android:textAllCaps">false</item>
     </style>
 
     <!-- ─────────────────────────────── Buttons ─────────────────────────────── -->
-    <!-- Enforce 48dp min height and sentence case. Ripple uses theme color; good contrast in light/dark. -->
     <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
         <item name="android:minHeight">@dimen/touch_target_min</item>
         <item name="android:paddingHorizontal">24dp</item>
@@ -81,14 +82,12 @@
         <item name="android:textAllCaps">false</item>
         <item name="rippleColor">@color/ripple_stateful</item>
     </style>
-
     <style name="Widget.Fludde.Chip.Assist" parent="Widget.Fludde.Chip.Base" />
     <style name="Widget.Fludde.Chip.Filter" parent="Widget.Fludde.Chip.Base" />
     <style name="Widget.Fludde.Chip.Input" parent="Widget.Fludde.Chip.Base" />
     <style name="Widget.Fludde.Chip.Suggestion" parent="Widget.Fludde.Chip.Base" />
 
     <!-- ─────────────────────────────── Cards ───────────────────────────────── -->
-    <!-- Uses color roles so contrast stays ≥AA in light/dark/dynamic. -->
     <style name="Widget.Fludde.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="cardUseCompatPadding">true</item>
@@ -98,18 +97,22 @@
         <item name="rippleColor">@color/ripple_stateful</item>
     </style>
 
-    <!-- Navigation bar with visible active indicator; respects color roles. -->
-    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.NavigationBar">
+    <!-- ───────────────────── BottomNavigation (M3, correct parents) ───────────────────── -->
+    <!-- Tiny base so any legacy references resolve -->
+    <style name="Widget.Fludde" />
+
+    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.BottomNavigationView">
         <item name="labelVisibilityMode">labeled</item>
         <item name="itemActiveIndicatorStyle">@style/Widget.Fludde.NavigationBar.ActiveIndicator</item>
     </style>
 
-    <style name="Widget.Fludde.NavigationBar.ActiveIndicator" parent="Widget.Material3.NavigationBar.ActiveIndicator">
+    <style name="Widget.Fludde.NavigationBar.ActiveIndicator"
+        parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">?attr/colorSecondaryContainer</item>
-        <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
     </style>
 
-    <!-- Stronger ripple + disabled opacity for pressables -->
+    <!-- ───────────────────────────── Pressable helpers ───────────────────────────── -->
     <style name="Widget.Fludde.Pressable">
         <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:clickable">true</item>

@@ -18,9 +18,6 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/space_16">
 
-        <!-- (unchanged child views) -->
-        <!-- ... keep the same contents from your existing file ... -->
-
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivContent"
             android:layout_width="@dimen/poster_md_w"
@@ -94,7 +91,7 @@
             android:layout_marginTop="@dimen/space_16"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvContentTitle"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
             android:contentDescription="@string/cd_user_avatar"
             tools:srcCompat="@drawable/placeholder_avatar" />
 

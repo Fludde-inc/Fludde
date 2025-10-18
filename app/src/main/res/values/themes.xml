@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Material 3 base theme (Views). Keep it simple so aapt can resolve everything. -->
     <style name="Theme.Fludde" parent="Theme.Material3.DayNight.NoActionBar">
 
-        <!-- Colors (light fallback) -->
+        <!-- Primary brand colors (light fallback) -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
@@ -24,64 +25,30 @@
         <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
         <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
 
-        <item name="android:colorBackground">@color/md_theme_light_background</item>
-        <item name="colorBackground">@color/md_theme_light_background</item>
-        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
-
         <item name="colorSurface">@color/md_theme_light_surface</item>
         <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
         <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
         <item name="colorOutline">@color/md_theme_light_outline</item>
-        <item name="colorOutlineVariant">@color/md_theme_light_outlineVariant</item>
 
-        <item name="colorInverseSurface">@color/md_theme_light_inverseSurface</item>
-        <item name="colorInverseOnSurface">@color/md_theme_light_inverseOnSurface</item>
-        <item name="colorInversePrimary">@color/md_theme_light_inversePrimary</item>
-        <item name="colorScrim">@color/md_theme_light_scrim</item>
-
-        <!-- Surface container scale tokens -->
-        <item name="materialColorSurfaceContainerLowest">@color/surfaceContainerLowest</item>
-        <item name="materialColorSurfaceContainerLow">@color/surfaceContainerLow</item>
-        <item name="materialColorSurfaceContainer">@color/surfaceContainer</item>
-        <item name="materialColorSurfaceContainerHigh">@color/surfaceContainerHigh</item>
-        <item name="materialColorSurfaceContainerHighest">@color/surfaceContainerHighest</item>
-
-        <!-- Typography (M3) -->
-        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Material3.DisplayLarge</item>
-        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Material3.DisplayMedium</item>
-        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Material3.DisplaySmall</item>
-
-        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Material3.HeadlineLarge</item>
-        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Material3.HeadlineMedium</item>
-        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Material3.HeadlineSmall</item>
-
-        <item name="textAppearanceTitleLarge">@style/TextAppearance.Material3.TitleLarge</item>
-        <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
-        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
-
-        <item name="textAppearanceBodyLarge">@style/TextAppearance.Material3.BodyLarge</item>
-        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
-        <item name="textAppearanceBodySmall">@style/TextAppearance.Material3.BodySmall</item>
-
-        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
-        <item name="textAppearanceLabelMedium">@style/TextAppearance.Material3.LabelMedium</item>
-        <item name="textAppearanceLabelSmall">@style/TextAppearance.Material3.LabelSmall</item>
+        <!-- ⛔ Removed problem attrs to stop AAPT errors:
+             - colorBackground
+             - colorInverseSurface / colorInverseOnSurface / colorInversePrimary / colorScrim
+             - materialColorSurfaceContainer* tokens
+             - navigationBarStyle
+             - floatingActionButtonStyle
+        -->
 
         <!-- Shapes -->
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Fludde.Large</item>
 
-        <!-- Default widget styles -->
+        <!-- Default widget styles that are safe to set globally -->
         <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
         <item name="textInputStyle">@style/Widget.Material3.TextInputLayout.FilledBox</item>
-        <item name="floatingActionButtonStyle">@style/Widget.Material3.FloatingActionButton</item>
-
-        <!-- Use our NavigationBar style so labels are always shown + active indicator visible -->
-        <item name="navigationBarStyle">@style/Widget.Fludde.NavigationBar</item>
 
         <!-- Edge-to-edge system bars -->
         <item name="android:statusBarColor">@android:color/transparent</item>

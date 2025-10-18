@@ -22,7 +22,7 @@
             android:layout_width="@dimen/avatar_lg"
             android:layout_height="@dimen/avatar_lg"
             android:contentDescription="@string/cd_user_avatar"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Circular"
             tools:srcCompat="@drawable/placeholder_avatar" />
 
         <TextView

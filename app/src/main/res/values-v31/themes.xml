@@ -1,18 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- API 31+: dynamic color + our navigation bar defaults -->
+    <!-- API 31+: keep Dynamic Color (Material 3). -->
     <style name="Theme.Fludde" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Fludde.Medium</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Fludde.Large</item>
 
+        <!-- System bars (transparent for edge-to-edge) -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
 
-        <!-- Apply our NavigationBar style here as well -->
-        <item name="navigationBarStyle">@style/Widget.Fludde.NavigationBar</item>
-
+        <!-- Material widgets -->
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
+        <!-- ⛔ Do not set navigationBarStyle or floatingActionButtonStyle here -->
     </style>
 </resources>
