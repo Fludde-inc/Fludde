@@ -8,7 +8,9 @@
     android:layout_marginTop="@dimen/space_8"
     android:layout_marginEnd="@dimen/space_8"
     app:cardUseCompatPadding="true"
-    app:rippleColor="@color/ripple_stateful">
+    app:rippleColor="@color/ripple_stateful"
+    android:focusable="true"
+    android:clickable="true">
 
     <RelativeLayout
         android:layout_width="match_parent"

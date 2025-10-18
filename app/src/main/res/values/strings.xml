@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- ───────────── App/meta ───────────── -->
     <string name="app_name">Fludde</string>
 
-    <!-- ───────────── Navigation labels (Material 3 bottom nav) ───────────── -->
+    <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_timeline">Timeline</string>
     <string name="nav_compose">Compose</string>
     <string name="nav_search">Search</string>
     <string name="nav_profile">Profile</string>
 
-    <!-- ───────────── Common actions/buttons ───────────── -->
+    <!-- Actions -->
     <string name="action_login">Log in</string>
     <string name="action_logout">Log out</string>
     <string name="action_signup">Sign up</string>
@@ -21,7 +19,7 @@
     <string name="action_edit_profile">Edit profile</string>
     <string name="action_search">Search</string>
 
-    <!-- ───────────── Form labels & hints ───────────── -->
+    <!-- Labels & hints -->
     <string name="label_username">Username</string>
     <string name="label_password">Password</string>
     <string name="label_email">Email</string>
@@ -36,7 +34,7 @@
     <string name="hint_content_description">Add a short description</string>
     <string name="hint_review">Share what you think</string>
 
-    <!-- ───────────── Accessibility: content descriptions ───────────── -->
+    <!-- Content descriptions -->
     <string name="cd_user_avatar">User avatar</string>
     <string name="cd_profile_picture">Profile picture</string>
     <string name="cd_content_image">Content image</string>
@@ -51,12 +49,12 @@
     <string name="cd_logout">Log out</string>
     <string name="cd_loading">Loading</string>
 
-    <!-- ───────────── Loading states ───────────── -->
+    <!-- Loading -->
     <string name="loading_generic">Loading…</string>
     <string name="loading_feed">Loading posts…</string>
     <string name="loading_content">Loading content…</string>
 
-    <!-- ───────────── Empty states (titles + messages) ───────────── -->
+    <!-- Empty states -->
     <string name="empty_feed_title">No posts yet</string>
     <string name="empty_feed_message">Follow people to see posts here.</string>
 
@@ -75,7 +73,7 @@
     <string name="empty_music_title">No music right now</string>
     <string name="empty_music_message">Try again in a bit.</string>
 
-    <!-- ───────────── Error states (concise, non-blocking) ───────────── -->
+    <!-- Errors -->
     <string name="error_generic">Something went wrong.</string>
     <string name="error_network">You’re offline.</string>
     <string name="error_timeout">This is taking too long.</string>
@@ -88,14 +86,13 @@
     <string name="error_incorrect_login">Incorrect username or password.</string>
     <string name="error_auth_required">Sign in to continue.</string>
 
-    <!-- ───────────── Counts & misc ───────────── -->
+    <!-- Plurals -->
     <plurals name="search_results_count">
         <item quantity="one">%d result</item>
         <item quantity="other">%d results</item>
     </plurals>
 
-    <!-- ───────────── Sample placeholders used by existing layouts ───────────── -->
+    <!-- Samples -->
     <string name="johndoe2016" translatable="false">johndoe2016</string>
     <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
-
 </resources>

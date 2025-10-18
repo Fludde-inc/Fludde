@@ -77,6 +77,9 @@ app/
                 MusicContent.java
               utils/
                 ApiUtils.java
+                FragmentTransitions.java
+                GlideExtensions.java
+                Haptics.java
                 InsetsUtils.java
                 SpacesItemDecoration.java
               LoginActivity.java
@@ -86,9 +89,17 @@ app/
               SignupActivity.java
               User.java
       res/
+        anim/
+          fade_in_fast.xml
+          fade_out_fast.xml
+          hold.xml
+          press_ripple.xml
+        animator/
+          image_fade_in.xml
         color/
           card_bg_selector.xml
           card_stroke_selector.xml
+          ripple_stateful.xml
         drawable-v24/
           ic_launcher_foreground.xml
         font/
@@ -119,6 +130,7 @@ app/
           ic_launcher_round.xml
           ic_launcher.xml
         values/
+          anim.xml
           colors.xml
           dimens.xml
           ids.xml
@@ -166,6 +178,197 @@ settings.gradle
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
+package com.example.fludde.model;
+
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+public class BookDetails {
+
+    // creating variables for strings,text view, image views and button.
+
+    String title, subtitle, publisher, publishedDate, description, thumbnail, previewLink, infoLink, buyLink;
+
+    int pageCount;
+
+    private ArrayList<String> authors;
+
+    TextView titleTV, subtitleTV, publisherTV, descTV, pageTV, publishDateTV;
+    Button previewBtn, buyBtn;
+
+    private ImageView bookIV;
+
+
+
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/model/ContentsClick.java">
+package com.example.fludde.model;
+
+public interface ContentsClick {
+
+     void OnContentClick(int pos);
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
+package com.example.fludde.utils;
+
+import android.util.Log;
+
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+public class ApiUtils {
+    private static final String TAG = "ApiUtils";
+    private static final AsyncHttpClient client = new AsyncHttpClient();
+
+    public static void get(String url, JsonHttpResponseHandler responseHandler) {
+        try {
+            client.get(url, responseHandler);
+            Log.d(TAG, "GET request sent to URL: " + url);
+        } catch (Exception e) {
+            Log.e(TAG, "GET request failed for URL: " + url, e);
+        }
+    }
+
+    public static void post(String url, JsonHttpResponseHandler responseHandler) {
+        try {
+            client.post(url, null, responseHandler);
+            Log.d(TAG, "POST request sent to URL: " + url);
+        } catch (Exception e) {
+            Log.e(TAG, "POST request failed for URL: " + url, e);
+        }
+    }
+
+    public static void setApiKey(String apiKey) {
+        try {
+            client.addHeader("Authorization", "Bearer " + apiKey);
+            Log.d(TAG, "API key set for requests");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to set API key", e);
+        }
+    }
+
+    public static void handleFailure(int statusCode, Throwable throwable) {
+        Log.e(TAG, "Network request failed with status code: " + statusCode, throwable);
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/FragmentTransitions.java">
+package com.example.fludde.utils;
+
+import androidx.annotation.AnimRes;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.fludde.R;
+
+/** Applies subtle, fast transitions when swapping fragments/tabs. */
+public final class FragmentTransitions {
+    private FragmentTransitions(){}
+
+    public static void applyFastFade(FragmentTransaction tx) {
+        if (tx == null) return;
+        tx.setCustomAnimations(
+                R.anim.fade_in_fast,   // enter
+                R.anim.fade_out_fast,  // exit
+                R.anim.fade_in_fast,   // pop enter
+                R.anim.fade_out_fast   // pop exit
+        );
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/GlideExtensions.java">
+package com.example.fludde.utils;
+
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.example.fludde.R;
+
+/** Centralized image loading with fade-in to avoid pop-in. */
+public final class GlideExtensions {
+    private GlideExtensions() {}
+
+    public static void loadPoster(ImageView target, String url) {
+        if (target == null) return;
+        Glide.with(target.getContext())
+                .load(url)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_poster)
+                .error(R.drawable.placeholder_poster)
+                .transition(DrawableTransitionOptions.withCrossFade(140)) // match fast anim
+                .into(target);
+    }
+
+    public static void loadSquare(ImageView target, String url) {
+        if (target == null) return;
+        Glide.with(target.getContext())
+                .load(url)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_square)
+                .error(R.drawable.placeholder_square)
+                .transition(DrawableTransitionOptions.withCrossFade(140))
+                .into(target);
+    }
+
+    public static void loadAvatar(ImageView target, String urlOrNull) {
+        if (target == null) return;
+        Glide.with(target.getContext())
+                .load(urlOrNull)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_avatar)
+                .error(R.drawable.placeholder_avatar)
+                .transition(DrawableTransitionOptions.withCrossFade(140))
+                .into(target);
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/Haptics.java">
+package com.example.fludde.utils;
+
+import android.content.Context;
+import android.os.Build;
+import android.view.HapticFeedbackConstants;
+import android.view.View;
+
+/** Small helpers to provide discoverable, consistent haptics. */
+public final class Haptics {
+    private Haptics() {}
+
+    /** Light haptic for long-press (discoverability). */
+    public static void longPress(View v) {
+        if (v == null) return;
+        v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+    }
+
+    /** Subtle confirmation haptic (e.g., successful toggle). */
+    public static void tick(View v) {
+        if (v == null) return;
+        if (Build.VERSION.SDK_INT >= 21) {
+            v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        }
+    }
+
+    /** Error/denied haptic. */
+    public static void error(View v) {
+        if (v == null) return;
+        v.performHapticFeedback(HapticFeedbackConstants.REJECT);
+    }
+}
+</file>
 
 <file path="app/src/main/java/com/example/fludde/utils/InsetsUtils.java">
 package com.example.fludde.utils;
@@ -266,6 +469,83 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
 }
 </file>
 
+<file path="app/src/main/java/com/example/fludde/User.java">
+package com.example.fludde;
+
+import com.parse.ParseClassName;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+
+//User class has column image therefore need method to retrieve since its none standard
+@ParseClassName("_User")
+public class User extends ParseUser {
+
+    public static final String KEY_IMAGE = "image";
+    public static final String KEY_USER = "user";
+    public static final String KEY_EMAIL = "email";
+
+
+    public ParseFile getImage() {
+        return getParseFile(KEY_IMAGE);
+    }
+    public ParseUser getUser() {
+        return getParseUser(KEY_USER);
+    }
+    public String getEmail(){return getString(KEY_EMAIL);}
+    public void setImage(ParseFile parseFile){
+        put(KEY_IMAGE, parseFile);
+    }
+
+
+}
+</file>
+
+<file path="app/src/main/res/anim/fade_in_fast.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/anim_fast_duration"
+    android:fromAlpha="0.0"
+    android:toAlpha="1.0"
+    android:interpolator="@android:interpolator/linear_out_slow_in"/>
+</file>
+
+<file path="app/src/main/res/anim/fade_out_fast.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/anim_fast_duration"
+    android:fromAlpha="1.0"
+    android:toAlpha="0.0"
+    android:interpolator="@android:interpolator/fast_out_linear_in"/>
+</file>
+
+<file path="app/src/main/res/anim/hold.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/anim_fast_duration"
+    android:fromAlpha="1.0"
+    android:toAlpha="1.0"/>
+</file>
+
+<file path="app/src/main/res/anim/press_ripple.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorPrimary"
+    android:radius="24dp"> <!-- feels present on light/dark -->
+</ripple>
+</file>
+
+<file path="app/src/main/res/animator/image_fade_in.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:propertyName="alpha"
+    android:valueFrom="0"
+    android:valueTo="1"
+    android:valueType="floatType"
+    android:duration="@integer/anim_fast_duration"
+    android:interpolator="@android:interpolator/linear_out_slow_in"/>
+</file>
+
 <file path="app/src/main/res/color/card_bg_selector.xml">
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
@@ -287,6 +567,69 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
     <!-- Default -->
     <item android:color="?attr/colorOutlineVariant"/>
 </selector>
+</file>
+
+<file path="app/src/main/res/color/ripple_stateful.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Disabled: reduce contrast but maintain legibility -->
+    <item android:state_enabled="false" android:color="?attr/colorOutlineVariant"/>
+    <!-- Default ripple tint -->
+    <item android:color="?attr/colorPrimary"/>
+</selector>
+</file>
+
+<file path="app/src/main/res/drawable-v24/ic_launcher_foreground.xml">
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="85.84757"
+                android:endY="92.4963"
+                android:startX="42.9492"
+                android:startY="49.59793"
+                android:type="linear">
+                <item
+                    android:color="#44000000"
+                    android:offset="0.0" />
+                <item
+                    android:color="#00000000"
+                    android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
+        android:strokeWidth="1"
+        android:strokeColor="#00000000" />
+</vector>
+</file>
+
+<file path="app/src/main/res/font/acme.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:fontProviderAuthority="com.google.android.gms.fonts"
+        app:fontProviderPackage="com.google.android.gms"
+        app:fontProviderQuery="Acme"
+        app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
+</font-family>
+</file>
+
+<file path="app/src/main/res/font/black_han_sans.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:fontProviderAuthority="com.google.android.gms.fonts"
+        app:fontProviderPackage="com.google.android.gms"
+        app:fontProviderQuery="Black Han Sans"
+        app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
+</font-family>
 </file>
 
 <file path="app/src/main/res/layout/include_inline_error.xml">
@@ -427,6 +770,22 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
 </com.google.android.material.card.MaterialCardView>
 </file>
 
+<file path="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>
+</file>
+
+<file path="app/src/main/res/values/anim.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Very subtle (100–160ms) fades/scales for fragment/tab transitions -->
+    <item name="anim_fast_duration" type="integer">140</item>
+</resources>
+</file>
+
 <file path="app/src/main/res/values/dimens.xml">
 <!-- app/src/main/res/values/dimens.xml -->
 <?xml version="1.0" encoding="utf-8"?>
@@ -493,6 +852,13 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
 </resources>
 </file>
 
+<file path="app/src/main/res/values/ids.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="cvLayout" type="id" />
+</resources>
+</file>
+
 <file path="app/src/main/res/values/shapes.xml">
 <resources>
     <!-- Rounded, consistent card/button chips per the design plan -->
@@ -534,6 +900,41 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
         <item name="materialCardViewStyle">@style/Widget.Fludde.Card</item>
     </style>
 </resources>
+</file>
+
+<file path="app/src/main/res/xml/fileprovider.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-files-path name="my_images" path="Pictures" />
+</paths>
+</file>
+
+<file path="app/.gitignore">
+/build
+</file>
+
+<file path="app/proguard-rules.pro">
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
 </file>
 
 <file path="scripts/sanity.zsh">
@@ -798,6 +1199,41 @@ OUTLINE.md
 app/src/main/res/values/font_certs.xml
 </file>
 
+<file path="LICENSE">
+MIT License
+
+Copyright (c) 2024 Fludde-inc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</file>
+
+<file path="app/src/androidTest/java/com/example/fludde/ExampleInstrumentedTest.java">
+package com.example.fludde;
+
+import android.content.Context;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
+public class ExampleInstrumentedTest {
+    @Test
+    public void useAppContext() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("com.example.fludde", appContext.getPackageName());
+    }
+}
+</file>
+
 <file path="app/src/main/java/com/example/fludde/adapters/BookChildAdapter.java">
 package com.example.fludde.adapters;
 
@@ -811,12 +1247,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.fludde.R;
 import com.example.fludde.model.BooksContent;
+import com.example.fludde.utils.GlideExtensions;
+import com.example.fludde.utils.Haptics;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -827,7 +1261,6 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
     private final List<BooksContent> items;
     private final OnBookContentListener listener;
 
-    // single selection support
     private int selectedPos = RecyclerView.NO_POSITION;
 
     public BookChildAdapter(@NonNull Context context,
@@ -836,12 +1269,20 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
         this.context = context;
         this.items = items;
         this.listener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = items.get(position).getTitle() + position;
+        return key.hashCode();
     }
 
     @NonNull
     @Override
     public BookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.content_post_img, parent, false);
+        v.setBackgroundResource(R.drawable.list_item_bg);
         return new BookViewHolder(v);
     }
 
@@ -851,9 +1292,7 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
     }
 
     @Override
-    public int getItemCount() {
-        return items.size();
-    }
+    public int getItemCount() { return items.size(); }
 
     class BookViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         ImageView ivContentImage;
@@ -869,15 +1308,8 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
 
         void bind(BooksContent data, boolean selected) {
             tvImageContentTitle.setText(data.getTitle());
-            Glide.with(context)
-                    .load(data.getImageURL())
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_poster)
-                    .error(R.drawable.placeholder_poster)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ivContentImage);
+            GlideExtensions.loadPoster(ivContentImage, data.getImageURL());
 
-            // Material 3 selection: use checkable cards with primary container on selection
             MaterialCardView card = (MaterialCardView) itemView;
             card.setChecked(selected);
             itemView.setSelected(selected);
@@ -887,15 +1319,12 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
         public void onClick(View v) {
             int pos = getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
-
             int old = selectedPos;
             selectedPos = pos;
-
-            if (old != RecyclerView.NO_POSITION) {
-                notifyItemChanged(old);
-            }
+            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
             notifyItemChanged(selectedPos);
 
+            Haptics.tick(v);
             if (listener != null) listener.onBookContentClick(pos);
         }
 
@@ -903,6 +1332,7 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
         public boolean onLongClick(View v) {
             int pos = getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION && listener != null) {
+                Haptics.longPress(v);
                 listener.onBookContentLongClick(pos);
                 return true;
             }
@@ -930,12 +1360,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.fludde.R;
 import com.example.fludde.model.MovieContent;
+import com.example.fludde.utils.GlideExtensions;
+import com.example.fludde.utils.Haptics;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -955,12 +1383,20 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
         this.context = context;
         this.items = items;
         this.listener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = items.get(position).getTitle() + position;
+        return key.hashCode();
     }
 
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.content_post_img, parent, false);
+        v.setBackgroundResource(R.drawable.list_item_bg);
         return new MovieViewHolder(v);
     }
 
@@ -970,9 +1406,7 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
     }
 
     @Override
-    public int getItemCount() {
-        return items.size();
-    }
+    public int getItemCount() { return items.size(); }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         ImageView ivContentImage;
@@ -988,13 +1422,7 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
 
         void bind(MovieContent data, boolean selected) {
             tvImageContentTitle.setText(data.getTitle());
-            Glide.with(context)
-                    .load(data.getImagePath())
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_poster)
-                    .error(R.drawable.placeholder_poster)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ivContentImage);
+            GlideExtensions.loadPoster(ivContentImage, data.getImagePath());
 
             MaterialCardView card = (MaterialCardView) itemView;
             card.setChecked(selected);
@@ -1009,11 +1437,10 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
             int old = selectedPos;
             selectedPos = pos;
 
-            if (old != RecyclerView.NO_POSITION) {
-                notifyItemChanged(old);
-            }
+            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
             notifyItemChanged(selectedPos);
 
+            Haptics.tick(v); // subtle feedback on selection
             if (listener != null) listener.onMovieContentClick(pos);
         }
 
@@ -1021,6 +1448,7 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
         public boolean onLongClick(View v) {
             int pos = getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION && listener != null) {
+                Haptics.longPress(v); // discoverable haptic
                 listener.onMovieContentLongClick(pos);
                 return true;
             }
@@ -1135,12 +1563,14 @@ import com.example.fludde.R;
 import com.example.fludde.fragments.child.BookChildFragment;
 import com.example.fludde.fragments.child.MovieChildFragment;
 import com.example.fludde.fragments.child.MusicChildFragment;
+import com.example.fludde.utils.FragmentTransitions;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 /**
  * Parent "Compose" fragment:
- * - Replaces Spinner with Material Exposed Dropdown (visual parity; same data flow)
- * - Embeds the appropriate child fragment based on selection.
+ * - Subtle fast transitions between child tabs.
+ * - Exposed dropdown selection for Movies / Books / Music.
+ * - Child lists sized with stable item dimensions (see dimens).
  */
 public class ComposeParentFragment extends Fragment {
     private MaterialAutoCompleteTextView actCategory;
@@ -1170,7 +1600,6 @@ public class ComposeParentFragment extends Fragment {
 
         actCategory = view.findViewById(R.id.actCategory);
 
-        // Same data source as before; just wired to the exposed dropdown.
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, dropDownItems);
         actCategory.setAdapter(adapter);
@@ -1179,123 +1608,184 @@ public class ComposeParentFragment extends Fragment {
             switch (pos) {
                 case 0:
                 default:
-                    insertMovieChildFragment();
-                    Toast.makeText(getContext(), "You have select Movies", Toast.LENGTH_SHORT).show();
+                    insertChild(new MovieChildFragment());
+                    Toast.makeText(getContext(), "You selected Movies", Toast.LENGTH_SHORT).show();
                     break;
                 case 1:
-                    insertBookChildFragment();
-                    Toast.makeText(getContext(), "You have select Books", Toast.LENGTH_SHORT).show();
+                    insertChild(new BookChildFragment());
+                    Toast.makeText(getContext(), "You selected Books", Toast.LENGTH_SHORT).show();
                     break;
                 case 2:
-                    insertMusicChildFragment();
-                    Toast.makeText(getContext(), "You have select Music", Toast.LENGTH_SHORT).show();
+                    insertChild(new MusicChildFragment());
+                    Toast.makeText(getContext(), "You selected Music", Toast.LENGTH_SHORT).show();
                     break;
             }
         });
 
-        // Default selection mirrors old Spinner behavior.
+        // Default
         actCategory.setText(dropDownItems[0], false);
-        insertMovieChildFragment();
+        insertChild(new MovieChildFragment());
     }
 
-    private void insertMovieChildFragment() {
-        replaceChild(new MovieChildFragment());
-    }
-
-    private void insertBookChildFragment() {
-        replaceChild(new BookChildFragment());
-    }
-
-    private void insertMusicChildFragment() {
-        replaceChild(new MusicChildFragment());
-    }
-
-    private void replaceChild(Fragment child) {
+    private void insertChild(Fragment child) {
         FragmentTransaction tx = getChildFragmentManager().beginTransaction();
+        FragmentTransitions.applyFastFade(tx);
         tx.replace(R.id.child_fragment_container, child).commit();
     }
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
+<file path="app/src/main/java/com/example/fludde/model/MovieContent.java">
 package com.example.fludde.model;
 
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import com.example.fludde.adapters.MovieChildAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class BookDetails {
+public class MovieContent {
+    String posterPath;
+    String backdropPath;
+    String title;
+    String overview;
 
-    // creating variables for strings,text view, image views and button.
 
-    String title, subtitle, publisher, publishedDate, description, thumbnail, previewLink, infoLink, buyLink;
+    public MovieContent(JSONObject jsonObject) throws JSONException {
+        posterPath = jsonObject.getString( "poster_path");
+        backdropPath = jsonObject.getString( "backdrop_path");
+        title = jsonObject.getString("title");
+        overview = jsonObject.getString("overview");
+    }
 
-    int pageCount;
+    public static List<MovieContent> fromJsonArray(JSONArray movieJsonArray) throws JSONException {
+        List<MovieContent> movies = new ArrayList<>();
 
-    private ArrayList<String> authors;
+        for(int i =0; i < movieJsonArray.length(); i++ )
+        {
+            movies.add(new MovieContent(movieJsonArray.getJSONObject(i)));
 
-    TextView titleTV, subtitleTV, publisherTV, descTV, pageTV, publishDateTV;
-    Button previewBtn, buyBtn;
+        }
+        return movies;
+    }
 
-    private ImageView bookIV;
 
+    public String getImagePath() {
+        return String.format("https://image.tmdb.org/t/p/w342/%s",posterPath) ;
+    }
+
+    public String getBackdropPath(){
+        return String.format("https://image.tmdb.org/t/p/w342/%s",backdropPath) ;
+
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getOverview() {
+        return overview;
+    }
 
 
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/model/ContentsClick.java">
+<file path="app/src/main/java/com/example/fludde/model/MusicContent.java">
 package com.example.fludde.model;
 
-public interface ContentsClick {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-     void OnContentClick(int pos);
-}
-</file>
+import java.util.ArrayList;
+import java.util.List;
 
-<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
-package com.example.fludde.utils;
+public class MusicContent {
 
-import android.util.Log;
+    private String title;
+    private  String artist;
+    private String album;
+    private String description;
+    private String recordLabel;
+    private String coverIMGUrl;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
+    private MusicContent(JSONObject jsonObject) throws JSONException{
+        title = jsonObject.getString("name");
+        artist = jsonObject.getString("artistName");
+//        album = jsonObject.getString("")
+       // recordLabel =
+        coverIMGUrl = jsonObject.getString("artworkUrl100");
 
-public class ApiUtils {
-    private static final String TAG = "ApiUtils";
-    private static final AsyncHttpClient client = new AsyncHttpClient();
+    }
+    public static List<MusicContent> fromJsonArray(JSONArray results) throws JSONException {
+        List<MusicContent> musics = new ArrayList<>();
 
-    public static void get(String url, JsonHttpResponseHandler responseHandler) {
-        try {
-            client.get(url, responseHandler);
-            Log.d(TAG, "GET request sent to URL: " + url);
-        } catch (Exception e) {
-            Log.e(TAG, "GET request failed for URL: " + url, e);
+        for(int i =0; i < results.length(); i++ )
+        {
+            musics.add(new MusicContent(results.getJSONObject(i)));
+
         }
+        return musics;
     }
 
-    public static void post(String url, JsonHttpResponseHandler responseHandler) {
-        try {
-            client.post(url, null, responseHandler);
-            Log.d(TAG, "POST request sent to URL: " + url);
-        } catch (Exception e) {
-            Log.e(TAG, "POST request failed for URL: " + url, e);
-        }
+    public String getCoverIMGUrl() {
+        return coverIMGUrl;
     }
 
-    public static void setApiKey(String apiKey) {
-        try {
-            client.addHeader("Authorization", "Bearer " + apiKey);
-            Log.d(TAG, "API key set for requests");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to set API key", e);
-        }
+    public void setCoverIMGUrl(String coverIMGUrl) {
+        this.coverIMGUrl = coverIMGUrl;
     }
 
-    public static void handleFailure(int statusCode, Throwable throwable) {
-        Log.e(TAG, "Network request failed with status code: " + statusCode, throwable);
+
+
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public String getDescription() {
+
+       description = String.format("%s %s %s %s",title, artist, album, recordLabel);
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+
+        this.description = description;
+    }
+
+    public String getRecordLabel() {
+        return recordLabel;
+    }
+
+    public void setRecordLabel(String recordLabel) {
+        this.recordLabel = recordLabel;
     }
 }
 </file>
@@ -1325,7 +1815,7 @@ public class ParseApplication extends Application {
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/User.java">
+<file path="app/src/main/java/com/example/fludde/Post.java">
 package com.example.fludde;
 
 import com.parse.ParseClassName;
@@ -1333,81 +1823,135 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
-//User class has column image therefore need method to retrieve since its none standard
-@ParseClassName("_User")
-public class User extends ParseUser {
+@ParseClassName("Post")
+public class Post extends ParseObject {
 
-    public static final String KEY_IMAGE = "image";
+    User user = new User();
+    public static final String KEY_DESCRIPTION = "description";
+    public static final String KEY_CONTENT_IMAGE = "contentImage";
     public static final String KEY_USER = "user";
-    public static final String KEY_EMAIL = "email";
+    public  static final String KEY_CREATED_AT = "createdAt";
+    public static final String KEY_IMAGE = "userImage";
+    public static final String KEY_CONTENT_TITLE ="contentTitle";
+    public static final String KEY_CATEGORY = "category";
+    public  static final String KEY_REVIEW = "review";
 
+    public String getDescription() {
+        return getString(KEY_DESCRIPTION);
+    }
 
-    public ParseFile getImage() {
+    public ParseFile getContentImage() {
+        return getParseFile(KEY_CONTENT_IMAGE);
+    }
+    public ParseFile getUserImage(){
+
         return getParseFile(KEY_IMAGE);
     }
+
+
+    public String getCategory(){return getString(KEY_CATEGORY);}
     public ParseUser getUser() {
         return getParseUser(KEY_USER);
     }
-    public String getEmail(){return getString(KEY_EMAIL);}
-    public void setImage(ParseFile parseFile){
-        put(KEY_IMAGE, parseFile);
+    public String getReview(){return getString(KEY_REVIEW);}
+    public String getCreateAt(){return getString(KEY_CREATED_AT);}
+    public void setDescription(String description){
+        put(KEY_DESCRIPTION, description);
     }
+    public void setContentImage(ParseFile parseFile){
+        put(KEY_CONTENT_IMAGE, parseFile);
+    }
+    public void setUser(ParseUser user){
+        put(KEY_USER,user);
+    }
+    public void setReview(String review){put(KEY_REVIEW,review);}
+    public void setCategory(String category){put(KEY_CATEGORY,category);}
+    public void setContentTitle(String contentTitle){put(KEY_CONTENT_TITLE,contentTitle);}
+    public String getContentTitle() {
+        return getString( KEY_CONTENT_TITLE);
+    }
+
+
 
 
 }
 </file>
 
-<file path="app/src/main/res/drawable-v24/ic_launcher_foreground.xml">
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
-</vector>
-</file>
+<file path="app/src/main/java/com/example/fludde/SignupActivity.java">
+package com.example.fludde;
 
-<file path="app/src/main/res/font/acme.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:fontProviderAuthority="com.google.android.gms.fonts"
-        app:fontProviderPackage="com.google.android.gms"
-        app:fontProviderQuery="Acme"
-        app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
-</font-family>
-</file>
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
-<file path="app/src/main/res/font/black_han_sans.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:fontProviderAuthority="com.google.android.gms.fonts"
-        app:fontProviderPackage="com.google.android.gms"
-        app:fontProviderQuery="Black Han Sans"
-        app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
-</font-family>
+public class SignupActivity extends AppCompatActivity {
+    private static final String TAG = "SignupActivity";
+
+    private EditText etUsername;
+    private EditText etPassword;
+    private EditText etEmail;
+    private Button btnSignup;
+    private Button btnCancel;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_signup);
+
+        etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPassword);
+        etEmail = findViewById(R.id.etEmail);
+        btnSignup = findViewById(R.id.btnSignup);
+        btnCancel = findViewById(R.id.btnCancel);
+
+        btnSignup.setOnClickListener(v -> attemptSignup());
+        btnCancel.setOnClickListener(v -> {
+            finish();
+            Log.d(TAG, "Signup cancelled and activity closed");
+        });
+    }
+
+    private void attemptSignup() {
+        try {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+
+            if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Signup attempt with empty fields");
+                return;
+            }
+
+            if (username.equals("admin")) {
+                Log.e(TAG, "Signup failed: Username already taken: " + username);
+                Toast.makeText(this, "Signup failed. Username already taken.", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "Signup successful for user: " + username);
+                navigateToMain();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error during signup attempt", e);
+            Toast.makeText(this, "An error occurred during signup. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void navigateToMain() {
+        try {
+            Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            Log.d(TAG, "Navigated to MainActivity after signup");
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to MainActivity", e);
+            Toast.makeText(this, "An error occurred while navigating to the main screen.", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
 </file>
 
 <file path="app/src/main/res/layout/activity_main.xml">
@@ -1510,7 +2054,8 @@ public class User extends ParseUser {
     app:cardUseCompatPadding="true"
     app:cardBackgroundColor="@color/card_bg_selector"
     app:strokeColor="@color/card_stroke_selector"
-    app:strokeWidth="@dimen/divider_thin">
+    app:strokeWidth="@dimen/divider_thin"
+    app:rippleColor="@color/ripple_stateful">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ccMusicFrameLayout"
@@ -1623,7 +2168,8 @@ public class User extends ParseUser {
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/space_8"
     android:layout_marginEnd="@dimen/space_8"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    app:rippleColor="@color/ripple_stateful">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -1690,14 +2236,6 @@ public class User extends ParseUser {
 </menu>
 </file>
 
-<file path="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background" />
-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
-</adaptive-icon>
-</file>
-
 <file path="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml">
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
@@ -1706,13 +2244,6 @@ public class User extends ParseUser {
     <!-- Monochrome layer for Android 13+ (dark/light adaptive) -->
     <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>
-</file>
-
-<file path="app/src/main/res/values/ids.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="cvLayout" type="id" />
-</resources>
 </file>
 
 <file path="app/src/main/res/values/preloaded_fonts.xml">
@@ -1852,6 +2383,69 @@ public class User extends ParseUser {
         <item name="android:color">?attr/colorSecondaryContainer</item>
         <!-- Rounded shape to match the rest of the app -->
         <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+      <!-- Add stronger ripple + disabled opacity for common pressables -->
+    <style name="Widget.Fludde.Pressable" parent="">
+        <item name="android:background">@drawable/list_item_bg</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- Hook our ripple into Material buttons via an overlay -->
+    <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <!-- Keep the other button styles from your file; add rippleColor -->
+    <style name="Widget.Fludde.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Elevated" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <!-- Chips: ensure ripple remains present on light/dark -->
+    <style name="Widget.Fludde.Chip.Base" parent="Widget.Material3.Chip.Assist">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
     </style>
 
 </resources>
@@ -2033,13 +2627,6 @@ public class User extends ParseUser {
 </resources>
 </file>
 
-<file path="app/src/main/res/xml/fileprovider.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-files-path name="my_images" path="Pictures" />
-</paths>
-</file>
-
 <file path="app/src/test/java/com/example/fludde/utils/ApiUtilsTest.java">
 package com.example.fludde.utils;
 
@@ -2084,32 +2671,19 @@ public class ApiUtilsTest {
 }
 </file>
 
-<file path="app/.gitignore">
-/build
-</file>
+<file path="app/src/test/java/com/example/fludde/ExampleUnitTest.java">
+package com.example.fludde;
 
-<file path="app/proguard-rules.pro">
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+import org.junit.Test;
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+import static org.junit.Assert.*;
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+public class ExampleUnitTest {
+    @Test
+    public void addition_isCorrect() {
+        assertEquals(4, 2 + 2);
+    }
+}
 </file>
 
 <file path="config/gradle.properties">
@@ -2123,18 +2697,6 @@ org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 android.enableJetifier=true
 android.nonTransitiveRClass=true
-</file>
-
-<file path="LICENSE">
-MIT License
-
-Copyright (c) 2024 Fludde-inc
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </file>
 
 <file path="settings.gradle">
@@ -2165,29 +2727,6 @@ rootProject.name = "Fludde"
 include(":app")
 </file>
 
-<file path="app/src/androidTest/java/com/example/fludde/ExampleInstrumentedTest.java">
-package com.example.fludde;
-
-import android.content.Context;
-
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
-
-@RunWith(AndroidJUnit4.class)
-public class ExampleInstrumentedTest {
-    @Test
-    public void useAppContext() {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.fludde", appContext.getPackageName());
-    }
-}
-</file>
-
 <file path="app/src/main/java/com/example/fludde/adapters/MusicChildAdapter.java">
 package com.example.fludde.adapters;
 
@@ -2201,12 +2740,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.fludde.R;
 import com.example.fludde.model.MusicContent;
+import com.example.fludde.utils.GlideExtensions;
+import com.example.fludde.utils.Haptics;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -2217,7 +2754,6 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
     private final List<MusicContent> items;
     private final OnMusicContentListener listener;
 
-    // single selection support
     private int selectedPos = RecyclerView.NO_POSITION;
 
     public MusicChildAdapter(@NonNull Context context,
@@ -2226,12 +2762,20 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
         this.context = context;
         this.items = items;
         this.listener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = items.get(position).getTitle() + items.get(position).getArtist() + position;
+        return key.hashCode();
     }
 
     @NonNull
     @Override
     public MusicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.music_content_post, parent, false);
+        v.setBackgroundResource(R.drawable.list_item_bg);
         return new MusicViewHolder(v);
     }
 
@@ -2241,9 +2785,7 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
     }
 
     @Override
-    public int getItemCount() {
-        return items.size();
-    }
+    public int getItemCount() { return items.size(); }
 
     class MusicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         ImageView ivAlbumCoverImage;
@@ -2262,13 +2804,7 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
         void bind(MusicContent data, boolean selected) {
             tvSongTitle.setText(data.getTitle());
             tvArtistName.setText(data.getArtist());
-            Glide.with(context)
-                    .load(data.getCoverIMGUrl())
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_square)
-                    .error(R.drawable.placeholder_square)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ivAlbumCoverImage);
+            GlideExtensions.loadSquare(ivAlbumCoverImage, data.getCoverIMGUrl());
 
             MaterialCardView card = (MaterialCardView) itemView;
             card.setChecked(selected);
@@ -2279,15 +2815,12 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
         public void onClick(View v) {
             int pos = getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
-
             int old = selectedPos;
             selectedPos = pos;
-
-            if (old != RecyclerView.NO_POSITION) {
-                notifyItemChanged(old);
-            }
+            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
             notifyItemChanged(selectedPos);
 
+            Haptics.tick(v);
             if (listener != null) listener.onMusicContentClick(pos);
         }
 
@@ -2295,6 +2828,7 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
         public boolean onLongClick(View v) {
             int pos = getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION && listener != null) {
+                Haptics.longPress(v);
                 listener.onMusicContentLongClick(pos);
                 return true;
             }
@@ -2322,37 +2856,47 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.example.fludde.Post;
 import com.example.fludde.R;
+import com.example.fludde.utils.GlideExtensions;
 import com.parse.ParseFile;
 
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
-    private Context context;
-    private List<Post> posts;
+    private final Context context;
+    private final List<Post> posts;
 
     public PostAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
+        setHasStableIds(true); // stable for jank-free animations
+    }
+
+    @Override
+    public long getItemId(int position) {
+        // Best effort stable id from Parse objectId if available
+        try {
+            String id = posts.get(position).getObjectId();
+            return id != null ? id.hashCode() : position;
+        } catch (Exception e) {
+            return position;
+        }
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-       View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        // Press/ ripple background on the whole row
+        view.setBackgroundResource(R.drawable.list_item_bg);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-      Post post = posts.get(position);
-      holder.bind(post);
+        holder.bind(posts.get(position));
     }
 
     @Override
@@ -2361,17 +2905,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
-        private TextView tvContentCategory;
-        private TextView tvContentDescription;
-        private TextView tvContentTitle;
-        private TextView tvUsername;
-        private TextView tvReview;
-        private ImageView ivUserPic;
-        private ImageView ivContent;
+        private final TextView tvContentCategory;
+        private final TextView tvContentDescription;
+        private final TextView tvContentTitle;
+        private final TextView tvUsername;
+        private final TextView tvReview;
+        private final ImageView ivUserPic;
+        private final ImageView ivContent;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvContentCategory = itemView.findViewById(R.id.tvContentCategory);
             tvContentDescription = itemView.findViewById(R.id.tvContentDescription);
             tvContentTitle = itemView.findViewById(R.id.tvContentTitle);
@@ -2379,9 +2922,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             tvReview = itemView.findViewById(R.id.tvReview);
             ivUserPic = itemView.findViewById(R.id.ivUserPic);
             ivContent = itemView.findViewById(R.id.ivContent);
+
+            // Long-press haptic (discoverability)
+            itemView.setOnLongClickListener(v -> {
+                com.example.fludde.utils.Haptics.longPress(v);
+                return false; // still let context/action propagate
+            });
         }
 
-        public void bind(Post post) {
+        void bind(Post post) {
             tvContentCategory.setText(post.getCategory());
             tvContentDescription.setText(post.getDescription());
             tvContentTitle.setText(post.getContentTitle());
@@ -2391,21 +2940,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             ParseFile contentImage = post.getContentImage();
             ParseFile userImage = post.getUser().getParseFile("image");
 
-            Glide.with(context)
-                    .load(contentImage != null ? contentImage.getUrl() : null)
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_poster)
-                    .error(R.drawable.placeholder_poster)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ivContent);
-
-            Glide.with(context)
-                    .load(userImage != null ? userImage.getUrl() : null)
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_avatar)
-                    .error(R.drawable.placeholder_avatar)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ivUserPic);
+            GlideExtensions.loadPoster(ivContent, contentImage != null ? contentImage.getUrl() : null);
+            GlideExtensions.loadAvatar(ivUserPic, userImage != null ? userImage.getUrl() : null);
         }
     }
 }
@@ -2452,30 +2988,7 @@ public class PostFragment extends Fragment {
     private TextView tvErrorMessage;
     private Button btnRetry;
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
-
     public PostFragment() {}
-
-    public static PostFragment newInstance(String param1, String param2) {
-        PostFragment fragment = new PostFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -2498,6 +3011,7 @@ public class PostFragment extends Fragment {
 
         rvPost.setAdapter(adapter);
         rvPost.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvPost.setHasFixedSize(true);
 
         btnRetry.setOnClickListener(v -> queryPosts());
 
@@ -2864,224 +3378,7 @@ public class SearchFragment extends Fragment {
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/model/MovieContent.java">
-package com.example.fludde.model;
-
-import com.example.fludde.adapters.MovieChildAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class MovieContent {
-    String posterPath;
-    String backdropPath;
-    String title;
-    String overview;
-
-
-    public MovieContent(JSONObject jsonObject) throws JSONException {
-        posterPath = jsonObject.getString( "poster_path");
-        backdropPath = jsonObject.getString( "backdrop_path");
-        title = jsonObject.getString("title");
-        overview = jsonObject.getString("overview");
-    }
-
-    public static List<MovieContent> fromJsonArray(JSONArray movieJsonArray) throws JSONException {
-        List<MovieContent> movies = new ArrayList<>();
-
-        for(int i =0; i < movieJsonArray.length(); i++ )
-        {
-            movies.add(new MovieContent(movieJsonArray.getJSONObject(i)));
-
-        }
-        return movies;
-    }
-
-
-    public String getImagePath() {
-        return String.format("https://image.tmdb.org/t/p/w342/%s",posterPath) ;
-    }
-
-    public String getBackdropPath(){
-        return String.format("https://image.tmdb.org/t/p/w342/%s",backdropPath) ;
-
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getOverview() {
-        return overview;
-    }
-
-
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/model/MusicContent.java">
-package com.example.fludde.model;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class MusicContent {
-
-    private String title;
-    private  String artist;
-    private String album;
-    private String description;
-    private String recordLabel;
-    private String coverIMGUrl;
-
-    private MusicContent(JSONObject jsonObject) throws JSONException{
-        title = jsonObject.getString("name");
-        artist = jsonObject.getString("artistName");
-//        album = jsonObject.getString("")
-       // recordLabel =
-        coverIMGUrl = jsonObject.getString("artworkUrl100");
-
-    }
-    public static List<MusicContent> fromJsonArray(JSONArray results) throws JSONException {
-        List<MusicContent> musics = new ArrayList<>();
-
-        for(int i =0; i < results.length(); i++ )
-        {
-            musics.add(new MusicContent(results.getJSONObject(i)));
-
-        }
-        return musics;
-    }
-
-    public String getCoverIMGUrl() {
-        return coverIMGUrl;
-    }
-
-    public void setCoverIMGUrl(String coverIMGUrl) {
-        this.coverIMGUrl = coverIMGUrl;
-    }
-
-
-
-
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public String getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
-    }
-
-    public String getDescription() {
-
-       description = String.format("%s %s %s %s",title, artist, album, recordLabel);
-
-        return description;
-    }
-
-    public void setDescription(String description) {
-
-        this.description = description;
-    }
-
-    public String getRecordLabel() {
-        return recordLabel;
-    }
-
-    public void setRecordLabel(String recordLabel) {
-        this.recordLabel = recordLabel;
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/Post.java">
-package com.example.fludde;
-
-import com.parse.ParseClassName;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
-import com.parse.ParseUser;
-
-@ParseClassName("Post")
-public class Post extends ParseObject {
-
-    User user = new User();
-    public static final String KEY_DESCRIPTION = "description";
-    public static final String KEY_CONTENT_IMAGE = "contentImage";
-    public static final String KEY_USER = "user";
-    public  static final String KEY_CREATED_AT = "createdAt";
-    public static final String KEY_IMAGE = "userImage";
-    public static final String KEY_CONTENT_TITLE ="contentTitle";
-    public static final String KEY_CATEGORY = "category";
-    public  static final String KEY_REVIEW = "review";
-
-    public String getDescription() {
-        return getString(KEY_DESCRIPTION);
-    }
-
-    public ParseFile getContentImage() {
-        return getParseFile(KEY_CONTENT_IMAGE);
-    }
-    public ParseFile getUserImage(){
-
-        return getParseFile(KEY_IMAGE);
-    }
-
-
-    public String getCategory(){return getString(KEY_CATEGORY);}
-    public ParseUser getUser() {
-        return getParseUser(KEY_USER);
-    }
-    public String getReview(){return getString(KEY_REVIEW);}
-    public String getCreateAt(){return getString(KEY_CREATED_AT);}
-    public void setDescription(String description){
-        put(KEY_DESCRIPTION, description);
-    }
-    public void setContentImage(ParseFile parseFile){
-        put(KEY_CONTENT_IMAGE, parseFile);
-    }
-    public void setUser(ParseUser user){
-        put(KEY_USER,user);
-    }
-    public void setReview(String review){put(KEY_REVIEW,review);}
-    public void setCategory(String category){put(KEY_CATEGORY,category);}
-    public void setContentTitle(String contentTitle){put(KEY_CONTENT_TITLE,contentTitle);}
-    public String getContentTitle() {
-        return getString( KEY_CONTENT_TITLE);
-    }
-
-
-
-
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/SignupActivity.java">
+<file path="app/src/main/java/com/example/fludde/LoginActivity.java">
 package com.example.fludde;
 
 import android.content.Intent;
@@ -3092,64 +3389,62 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class SignupActivity extends AppCompatActivity {
-    private static final String TAG = "SignupActivity";
+public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LoginActivity";
 
     private EditText etUsername;
     private EditText etPassword;
-    private EditText etEmail;
+    private Button btnLogin;
     private Button btnSignup;
-    private Button btnCancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+        setContentView(R.layout.activity_login);
 
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-        etEmail = findViewById(R.id.etEmail);
+        btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
-        btnCancel = findViewById(R.id.btnCancel);
 
-        btnSignup.setOnClickListener(v -> attemptSignup());
-        btnCancel.setOnClickListener(v -> {
-            finish();
-            Log.d(TAG, "Signup cancelled and activity closed");
+        btnLogin.setOnClickListener(v -> attemptLogin());
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+            Log.d(TAG, "Navigated to SignupActivity");
         });
     }
 
-    private void attemptSignup() {
+    private void attemptLogin() {
         try {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
 
-            if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                Log.w(TAG, "Signup attempt with empty fields");
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Login attempt with empty fields");
                 return;
             }
 
-            if (username.equals("admin")) {
-                Log.e(TAG, "Signup failed: Username already taken: " + username);
-                Toast.makeText(this, "Signup failed. Username already taken.", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.d(TAG, "Signup successful for user: " + username);
+            if (username.equals("admin") && password.equals("admin")) {
+                Log.d(TAG, "Login successful for user: " + username);
                 navigateToMain();
+            } else {
+                Log.e(TAG, "Login failed for user: " + username);
+                Toast.makeText(this, "Login failed. Incorrect username or password.", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error during signup attempt", e);
-            Toast.makeText(this, "An error occurred during signup. Please try again.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error during login attempt", e);
+            Toast.makeText(this, "An error occurred during login. Please try again.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void navigateToMain() {
         try {
-            Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-            Log.d(TAG, "Navigated to MainActivity after signup");
+            Log.d(TAG, "Navigated to MainActivity");
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to MainActivity", e);
             Toast.makeText(this, "An error occurred while navigating to the main screen.", Toast.LENGTH_SHORT).show();
@@ -3322,7 +3617,8 @@ public class SignupActivity extends AppCompatActivity {
     app:cardUseCompatPadding="true"
     app:cardBackgroundColor="@color/card_bg_selector"
     app:strokeColor="@color/card_stroke_selector"
-    app:strokeWidth="@dimen/divider_thin">
+    app:strokeWidth="@dimen/divider_thin"
+    app:rippleColor="@color/ripple_stateful">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ccContentFrameLayout"
@@ -3355,6 +3651,99 @@ public class SignupActivity extends AppCompatActivity {
             tools:text="Bad Boys II" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
+</file>
+
+<file path="app/src/main/res/layout/fragment_child_book.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.child.BookChildFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBookHorizontalView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</file>
+
+<file path="app/src/main/res/layout/fragment_child_movie.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.child.MovieChildFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMovieHorizontalView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</file>
+
+<file path="app/src/main/res/layout/fragment_child_music.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.child.MusicChildFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMusicHorizontalView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 </file>
 
 <file path="app/src/main/res/layout/fragment_compose_parent.xml">
@@ -3708,13 +4097,17 @@ public class SignupActivity extends AppCompatActivity {
     android:layout_marginStart="@dimen/space_8"
     android:layout_marginEnd="@dimen/space_8"
     android:layout_marginTop="@dimen/space_8"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    app:rippleColor="@color/ripple_stateful">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cvLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/space_16">
+
+        <!-- (unchanged child views) -->
+        <!-- ... keep the same contents from your existing file ... -->
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivContent"
@@ -3805,21 +4198,6 @@ public class SignupActivity extends AppCompatActivity {
             tools:text="JohnDoe" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
-</file>
-
-<file path="app/src/test/java/com/example/fludde/ExampleUnitTest.java">
-package com.example.fludde;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public class ExampleUnitTest {
-    @Test
-    public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
-    }
-}
 </file>
 
 <file path="gradle/wrapper/gradle-wrapper.properties">
@@ -4293,174 +4671,6 @@ public class MusicChildFragment extends Fragment {
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/LoginActivity.java">
-package com.example.fludde;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
-
-public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = "LoginActivity";
-
-    private EditText etUsername;
-    private EditText etPassword;
-    private Button btnLogin;
-    private Button btnSignup;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        etUsername = findViewById(R.id.etUsername);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnSignup = findViewById(R.id.btnSignup);
-
-        btnLogin.setOnClickListener(v -> attemptLogin());
-        btnSignup.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
-            startActivity(intent);
-            Log.d(TAG, "Navigated to SignupActivity");
-        });
-    }
-
-    private void attemptLogin() {
-        try {
-            String username = etUsername.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
-                Log.w(TAG, "Login attempt with empty fields");
-                return;
-            }
-
-            if (username.equals("admin") && password.equals("admin")) {
-                Log.d(TAG, "Login successful for user: " + username);
-                navigateToMain();
-            } else {
-                Log.e(TAG, "Login failed for user: " + username);
-                Toast.makeText(this, "Login failed. Incorrect username or password.", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error during login attempt", e);
-            Toast.makeText(this, "An error occurred during login. Please try again.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void navigateToMain() {
-        try {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-            Log.d(TAG, "Navigated to MainActivity");
-        } catch (Exception e) {
-            Log.e(TAG, "Error navigating to MainActivity", e);
-            Toast.makeText(this, "An error occurred while navigating to the main screen.", Toast.LENGTH_SHORT).show();
-        }
-    }
-}
-</file>
-
-<file path="app/src/main/res/layout/fragment_child_book.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragments.child.BookChildFragment">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvBookHorizontalView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-</file>
-
-<file path="app/src/main/res/layout/fragment_child_movie.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragments.child.MovieChildFragment">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMovieHorizontalView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-</file>
-
-<file path="app/src/main/res/layout/fragment_child_music.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragments.child.MusicChildFragment">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMusicHorizontalView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-</file>
-
 <file path="app/src/main/res/values/colors.xml">
 <resources>
     <!--
@@ -4924,6 +5134,7 @@ public class HomeFragment extends Fragment {
         adapter = new PostAdapter(requireContext(), posts);
         rvHomeFeed.setAdapter(adapter);
         rvHomeFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvHomeFeed.setHasFixedSize(true); // stable item height prevents relayout jank
 
         btnRetry.setOnClickListener(v -> loadFeed());
 
@@ -5191,95 +5402,60 @@ public class BooksContent {
 package com.example.fludde;
 
 import android.os.Bundle;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.fludde.fragments.ComposeParentFragment;
 import com.example.fludde.fragments.HomeFragment;
 import com.example.fludde.fragments.PostFragment;
 import com.example.fludde.fragments.ProfileFragment;
 import com.example.fludde.fragments.SearchFragment;
+import com.example.fludde.utils.FragmentTransitions;
 import com.example.fludde.utils.InsetsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+        // Edge-to-edge with proper insets so content doesn't jump or hide
+        InsetsUtils.applyEdgeToEdge(this, findViewById(R.id.flContainer), bottomNavigation);
 
-        // ✅ Edge-to-edge: transparent bars with proper insets applied to container + bottom nav
-        InsetsUtils.applyEdgeToEdge(this, findViewById(R.id.flContainer), bottomNavigationView);
-
-        // AGP 8+: R.id values are non-final; use if/else instead of switch on item IDs.
-        bottomNavigationView.setOnItemSelectedListener(item -> {
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            Fragment frag;
             int id = item.getItemId();
-
             if (id == R.id.action_home) {
-                loadFragment(new HomeFragment());
-                Log.d(TAG, "Home fragment selected");
-                return true;
-
+                frag = new HomeFragment();
             } else if (id == R.id.action_feed) {
-                loadFragment(new PostFragment());
-                Log.d(TAG, "Feed (posts) selected");
-                return true;
-
+                frag = new PostFragment();
             } else if (id == R.id.action_compose) {
-                loadFragment(new ComposeParentFragment());
-                Log.d(TAG, "Compose selected");
-                return true;
-
+                frag = new ComposeParentFragment();
             } else if (id == R.id.action_search) {
-                loadFragment(new SearchFragment());
-                Log.d(TAG, "Search selected");
-                return true;
-
-            } else if (id == R.id.action_profile) {
-                loadFragment(new ProfileFragment());
-                Log.d(TAG, "Profile fragment selected");
-                return true;
-
+                frag = new SearchFragment();
             } else {
-                Log.e(TAG, "Unhandled item: " + id);
-                return false;
+                frag = new ProfileFragment();
             }
+            // Subtle fast transition between tabs
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .setCustomAnimations(
+                            R.anim.fade_in_fast, R.anim.fade_out_fast,
+                            R.anim.fade_in_fast, R.anim.fade_out_fast)
+                    .replace(R.id.flContainer, frag)
+                    .commit();
+            return true;
         });
 
         if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.action_home);
-        }
-    }
-
-    private void loadFragment(Fragment fragment) {
-        try {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.flContainer, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to load fragment: " + fragment.getClass().getSimpleName(), e);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        try {
-            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                super.onBackPressed();
-            } else {
-                getSupportFragmentManager().popBackStack();
-                Log.d(TAG, "Back pressed: previous fragment");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error during back navigation", e);
+            bottomNavigation.setSelectedItemId(R.id.action_home);
         }
     }
 }
