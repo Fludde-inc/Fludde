@@ -11,7 +11,7 @@
     android:layout_marginBottom="@dimen/space_8"
     android:clickable="true"
     android:focusable="true"
-    app:checkable="true"
+    android:checkable="true"
     app:cardUseCompatPadding="true"
     app:cardBackgroundColor="@color/card_bg_selector"
     app:strokeColor="@color/card_stroke_selector"
