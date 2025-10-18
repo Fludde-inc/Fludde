@@ -1,7 +1,7 @@
-<!-- app/src/main/AndroidManifest.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Keep permissions minimal. INTERNET is required for Parse + API calls. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Fludde">
 
+        <!-- Main (single-activity) host that owns bottom navigation & fragment swaps -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -21,7 +22,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" android:exported="false" />
-        <activity android:name=".SignupActivity" android:exported="false" />
+        <!-- Auth flow screens (no UI theming here; all styling via themes/styles) -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+
+        <!-- Note: FileProvider is omitted (keep manifest minimal) since we are not
+             currently attaching images from local storage. Add it only when needed. -->
     </application>
 </manifest>

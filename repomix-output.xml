@@ -2158,47 +2158,6 @@ public class SignupActivity extends AppCompatActivity {
 </androidx.constraintlayout.widget.ConstraintLayout>
 </file>
 
-<file path="app/src/main/res/layout/users_query.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_8"
-    android:layout_marginEnd="@dimen/space_8"
-    app:cardUseCompatPadding="true"
-    app:rippleColor="@color/ripple_stateful">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_8">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivUserImage"
-            android:layout_width="@dimen/avatar_lg"
-            android:layout_height="@dimen/avatar_lg"
-            android:contentDescription="@string/cd_user_avatar"
-            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
-            tools:srcCompat="@drawable/placeholder_avatar" />
-
-        <TextView
-            android:id="@+id/tvUName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_16"
-            android:layout_toEndOf="@id/ivUserImage"
-            android:layout_centerVertical="true"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-            tools:text="John Doe" />
-    </RelativeLayout>
-</com.google.android.material.card.MaterialCardView>
-</file>
-
 <file path="app/src/main/res/menu/menu_bottom_navigation.xml">
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -2253,201 +2212,6 @@ public class SignupActivity extends AppCompatActivity {
         <item>@font/acme</item>
         <item>@font/black_han_sans</item>
     </array>
-</resources>
-</file>
-
-<file path="app/src/main/res/values/styles.xml">
-<!-- app/src/main/res/values/styles.xml -->
-<resources>
-
-    <!-- ───────────────────────────── Text fields ───────────────────────────── -->
-    <!-- Filled text field container (TextInputLayout) -->
-    <style name="Widget.Fludde.TextField.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="boxStrokeWidth">1dp</item>
-        <item name="boxStrokeWidthFocused">2dp</item>
-    </style>
-
-    <!-- Outlined text field container (TextInputLayout) -->
-    <style name="Widget.Fludde.TextField.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="boxStrokeWidth">1dp</item>
-        <item name="boxStrokeWidthFocused">2dp</item>
-    </style>
-
-    <!-- Optional inline error text used near counters, etc. -->
-    <style name="TextLimitError" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:textColor">?attr/colorError</item>
-    </style>
-
-
-    <!-- ─────────────────────────────── Buttons ─────────────────────────────── -->
-    <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Text" parent="Widget.Material3.Button.TextButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">16dp</item>
-        <item name="iconPadding">6dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Elevated" parent="Widget.Material3.Button.ElevatedButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-    </style>
-
-
-    <!-- ─────────────────────────────── Chips ───────────────────────────────── -->
-    <style name="Widget.Fludde.Chip.Base" parent="Widget.Material3.Chip.Assist">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">48dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="Widget.Fludde.Chip.Assist" parent="Widget.Material3.Chip.Assist">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">48dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="Widget.Fludde.Chip.Filter" parent="Widget.Material3.Chip.Filter">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">48dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="Widget.Fludde.Chip.Input" parent="Widget.Material3.Chip.Input">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">48dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="Widget.Fludde.Chip.Suggestion" parent="Widget.Material3.Chip.Suggestion">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">48dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-
-    <!-- ─────────────────────────────── Cards ───────────────────────────────── -->
-    <style name="Widget.Fludde.Card" parent="Widget.Material3.CardView.Elevated">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="cardUseCompatPadding">true</item>
-        <item name="cardBackgroundColor">@color/card_bg_selector</item>
-        <item name="strokeColor">@color/card_stroke_selector</item>
-        <item name="strokeWidth">@dimen/divider_thin</item>
-        <item name="rippleColor">?attr/colorPrimary</item>
-    </style>
-
-    <!-- ───────────────────────────── Navigation bar (M3) ───────────────────────────── -->
-    <!-- Always-labeled bottom nav with a clear active indicator (uses theme colors). -->
-    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.NavigationBar">
-        <item name="labelVisibilityMode">labeled</item>
-        <item name="itemActiveIndicatorStyle">@style/Widget.Fludde.NavigationBar.ActiveIndicator</item>
-    </style>
-
-    <!-- Subtle, on-brand active indicator (uses rounded brand shape) -->
-    <style name="Widget.Fludde.NavigationBar.ActiveIndicator" parent="Widget.Material3.NavigationBar.ActiveIndicator">
-        <!-- Color from theme (automatic light/dark & dynamic color friendly) -->
-        <item name="android:color">?attr/colorSecondaryContainer</item>
-        <!-- Rounded shape to match the rest of the app -->
-        <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-    </style>
-
-      <!-- Add stronger ripple + disabled opacity for common pressables -->
-    <style name="Widget.Fludde.Pressable" parent="">
-        <item name="android:background">@drawable/list_item_bg</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-    </style>
-
-    <!-- Hook our ripple into Material buttons via an overlay -->
-    <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="rippleColor">@color/ripple_stateful</item>
-    </style>
-
-    <!-- Keep the other button styles from your file; add rippleColor -->
-    <style name="Widget.Fludde.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="rippleColor">@color/ripple_stateful</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="rippleColor">@color/ripple_stateful</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Text" parent="Widget.Material3.Button.TextButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">16dp</item>
-        <item name="iconPadding">6dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="rippleColor">@color/ripple_stateful</item>
-    </style>
-
-    <style name="Widget.Fludde.Button.Elevated" parent="Widget.Material3.Button.ElevatedButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingHorizontal">24dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="rippleColor">@color/ripple_stateful</item>
-    </style>
-
-    <!-- Chips: ensure ripple remains present on light/dark -->
-    <style name="Widget.Fludde.Chip.Base" parent="Widget.Material3.Chip.Assist">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">48dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="rippleColor">@color/ripple_stateful</item>
-    </style>
-
 </resources>
 </file>
 
@@ -4200,6 +3964,171 @@ public class LoginActivity extends AppCompatActivity {
 </com.google.android.material.card.MaterialCardView>
 </file>
 
+<file path="app/src/main/res/layout/users_query.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_8"
+    android:layout_marginEnd="@dimen/space_8"
+    app:cardUseCompatPadding="true"
+    app:rippleColor="@color/ripple_stateful"
+    android:focusable="true"
+    android:clickable="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_8">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivUserImage"
+            android:layout_width="@dimen/avatar_lg"
+            android:layout_height="@dimen/avatar_lg"
+            android:contentDescription="@string/cd_user_avatar"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            tools:srcCompat="@drawable/placeholder_avatar" />
+
+        <TextView
+            android:id="@+id/tvUName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_16"
+            android:layout_toEndOf="@id/ivUserImage"
+            android:layout_centerVertical="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            tools:text="John Doe" />
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>
+</file>
+
+<file path="app/src/main/res/values/styles.xml">
+<!-- app/src/main/res/values/styles.xml -->
+<resources>
+
+    <!-- ───────────────────────────── Text fields ───────────────────────────── -->
+    <!-- Filled text field container (TextInputLayout) -->
+    <style name="Widget.Fludde.TextField.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+    </style>
+
+    <!-- Outlined text field container (TextInputLayout) -->
+    <style name="Widget.Fludde.TextField.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+    </style>
+
+    <!-- Optional inline error text used near counters, etc. -->
+    <style name="TextLimitError" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">?attr/colorError</item>
+    </style>
+
+    <!-- Global text casing: sentence case, never all-caps -->
+    <style name="Text.NoAllCaps">
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- ─────────────────────────────── Buttons ─────────────────────────────── -->
+    <!-- Enforce 48dp min height and sentence case. Ripple uses theme color; good contrast in light/dark. -->
+    <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Elevated" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <!-- ─────────────────────────────── Chips ───────────────────────────────── -->
+    <style name="Widget.Fludde.Chip.Base" parent="Widget.Material3.Chip.Assist">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">@dimen/touch_target_min</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Chip.Assist" parent="Widget.Fludde.Chip.Base" />
+    <style name="Widget.Fludde.Chip.Filter" parent="Widget.Fludde.Chip.Base" />
+    <style name="Widget.Fludde.Chip.Input" parent="Widget.Fludde.Chip.Base" />
+    <style name="Widget.Fludde.Chip.Suggestion" parent="Widget.Fludde.Chip.Base" />
+
+    <!-- ─────────────────────────────── Cards ───────────────────────────────── -->
+    <!-- Uses color roles so contrast stays ≥AA in light/dark/dynamic. -->
+    <style name="Widget.Fludde.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardBackgroundColor">@color/card_bg_selector</item>
+        <item name="strokeColor">@color/card_stroke_selector</item>
+        <item name="strokeWidth">@dimen/divider_thin</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <!-- Navigation bar with visible active indicator; respects color roles. -->
+    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.NavigationBar">
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Fludde.NavigationBar.ActiveIndicator</item>
+    </style>
+
+    <style name="Widget.Fludde.NavigationBar.ActiveIndicator" parent="Widget.Material3.NavigationBar.ActiveIndicator">
+        <item name="android:color">?attr/colorSecondaryContainer</item>
+        <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+    <!-- Stronger ripple + disabled opacity for pressables -->
+    <style name="Widget.Fludde.Pressable">
+        <item name="android:background">@drawable/list_item_bg</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+</resources>
+</file>
+
 <file path="gradle/wrapper/gradle-wrapper.properties">
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
@@ -4767,166 +4696,6 @@ public class MusicChildFragment extends Fragment {
 </resources>
 </file>
 
-<file path="app/src/main/res/values/strings.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- ───────────── App/meta ───────────── -->
-    <string name="app_name">Fludde</string>
-
-    <!-- ───────────── Navigation labels (Material 3 bottom nav) ───────────── -->
-    <string name="nav_home">Home</string>
-    <string name="nav_timeline">Timeline</string>
-    <string name="nav_compose">Compose</string>
-    <string name="nav_search">Search</string>
-    <string name="nav_profile">Profile</string>
-
-    <!-- ───────────── Common actions/buttons ───────────── -->
-    <string name="action_login">Log in</string>
-    <string name="action_logout">Log out</string>
-    <string name="action_signup">Sign up</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="action_retry">Retry</string>
-    <string name="action_try_again">Try again</string>
-    <string name="action_edit_profile">Edit profile</string>
-    <string name="action_search">Search</string>
-
-    <!-- ───────────── Form labels & hints ───────────── -->
-    <string name="label_username">Username</string>
-    <string name="label_password">Password</string>
-    <string name="label_email">Email</string>
-    <string name="label_title">Title</string>
-    <string name="label_category">Category</string>
-    <string name="label_review">Review</string>
-
-    <string name="hint_username">Enter your username</string>
-    <string name="hint_password">Enter your password</string>
-    <string name="hint_email">Enter your email</string>
-    <string name="hint_search_user">Search for a user</string>
-    <string name="hint_content_description">Add a short description</string>
-    <string name="hint_review">Share what you think</string>
-
-    <!-- ───────────── Accessibility: content descriptions ───────────── -->
-    <string name="cd_user_avatar">User avatar</string>
-    <string name="cd_profile_picture">Profile picture</string>
-    <string name="cd_content_image">Content image</string>
-    <string name="cd_movie_poster">Movie poster</string>
-    <string name="cd_book_cover">Book cover</string>
-    <string name="cd_album_cover">Album cover</string>
-    <string name="cd_nav_home">Home</string>
-    <string name="cd_nav_timeline">Timeline</string>
-    <string name="cd_nav_compose">Compose</string>
-    <string name="cd_nav_search">Search</string>
-    <string name="cd_nav_profile">Profile</string>
-    <string name="cd_logout">Log out</string>
-    <string name="cd_loading">Loading</string>
-
-    <!-- ───────────── Loading states ───────────── -->
-    <string name="loading_generic">Loading…</string>
-    <string name="loading_feed">Loading posts…</string>
-    <string name="loading_content">Loading content…</string>
-
-    <!-- ───────────── Empty states (titles + messages) ───────────── -->
-    <string name="empty_feed_title">No posts yet</string>
-    <string name="empty_feed_message">Follow people to see posts here.</string>
-
-    <string name="empty_profile_title">No posts yet</string>
-    <string name="empty_profile_message">Create your first post.</string>
-
-    <string name="empty_search_title">No users found</string>
-    <string name="empty_search_message">Try a different name.</string>
-
-    <string name="empty_movies_title">No movies right now</string>
-    <string name="empty_movies_message">Check back later for trending picks.</string>
-
-    <string name="empty_books_title">No books right now</string>
-    <string name="empty_books_message">Try again in a bit.</string>
-
-    <string name="empty_music_title">No music right now</string>
-    <string name="empty_music_message">Try again in a bit.</string>
-
-    <!-- ───────────── Error states (concise, non-blocking) ───────────── -->
-    <string name="error_generic">Something went wrong.</string>
-    <string name="error_network">You’re offline.</string>
-    <string name="error_timeout">This is taking too long.</string>
-    <string name="error_api_limit">Service is busy. Try again later.</string>
-    <string name="error_load_profile">Couldn’t load profile.</string>
-    <string name="error_load_feed">Couldn’t load posts.</string>
-    <string name="error_load_content">Couldn’t load content.</string>
-    <string name="error_search">Couldn’t search right now.</string>
-    <string name="error_required_fields">Please fill in all fields.</string>
-    <string name="error_incorrect_login">Incorrect username or password.</string>
-    <string name="error_auth_required">Sign in to continue.</string>
-
-    <!-- ───────────── Counts & misc ───────────── -->
-    <plurals name="search_results_count">
-        <item quantity="one">%d result</item>
-        <item quantity="other">%d results</item>
-    </plurals>
-
-    <!-- ───────────── Sample placeholders used by existing layouts ───────────── -->
-    <string name="johndoe2016" translatable="false">johndoe2016</string>
-    <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
-
-</resources>
-</file>
-
-<file path="app/src/main/AndroidManifest.xml">
-<!-- app/src/main/AndroidManifest.xml -->
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Network access for API calls -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <application
-        android:name=".ParseApplication"
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-
-        <!-- THEME: single source of truth.
-             All visuals (Material 3, dynamic color, shapes, edge-to-edge)
-             are defined in @style/Theme.Fludde and its night/v31 variants.
-             Do NOT set android:theme on individual activities. -->
-        android:theme="@style/Theme.Fludde">
-
-        <!-- Launcher -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <!-- Auth screens (no per-activity theme overrides) -->
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".SignupActivity"
-            android:exported="false" />
-
-        <!-- If you later need FileProvider, uncomment and configure paths in res/xml/fileprovider.xml
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/fileprovider" />
-        </provider>
-        -->
-
-    </application>
-</manifest>
-</file>
-
 <file path=".gitignore">
 # Ignore Mac system files
 .DS_Store
@@ -5186,6 +4955,137 @@ public class HomeFragment extends Fragment {
         });
     }
 }
+</file>
+
+<file path="app/src/main/res/values/strings.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fludde</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_timeline">Timeline</string>
+    <string name="nav_compose">Compose</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Actions -->
+    <string name="action_login">Log in</string>
+    <string name="action_logout">Log out</string>
+    <string name="action_signup">Sign up</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_try_again">Try again</string>
+    <string name="action_edit_profile">Edit profile</string>
+    <string name="action_search">Search</string>
+
+    <!-- Labels & hints -->
+    <string name="label_username">Username</string>
+    <string name="label_password">Password</string>
+    <string name="label_email">Email</string>
+    <string name="label_title">Title</string>
+    <string name="label_category">Category</string>
+    <string name="label_review">Review</string>
+
+    <string name="hint_username">Enter your username</string>
+    <string name="hint_password">Enter your password</string>
+    <string name="hint_email">Enter your email</string>
+    <string name="hint_search_user">Search for a user</string>
+    <string name="hint_content_description">Add a short description</string>
+    <string name="hint_review">Share what you think</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_user_avatar">User avatar</string>
+    <string name="cd_profile_picture">Profile picture</string>
+    <string name="cd_content_image">Content image</string>
+    <string name="cd_movie_poster">Movie poster</string>
+    <string name="cd_book_cover">Book cover</string>
+    <string name="cd_album_cover">Album cover</string>
+    <string name="cd_nav_home">Home</string>
+    <string name="cd_nav_timeline">Timeline</string>
+    <string name="cd_nav_compose">Compose</string>
+    <string name="cd_nav_search">Search</string>
+    <string name="cd_nav_profile">Profile</string>
+    <string name="cd_logout">Log out</string>
+    <string name="cd_loading">Loading</string>
+
+    <!-- Loading -->
+    <string name="loading_generic">Loading…</string>
+    <string name="loading_feed">Loading posts…</string>
+    <string name="loading_content">Loading content…</string>
+
+    <!-- Empty states -->
+    <string name="empty_feed_title">No posts yet</string>
+    <string name="empty_feed_message">Follow people to see posts here.</string>
+
+    <string name="empty_profile_title">No posts yet</string>
+    <string name="empty_profile_message">Create your first post.</string>
+
+    <string name="empty_search_title">No users found</string>
+    <string name="empty_search_message">Try a different name.</string>
+
+    <string name="empty_movies_title">No movies right now</string>
+    <string name="empty_movies_message">Check back later for trending picks.</string>
+
+    <string name="empty_books_title">No books right now</string>
+    <string name="empty_books_message">Try again in a bit.</string>
+
+    <string name="empty_music_title">No music right now</string>
+    <string name="empty_music_message">Try again in a bit.</string>
+
+    <!-- Errors -->
+    <string name="error_generic">Something went wrong.</string>
+    <string name="error_network">You’re offline.</string>
+    <string name="error_timeout">This is taking too long.</string>
+    <string name="error_api_limit">Service is busy. Try again later.</string>
+    <string name="error_load_profile">Couldn’t load profile.</string>
+    <string name="error_load_feed">Couldn’t load posts.</string>
+    <string name="error_load_content">Couldn’t load content.</string>
+    <string name="error_search">Couldn’t search right now.</string>
+    <string name="error_required_fields">Please fill in all fields.</string>
+    <string name="error_incorrect_login">Incorrect username or password.</string>
+    <string name="error_auth_required">Sign in to continue.</string>
+
+    <!-- Plurals -->
+    <plurals name="search_results_count">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+
+    <!-- Samples -->
+    <string name="johndoe2016" translatable="false">johndoe2016</string>
+    <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
+</resources>
+</file>
+
+<file path="app/src/main/AndroidManifest.xml">
+<!-- app/src/main/AndroidManifest.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".ParseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Fludde">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".LoginActivity" android:exported="false" />
+        <activity android:name=".SignupActivity" android:exported="false" />
+    </application>
+</manifest>
 </file>
 
 <file path="app/build.gradle">

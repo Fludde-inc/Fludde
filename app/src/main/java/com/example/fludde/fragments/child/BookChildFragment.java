@@ -27,7 +27,16 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
+/**
+ * Books tab for Compose:
+ * - Horizontal carousel list with stable item sizing from dimens.
+ * - Only data fetching + adapter hookup; card look from layout/styles XML.
+ */
 public class BookChildFragment extends Fragment {
+
+    // Public Google Books query with friendly defaults (no key required).
+    private static final String BOOKS_URL =
+            "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
 
     private RecyclerView rv;
     private BookChildAdapter adapter;
@@ -35,7 +44,9 @@ public class BookChildFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_child_book, container, false);
     }
 
@@ -45,9 +56,10 @@ public class BookChildFragment extends Fragment {
 
         rv = v.findViewById(R.id.rvBookHorizontalView);
         rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+
         adapter = new BookChildAdapter(requireContext(), items, new BookChildAdapter.OnBookContentListener() {
-            @Override public void onBookContentClick(int position) {}
-            @Override public void onBookContentLongClick(int position) {}
+            @Override public void onBookContentClick(int position) { /* no-op for now */ }
+            @Override public void onBookContentLongClick(int position) { /* no-op for now */ }
         });
         rv.setAdapter(adapter);
 
@@ -63,26 +75,14 @@ public class BookChildFragment extends Fragment {
     }
 
     private void fetchBooks() {
-        String url = "https://www.googleapis.com/books/v1/volumes?q=android";
-        ApiUtils.get(url, new JsonHttpResponseHandler() {
+        ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    JSONArray arr = response.optJSONArray("items");
-                    if (arr != null) {
+                    JSONArray results = response.optJSONArray("items");
+                    if (results != null) {
                         items.clear();
-                        for (int i = 0; i < arr.length(); i++) {
-                            JSONObject item = arr.getJSONObject(i);
-                            JSONObject info = item.optJSONObject("volumeInfo");
-                            if (info == null) continue;
-                            String title = info.optString("title");
-                            String thumb = null;
-                            JSONObject images = info.optJSONObject("imageLinks");
-                            if (images != null) {
-                                thumb = images.optString("thumbnail", null);
-                            }
-                            items.add(new BooksContent(title, thumb));
-                        }
+                        items.addAll(BooksContent.fromJsonArray(results));
                         adapter.notifyDataSetChanged();
                     }
                 } catch (Exception ignore) {}
