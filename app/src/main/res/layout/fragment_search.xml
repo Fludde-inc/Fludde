@@ -1,45 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.SearchFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_marginTop="1dp">
+    <!-- Prominent search field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSearch"
+        style="@style/Widget.Fludde.TextField.Outlined"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_16"
+        android:layout_marginEnd="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_16"
+        app:placeholderText="@string/hint_search_user"
+        app:startIconDrawable="@drawable/ic_search_24"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btSearch">
 
-
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSearchFieldUser"
-            android:layout_width="274dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:ems="10"
-            android:hint="Search for user"
-            android:inputType="textPersonName" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvUserQuery"
             android:layout_width="match_parent"
-            android:layout_height="484dp"
-            android:layout_below="@+id/etSearchFieldUser"
-            android:layout_marginTop="20dp"
-            android:padding="1dp" />
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_search_user"
+            android:imeOptions="actionSearch"
+            android:inputType="textPersonName"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/btSearch"
+    <!-- Consistent primary action button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btSearch"
+        style="@style/Widget.Fludde.Button.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_16"
+        android:layout_marginTop="@dimen/space_16"
+        android:text="@string/action_search"
+        android:contentDescription="@string/action_search"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/tilSearch" />
+
+    <!-- Friendly empty state (shows when no results) -->
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="@dimen/space_16"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tilSearch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/icon_size_lg"
+            android:layout_height="@dimen/icon_size_lg"
+            android:contentDescription="@string/empty_search_title"
+            android:src="@drawable/ic_search_24"
+            android:tint="?attr/colorOutline" />
+
+        <TextView
+            android:id="@+id/tvEmptyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginStart="29dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="5dp"
-            android:layout_toEndOf="@+id/etSearchFieldUser"
-            android:text="Search" />
+            android:layout_marginTop="@dimen/space_8"
+            android:text="@string/empty_search_title"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-    </RelativeLayout>
-</FrameLayout>
+        <TextView
+            android:id="@+id/tvEmptyMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:text="@string/empty_search_message"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+    </LinearLayout>
+
+    <!-- Results list: consistent thumbnail + title layout via users_query.xml -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUserQuery"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_12"
+        android:clipToPadding="false"
+        android:padding="@dimen/space_8"
+        app:layout_constraintTop_toBottomOf="@id/tilSearch"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/users_query" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

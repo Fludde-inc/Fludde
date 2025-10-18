@@ -1,0 +1,4 @@
+*.webp
+TUTORIAL.md
+OUTLINE.md
+app/src/main/res/values/font_certs.xml

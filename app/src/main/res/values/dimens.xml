@@ -1,0 +1,63 @@
+<!-- app/src/main/res/values/dimens.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ───────── Spacing scale (8dp baseline; 4dp for tight alignments) ───────── -->
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+
+    <!-- Optional semantic aliases (use either these or the numeric names) -->
+    <dimen name="space_xs">@dimen/space_4</dimen>
+    <dimen name="space_sm">@dimen/space_8</dimen>
+    <dimen name="space_md">@dimen/space_12</dimen>
+    <dimen name="space_lg">@dimen/space_16</dimen>
+    <dimen name="space_xl">@dimen/space_24</dimen>
+    <dimen name="space_2xl">@dimen/space_32</dimen>
+
+    <!-- Edge-to-edge safe insets (baseline page padding) -->
+    <dimen name="inset_screen">@dimen/space_16</dimen>
+
+    <!-- ───────── Interaction + icons ───────── -->
+    <!-- Minimum touch target for tappable controls -->
+    <dimen name="touch_target_min">48dp</dimen>
+    <!-- Common icon sizes -->
+    <dimen name="icon_size_sm">24dp</dimen>
+    <dimen name="icon_size_md">36dp</dimen>
+    <dimen name="icon_size_lg">48dp</dimen>
+
+    <!-- ───────── Image sizes (stable aspect ratios) ───────── -->
+    <!-- Square thumbnails (covers, avatars in grids, etc.) -->
+    <dimen name="image_square_sm">96dp</dimen>
+    <dimen name="image_square_md">120dp</dimen>
+    <dimen name="image_square_lg">160dp</dimen>
+
+    <!-- Poster / book cover (2:3 aspect) -->
+    <dimen name="poster_sm_w">96dp</dimen>
+    <dimen name="poster_sm_h">144dp</dimen>
+    <dimen name="poster_md_w">120dp</dimen>
+    <dimen name="poster_md_h">180dp</dimen>
+    <dimen name="poster_lg_w">160dp</dimen>
+    <dimen name="poster_lg_h">240dp</dimen>
+
+    <!-- Avatars (circular/squircle) -->
+    <dimen name="avatar_sm">40dp</dimen>
+    <dimen name="avatar_md">48dp</dimen>
+    <dimen name="avatar_lg">56dp</dimen>
+    <dimen name="avatar_xl">64dp</dimen>
+
+    <!-- ───────── Common radii (align with M3 shape theming) ───────── -->
+    <dimen name="radius_xs">4dp</dimen>
+    <dimen name="radius_sm">8dp</dimen>
+    <dimen name="radius_md">12dp</dimen>
+    <dimen name="radius_lg">16dp</dimen>
+    <dimen name="radius_xl">20dp</dimen>
+
+    <!-- Useful misc -->
+    <dimen name="card_content_padding">@dimen/space_16</dimen>
+    <dimen name="divider_thin">1dp</dimen>
+
+</resources>

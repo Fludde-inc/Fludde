@@ -1,60 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cvMusicPostLayout"
     android:layout_width="wrap_content"
-    android:layout_height="195dp"
-    android:layout_marginLeft="1dp"
-    android:layout_marginTop="1dp"
-    android:layout_marginBottom="4dp"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="5dp"
-    app:cardMaxElevation="6dp"
-    app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true">
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_8"
+    android:layout_marginTop="@dimen/space_8"
+    android:layout_marginBottom="@dimen/space_8"
+    android:clickable="true"
+    android:focusable="true"
+    app:checkable="true"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@color/card_bg_selector"
+    app:strokeColor="@color/card_stroke_selector"
+    app:strokeWidth="@dimen/divider_thin"
+    app:rippleColor="@color/ripple_stateful">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-
         android:id="@+id/ccMusicFrameLayout"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_8">
 
-        android:layout_height="wrap_content">
-
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivAlbumCoverImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="1dp"
-            android:clickable="true"
-            android:focusableInTouchMode="true"
-            android:longClickable="true"
-            android:scaleType="fitCenter"
+            android:layout_width="@dimen/image_square_sm"
+            android:layout_height="@dimen/image_square_sm"
+            android:contentDescription="@string/cd_album_cover"
+            android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Medium"
+            tools:srcCompat="@drawable/placeholder_square" />
 
         <TextView
             android:id="@+id/tvSongTitle"
-            android:layout_width="100dp"
+            android:layout_width="@dimen/image_square_sm"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:hint="Some song"
+            android:layout_marginTop="@dimen/space_4"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivAlbumCoverImage" />
+            app:layout_constraintTop_toBottomOf="@id/ivAlbumCoverImage"
+            tools:text="Some Very Long Song Title That Truncates…" />
 
         <TextView
             android:id="@+id/tvArtistName"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/image_square_sm"
             android:layout_height="wrap_content"
-            android:hint="johnZ"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvSongTitle" />
-
+            app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
+            tools:text="Artist" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

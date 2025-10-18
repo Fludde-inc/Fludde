@@ -6,17 +6,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
+    <!-- Edge-to-edge container; insets applied in code (InsetsUtils) -->
     <FrameLayout
         android:id="@+id/flContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomNavigation"
-        />
+        android:layout_height="match_parent" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:menu="@menu/menu_bottom_navigation" />
+        <!-- Use the component’s own container styling from theme; no opaque system bars behind -->
+        app:menu="@menu/menu_bottom_navigation"
+        <!-- Always show labels (Material guidance) -->
+        app:labelVisibilityMode="labeled"
+        <!-- Clear, Material 3 active indicator -->
+        app:itemActiveIndicatorStyle="@style/Widget.Fludde.NavigationBar.ActiveIndicator" />
 
 </RelativeLayout>

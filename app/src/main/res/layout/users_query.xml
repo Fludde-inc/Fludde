@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="1dp"
-    android:layout_marginEnd="1dp"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="5dp"
-    app:cardMaxElevation="6dp"
-    app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true">
+    android:layout_marginTop="@dimen/space_8"
+    android:layout_marginEnd="@dimen/space_8"
+    app:cardUseCompatPadding="true"
+    app:rippleColor="@color/ripple_stateful">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="115dp">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_8">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivUserImage"
-            android:layout_width="100dp"
-            android:layout_height="125dp"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:layout_width="@dimen/avatar_lg"
+            android:layout_height="@dimen/avatar_lg"
+            android:contentDescription="@string/cd_user_avatar"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            tools:srcCompat="@drawable/placeholder_avatar" />
 
         <TextView
             android:id="@+id/tvUName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="22dp"
-            android:layout_marginTop="15dp"
-            android:layout_toEndOf="@+id/ivUserImage"
-            android:hint="John Doe" />
-
+            android:layout_marginStart="@dimen/space_16"
+            android:layout_toEndOf="@id/ivUserImage"
+            android:layout_centerVertical="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            tools:text="John Doe" />
     </RelativeLayout>
-
-
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

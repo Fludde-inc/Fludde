@@ -5,6 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.example.fludde.R;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -39,7 +42,6 @@ public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAd
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         ParseUser user = users.get(position);
         holder.bind((User) user);
-
     }
 
     @Override
@@ -60,18 +62,17 @@ public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAd
         }
 
         public void bind(ParseUser user) {
+            tvUName.setText(user.getUsername());
 
-            tvUName.setText(user.getUsername().toString());
+            ParseFile userImage = user.getParseFile("image");
 
-
-            ParseFile userImage = user.getParseFile("image"); // check to see if the current user has a login picture
-
-
-            if (userImage != null) {
-                Glide.with(context).load(user.getParseFile("image").getUrl()).into( ivUserImage);
-            }
-
+            Glide.with(context)
+                .load(userImage != null ? userImage.getUrl() : null)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_avatar)
+                .error(R.drawable.placeholder_avatar)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(ivUserImage);
         }
     }
-
 }

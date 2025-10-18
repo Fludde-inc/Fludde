@@ -12,9 +12,6 @@ apikey.properties.bak
 .gradle/
 build/
 
-# Ignore gradle wrapper jar and properties
-gradle/wrapper/gradle-wrapper.jar
-gradle/wrapper/gradle-wrapper.properties
 
 # Ignore Android Studio specific files
 .idea/

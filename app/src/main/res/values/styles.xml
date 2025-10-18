@@ -1,12 +1,192 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- app/src/main/res/values/styles.xml -->
 <resources>
 
+    <!-- ───────────────────────────── Text fields ───────────────────────────── -->
+    <!-- Filled text field container (TextInputLayout) -->
+    <style name="Widget.Fludde.TextField.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+    </style>
+
+    <!-- Outlined text field container (TextInputLayout) -->
+    <style name="Widget.Fludde.TextField.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+    </style>
+
+    <!-- Optional inline error text used near counters, etc. -->
+    <style name="TextLimitError" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">?attr/colorError</item>
+    </style>
 
 
+    <!-- ─────────────────────────────── Buttons ─────────────────────────────── -->
+    <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
 
-    <!-- text input layout -->
-    <style name="TextLimitError" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textColor">@color/colorRed</item>
+    <style name="Widget.Fludde.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Elevated" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+
+    <!-- ─────────────────────────────── Chips ───────────────────────────────── -->
+    <style name="Widget.Fludde.Chip.Base" parent="Widget.Material3.Chip.Assist">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Fludde.Chip.Assist" parent="Widget.Material3.Chip.Assist">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Fludde.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Fludde.Chip.Input" parent="Widget.Material3.Chip.Input">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Fludde.Chip.Suggestion" parent="Widget.Material3.Chip.Suggestion">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+
+    <!-- ─────────────────────────────── Cards ───────────────────────────────── -->
+    <style name="Widget.Fludde.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardBackgroundColor">@color/card_bg_selector</item>
+        <item name="strokeColor">@color/card_stroke_selector</item>
+        <item name="strokeWidth">@dimen/divider_thin</item>
+        <item name="rippleColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- ───────────────────────────── Navigation bar (M3) ───────────────────────────── -->
+    <!-- Always-labeled bottom nav with a clear active indicator (uses theme colors). -->
+    <style name="Widget.Fludde.NavigationBar" parent="Widget.Material3.NavigationBar">
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Fludde.NavigationBar.ActiveIndicator</item>
+    </style>
+
+    <!-- Subtle, on-brand active indicator (uses rounded brand shape) -->
+    <style name="Widget.Fludde.NavigationBar.ActiveIndicator" parent="Widget.Material3.NavigationBar.ActiveIndicator">
+        <!-- Color from theme (automatic light/dark & dynamic color friendly) -->
+        <item name="android:color">?attr/colorSecondaryContainer</item>
+        <!-- Rounded shape to match the rest of the app -->
+        <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+    </style>
+
+      <!-- Add stronger ripple + disabled opacity for common pressables -->
+    <style name="Widget.Fludde.Pressable" parent="">
+        <item name="android:background">@drawable/list_item_bg</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- Hook our ripple into Material buttons via an overlay -->
+    <style name="Widget.Fludde.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <!-- Keep the other button styles from your file; add rippleColor -->
+    <style name="Widget.Fludde.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <style name="Widget.Fludde.Button.Elevated" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
+    </style>
+
+    <!-- Chips: ensure ripple remains present on light/dark -->
+    <style name="Widget.Fludde.Chip.Base" parent="Widget.Material3.Chip.Assist">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Fludde.Medium</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="rippleColor">@color/ripple_stateful</item>
     </style>
 
 </resources>

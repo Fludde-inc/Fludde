@@ -1,47 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivProfilePic"
-        android:layout_width="159dp"
-        android:layout_height="165dp"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center|top"
-        android:layout_marginTop="40dp"
-        android:padding="1dp"
-        android:scaleType="centerCrop"
-        tools:src="@tools:sample/avatars" />
+        android:layout_width="@dimen/avatar_xl"
+        android:layout_height="@dimen/avatar_xl"
+        android:contentDescription="@string/cd_profile_picture"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/space_24"
+        tools:srcCompat="@drawable/placeholder_avatar" />
 
     <TextView
         android:id="@+id/tvUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="250dp"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        app:layout_constraintTop_toBottomOf="@id/ivProfilePic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/space_12"
         android:hint="@string/johndoe2016" />
 
     <TextView
         android:id="@+id/tvEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="275dp"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        app:layout_constraintTop_toBottomOf="@id/tvUserName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/space_4"
         android:hint="@string/johndoe_youknow_com" />
 
     <ImageButton
         android:id="@+id/ibtnLogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginRight="25dp"
-        android:layout_marginBottom="150dp"
-        android:src="@drawable/ic_baseline_logout_24" />
-</RelativeLayout>
+        android:contentDescription="@string/action_logout"
+        android:src="@drawable/ic_person_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/space_16"
+        android:layout_marginBottom="@dimen/space_16" />
+</androidx.constraintlayout.widget.ConstraintLayout>

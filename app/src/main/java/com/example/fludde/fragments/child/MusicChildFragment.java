@@ -1,68 +1,87 @@
 package com.example.fludde.fragments.child;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fludde.R;
 import com.example.fludde.adapters.MusicChildAdapter;
+import com.example.fludde.model.MusicContent;
 import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.SpacesItemDecoration;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cz.msebera.android.httpclient.Header;
 
 public class MusicChildFragment extends Fragment {
-    private static final String TAG = "MusicChildFragment";
-    private RecyclerView rvMusicHorizontalView;
-    private MusicChildAdapter adapter;
 
-    private static final String SPOTIFY_API_KEY = BuildConfig.SPOTIFY_KEY;
-    private static final String SPOTIFY_URL = "https://api.spotify.com/v1/tracks?api_key=" + SPOTIFY_API_KEY;
+    private static final String ITUNES_URL =
+            "https://itunes.apple.com/search?term=pop&entity=song&limit=20";
+
+    private RecyclerView rv;
+    private MusicChildAdapter adapter;
+    private final List<MusicContent> items = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_child_music, container, false);
-
-        rvMusicHorizontalView = view.findViewById(R.id.rvMusicHorizontalView);
-        adapter = new MusicChildAdapter(getContext());
-        rvMusicHorizontalView.setAdapter(adapter);
-
-        fetchPopularTracks();
-
-        return view;
+        return inflater.inflate(R.layout.fragment_child_music, container, false);
     }
 
-    private void fetchPopularTracks() {
-        ApiUtils.get(SPOTIFY_URL, new JsonHttpResponseHandler() {
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+
+        rv = v.findViewById(R.id.rvMusicHorizontalView);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        adapter = new MusicChildAdapter(requireContext(), items, new MusicChildAdapter.OnMusicContentListener() {
+            @Override public void onMusicContentClick(int position) {}
+            @Override public void onMusicContentLongClick(int position) {}
+        });
+        rv.setAdapter(adapter);
+
+        // Carousel affordance: peeking edges + per-item snap
+        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
+        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
+        rv.setClipToPadding(false);
+        rv.setPadding(edgePeek, 0, edgePeek, 0);
+        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
+        new LinearSnapHelper().attachToRecyclerView(rv);
+
+        fetchMusic();
+    }
+
+    private void fetchMusic() {
+        ApiUtils.get(ITUNES_URL, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    JSONArray results = response.getJSONArray("tracks");
-                    adapter.setTracks(results);
-                    Log.d(TAG, "Tracks fetched successfully");
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to parse track data", e);
-                    Toast.makeText(getContext(), "Failed to load tracks. Please try again.", Toast.LENGTH_SHORT).show();
-                }
+                    JSONArray results = response.optJSONArray("results");
+                    if (results != null) {
+                        items.clear();
+                        items.addAll(MusicContent.fromJsonArray(results));
+                        adapter.notifyDataSetChanged();
+                    }
+                } catch (Exception ignore) {}
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.e(TAG, "Failed to fetch tracks from API", throwable);
                 ApiUtils.handleFailure(statusCode, throwable);
-                Toast.makeText(getContext(), "Failed to fetch tracks. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
     }

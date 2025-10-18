@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected → emphasize with PrimaryContainer -->
+    <item android:state_checked="true" android:color="?attr/colorPrimaryContainer"/>
+    <!-- Pressed/hovered → slightly higher surface container -->
+    <item android:state_pressed="true" android:color="?attr/materialColorSurfaceContainerHigh"/>
+    <!-- Default -->
+    <item android:color="?attr/materialColorSurfaceContainer"/>
+</selector>

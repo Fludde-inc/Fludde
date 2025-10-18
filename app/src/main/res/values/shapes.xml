@@ -1,0 +1,19 @@
+<resources>
+    <!-- Rounded, consistent card/button chips per the design plan -->
+    <style name="ShapeAppearance.Fludde.Medium" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Fludde.Large" parent="ShapeAppearance.Material3.Corner.Large">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <!-- NEW: Circular shape for avatars -->
+    <style name="ShapeAppearance.Fludde.Circular" parent="ShapeAppearance.Material3.Corner.Full">
+        <!-- Full (50%) radius yields a circle for square views -->
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

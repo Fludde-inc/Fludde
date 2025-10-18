@@ -10,34 +10,47 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.fludde.Post;
 import com.example.fludde.R;
+import com.example.fludde.utils.GlideExtensions;
 import com.parse.ParseFile;
 
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
+    private final Context context;
+    private final List<Post> posts;
 
-
-    private Context context;
-    private List<Post> posts;
     public PostAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
+        setHasStableIds(true); // stable for jank-free animations
     }
+
+    @Override
+    public long getItemId(int position) {
+        // Best effort stable id from Parse objectId if available
+        try {
+            String id = posts.get(position).getObjectId();
+            return id != null ? id.hashCode() : position;
+        } catch (Exception e) {
+            return position;
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-       View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        // Press/ ripple background on the whole row
+        view.setBackgroundResource(R.drawable.list_item_bg);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-      Post post = posts.get(position);
-      holder.bind(post);
+        holder.bind(posts.get(position));
     }
 
     @Override
@@ -46,17 +59,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
-        private TextView tvContentCategory;
-        private TextView tvContentDescription;
-        private TextView tvContentTitle;
-        private TextView tvUsername;
-        private TextView tvReview;
-        private ImageView ivUserPic;
-        private ImageView ivContent;
+        private final TextView tvContentCategory;
+        private final TextView tvContentDescription;
+        private final TextView tvContentTitle;
+        private final TextView tvUsername;
+        private final TextView tvReview;
+        private final ImageView ivUserPic;
+        private final ImageView ivContent;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvContentCategory = itemView.findViewById(R.id.tvContentCategory);
             tvContentDescription = itemView.findViewById(R.id.tvContentDescription);
             tvContentTitle = itemView.findViewById(R.id.tvContentTitle);
@@ -65,10 +77,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             ivUserPic = itemView.findViewById(R.id.ivUserPic);
             ivContent = itemView.findViewById(R.id.ivContent);
 
+            // Long-press haptic (discoverability)
+            itemView.setOnLongClickListener(v -> {
+                com.example.fludde.utils.Haptics.longPress(v);
+                return false; // still let context/action propagate
+            });
         }
 
-        public void bind(Post post) {
-
+        void bind(Post post) {
             tvContentCategory.setText(post.getCategory());
             tvContentDescription.setText(post.getDescription());
             tvContentTitle.setText(post.getContentTitle());
@@ -76,20 +92,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             tvReview.setText(post.getReview());
 
             ParseFile contentImage = post.getContentImage();
+            ParseFile userImage = post.getUser().getParseFile("image");
 
-            ParseFile userImage = post.getUser().getParseFile("image"); // check to see if the current user has a login picture
-
-
-            if(contentImage != null) {
-                Glide.with(context).load(post.getContentImage().getUrl()).into(ivContent);
-            }
-
-            if (userImage != null){
-                Glide.with(context).load(post.getUser().getParseFile("image").getUrl()).into(ivUserPic); //get current login user picture
-            }
-
-
-
+            GlideExtensions.loadPoster(ivContent, contentImage != null ? contentImage.getUrl() : null);
+            GlideExtensions.loadAvatar(ivUserPic, userImage != null ? userImage.getUrl() : null);
         }
     }
 }

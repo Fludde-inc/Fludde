@@ -1,132 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cvContent"
-    android:layout_marginTop="1dp"
-    android:layout_marginEnd="1dp"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="5dp"
-    app:cardMaxElevation="6dp"
-    app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true" >
-
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_8"
+    android:layout_marginEnd="@dimen/space_8"
+    android:layout_marginTop="@dimen/space_8"
+    app:cardUseCompatPadding="true"
+    app:rippleColor="@color/ripple_stateful">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cvLayout"
         android:layout_width="match_parent"
-        android:layout_height="255dp">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_16">
 
-        <TextView
-            android:id="@+id/tvReview"
-            android:layout_width="249dp"
-            android:layout_height="78dp"
-            android:layout_below="@+id/tvContentDescription"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="56dp"
-            android:layout_toEndOf="@+id/ivUserPic"
-            android:hint="Film criticism is the analysis and evaluation of films and the film medium. In general, film criticism can be divided into two categories"
-            android:padding="2dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.589"
-            app:layout_constraintStart_toEndOf="@+id/ivUserPic"
-            app:layout_constraintTop_toBottomOf="@+id/tvContentDescription" />
+        <!-- (unchanged child views) -->
+        <!-- ... keep the same contents from your existing file ... -->
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivContent"
-            android:layout_width="94dp"
-            android:layout_height="95dp"
-
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toStartOf="@+id/tvContentDescription"
-            app:layout_constraintHorizontal_bias="0.551"
+            android:layout_width="@dimen/poster_md_w"
+            android:layout_height="@dimen/poster_md_h"
+            android:contentDescription="@string/cd_content_image"
+            android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Medium"
+            tools:srcCompat="@drawable/placeholder_poster" />
 
         <TextView
             android:id="@+id/tvContentTitle"
-            android:layout_width="96dp"
-            android:layout_height="37dp"
-            android:layout_below="@+id/ivContent"
-
-            android:layout_toStartOf="@+id/tvContentDescription"
-            android:hint="Bad Boys 2"
-            android:includeFontPadding="true"
-            android:textAlignment="center"
-            android:textStyle="normal"
-            app:flow_horizontalStyle="spread"
-            app:layout_constraintBottom_toTopOf="@+id/ivUserPic"
-            app:layout_constraintEnd_toStartOf="@+id/tvContentDescription"
-            app:layout_constraintHorizontal_bias="0.516"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivContent"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <TextView
-            android:id="@+id/tvContentDescription"
-            android:layout_width="195dp"
+            android:layout_width="@dimen/poster_md_w"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="72dp"
-            android:layout_toEndOf="@+id/ivContent"
-            android:ems="10"
-            android:fontFamily="sans-serif-black"
-            android:hint="The drug ecstasy is flowing into Miami, and the police want it stopped. Police Detective Marcus Burnett (Martin Lawrence) and his partner, Mike Lowrey (Will Smith), are just the men to do it."
-            android:inputType="textMultiLine"
-            android:maxLines="5"
-            android:textIsSelectable="false"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginTop="@dimen/space_8"
+            android:textAlignment="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            app:layout_constraintTop_toBottomOf="@+id/ivContent"
+            app:layout_constraintStart_toStartOf="@+id/ivContent"
+            tools:text="Bad Boys II" />
 
         <TextView
             android:id="@+id/tvContentCategory"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@id/tvReview"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/acme"
-            android:hint="Movie"
-            android:inputType="textPersonName"
-            android:textSize="14sp"
+            android:layout_marginStart="@dimen/space_16"
+            android:layout_marginTop="@dimen/space_16"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+            app:layout_constraintStart_toEndOf="@id/ivContent"
+            app:layout_constraintTop_toTopOf="@id/ivContent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.578"
-            app:layout_constraintStart_toEndOf="@+id/tvContentDescription"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="TouchTargetSizeCheck" />
+            tools:text="Movie" />
 
-        <ImageView
+        <TextView
+            android:id="@+id/tvContentDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_8"
+            android:layout_marginStart="@dimen/space_16"
+            android:maxLines="4"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintStart_toEndOf="@id/ivContent"
+            app:layout_constraintTop_toBottomOf="@id/tvContentCategory"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="The drug ecstasy is flowing into Miami..." />
+
+        <TextView
+            android:id="@+id/tvReview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_8"
+            android:layout_marginStart="@dimen/space_16"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintStart_toEndOf="@id/ivContent"
+            app:layout_constraintTop_toBottomOf="@id/tvContentDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Short personal review snippet goes here..." />
+
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivUserPic"
-            android:layout_width="86dp"
-            android:layout_height="60dp"
-            android:layout_below="@+id/tvContentTitle"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="52dp"
-            android:scaleType="centerCrop"
+            android:layout_width="@dimen/avatar_md"
+            android:layout_height="@dimen/avatar_md"
+            android:layout_marginTop="@dimen/space_16"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivContent"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:layout_constraintTop_toBottomOf="@id/tvContentTitle"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.Full"
+            android:contentDescription="@string/cd_user_avatar"
+            tools:srcCompat="@drawable/placeholder_avatar" />
 
         <TextView
             android:id="@+id/tvUsername"
-            android:layout_width="86dp"
-            android:layout_height="18dp"
-            android:layout_below="@+id/ivUserPic"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="@dimen/avatar_md"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
             android:gravity="center"
-            android:hint="JohnDoe"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
             app:layout_constraintTop_toBottomOf="@+id/ivUserPic"
-            app:layout_constraintVertical_bias="0.0" />
-
-
+            app:layout_constraintStart_toStartOf="@+id/ivUserPic"
+            tools:text="JohnDoe" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

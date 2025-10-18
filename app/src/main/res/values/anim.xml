@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Very subtle (100–160ms) fades/scales for fragment/tab transitions -->
+    <item name="anim_fast_duration" type="integer">140</item>
+</resources>

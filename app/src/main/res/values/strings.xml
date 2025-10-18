@@ -1,23 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- ───────────── App/meta ───────────── -->
     <string name="app_name">Fludde</string>
-    <string name="back4app_server_url">https://parseapi.back4app.com</string>
-    <string name="back4app_app_id">nRblQEecS7qZNV8dHvloBj1RmMTIz72hEhiTViVh</string>
-    <string name="back4app_client_key">DztkdxcbvJyv4OQA2NwrOiCcwOQeuoMYcGPRPHpG</string>
-    <string name="user_name">User Name </string>
-    <string name="password">Password</string>
-    <string name="re_enter_password">Re-Enter Password</string>
-    <string name="clear">Clear</string>
-    <string name="create">Create</string>
-    <string name="email">Email</string>
-    <!-- NY TIME INFO -->
-    <string name="ny_times_book_current_url">https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json?</string>
-    <string name="ny_times_book_by_title">https://api.nytimes.com/svc/books/v3/reviews.json?/reviews.json?</string>
-    <string name="ny_times_key">w2uK0OgfCp9kftPXBlb3IS3rv8a3l7sd</string>
-    <string name="google_book_api_key">AIzaSyDseJhQYiCBlQdnO8L2lJjtwuudWrnOrlU</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="johndoe2016">JohnDoe2016</string>
-    <string name="johndoe_youknow_com">johndoe@youknow.com</string>
-    <string name="helper_text">Characters Remaining</string>
-    <string name="spotify_key">18f11dfb672a4c8e8492f92a033c7e3e</string>
+
+    <!-- ───────────── Navigation labels (Material 3 bottom nav) ───────────── -->
+    <string name="nav_home">Home</string>
+    <string name="nav_timeline">Timeline</string>
+    <string name="nav_compose">Compose</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- ───────────── Common actions/buttons ───────────── -->
+    <string name="action_login">Log in</string>
+    <string name="action_logout">Log out</string>
+    <string name="action_signup">Sign up</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_try_again">Try again</string>
+    <string name="action_edit_profile">Edit profile</string>
+    <string name="action_search">Search</string>
+
+    <!-- ───────────── Form labels & hints ───────────── -->
+    <string name="label_username">Username</string>
+    <string name="label_password">Password</string>
+    <string name="label_email">Email</string>
+    <string name="label_title">Title</string>
+    <string name="label_category">Category</string>
+    <string name="label_review">Review</string>
+
+    <string name="hint_username">Enter your username</string>
+    <string name="hint_password">Enter your password</string>
+    <string name="hint_email">Enter your email</string>
+    <string name="hint_search_user">Search for a user</string>
+    <string name="hint_content_description">Add a short description</string>
+    <string name="hint_review">Share what you think</string>
+
+    <!-- ───────────── Accessibility: content descriptions ───────────── -->
+    <string name="cd_user_avatar">User avatar</string>
+    <string name="cd_profile_picture">Profile picture</string>
+    <string name="cd_content_image">Content image</string>
+    <string name="cd_movie_poster">Movie poster</string>
+    <string name="cd_book_cover">Book cover</string>
+    <string name="cd_album_cover">Album cover</string>
+    <string name="cd_nav_home">Home</string>
+    <string name="cd_nav_timeline">Timeline</string>
+    <string name="cd_nav_compose">Compose</string>
+    <string name="cd_nav_search">Search</string>
+    <string name="cd_nav_profile">Profile</string>
+    <string name="cd_logout">Log out</string>
+    <string name="cd_loading">Loading</string>
+
+    <!-- ───────────── Loading states ───────────── -->
+    <string name="loading_generic">Loading…</string>
+    <string name="loading_feed">Loading posts…</string>
+    <string name="loading_content">Loading content…</string>
+
+    <!-- ───────────── Empty states (titles + messages) ───────────── -->
+    <string name="empty_feed_title">No posts yet</string>
+    <string name="empty_feed_message">Follow people to see posts here.</string>
+
+    <string name="empty_profile_title">No posts yet</string>
+    <string name="empty_profile_message">Create your first post.</string>
+
+    <string name="empty_search_title">No users found</string>
+    <string name="empty_search_message">Try a different name.</string>
+
+    <string name="empty_movies_title">No movies right now</string>
+    <string name="empty_movies_message">Check back later for trending picks.</string>
+
+    <string name="empty_books_title">No books right now</string>
+    <string name="empty_books_message">Try again in a bit.</string>
+
+    <string name="empty_music_title">No music right now</string>
+    <string name="empty_music_message">Try again in a bit.</string>
+
+    <!-- ───────────── Error states (concise, non-blocking) ───────────── -->
+    <string name="error_generic">Something went wrong.</string>
+    <string name="error_network">You’re offline.</string>
+    <string name="error_timeout">This is taking too long.</string>
+    <string name="error_api_limit">Service is busy. Try again later.</string>
+    <string name="error_load_profile">Couldn’t load profile.</string>
+    <string name="error_load_feed">Couldn’t load posts.</string>
+    <string name="error_load_content">Couldn’t load content.</string>
+    <string name="error_search">Couldn’t search right now.</string>
+    <string name="error_required_fields">Please fill in all fields.</string>
+    <string name="error_incorrect_login">Incorrect username or password.</string>
+    <string name="error_auth_required">Sign in to continue.</string>
+
+    <!-- ───────────── Counts & misc ───────────── -->
+    <plurals name="search_results_count">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+
+    <!-- ───────────── Sample placeholders used by existing layouts ───────────── -->
+    <string name="johndoe2016" translatable="false">johndoe2016</string>
+    <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
+
 </resources>

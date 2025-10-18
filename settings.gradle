@@ -1,0 +1,25 @@
+pluginManagement {
+  repositories {
+    // Where Gradle finds plugins like the Android Gradle Plugin (AGP)
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+dependencyResolutionManagement {
+  // Prefer repositories declared here (modern Gradle/AGP practice)
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    // Primary repos for Android projects
+    google()
+    mavenCentral()
+
+    // Needed for Parse Android SDK 4.x (com.github.parse-community)
+    // Keep JitPack LAST so Gradle checks the standard repos first.
+    maven { url "https://www.jitpack.io" }
+  }
+}
+
+rootProject.name = "Fludde"
+include(":app")

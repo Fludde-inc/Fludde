@@ -1,67 +1,60 @@
 package com.example.fludde;
 
 import android.os.Bundle;
-import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+
+import com.example.fludde.fragments.ComposeParentFragment;
+import com.example.fludde.fragments.HomeFragment;
+import com.example.fludde.fragments.PostFragment;
+import com.example.fludde.fragments.ProfileFragment;
+import com.example.fludde.fragments.SearchFragment;
+import com.example.fludde.utils.FragmentTransitions;
+import com.example.fludde.utils.InsetsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        // Edge-to-edge with proper insets so content doesn't jump or hide
+        InsetsUtils.applyEdgeToEdge(this, findViewById(R.id.flContainer), bottomNavigation);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.nav_home:
-                    loadFragment(new HomeFragment());
-                    Log.d(TAG, "Home fragment selected");
-                    return true;
-                case R.id.nav_profile:
-                    loadFragment(new ProfileFragment());
-                    Log.d(TAG, "Profile fragment selected");
-                    return true;
-                default:
-                    Log.e(TAG, "Unhandled navigation item selected: " + item.getItemId());
-                    return false;
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            Fragment frag;
+            int id = item.getItemId();
+            if (id == R.id.action_home) {
+                frag = new HomeFragment();
+            } else if (id == R.id.action_feed) {
+                frag = new PostFragment();
+            } else if (id == R.id.action_compose) {
+                frag = new ComposeParentFragment();
+            } else if (id == R.id.action_search) {
+                frag = new SearchFragment();
+            } else {
+                frag = new ProfileFragment();
             }
+            // Subtle fast transition between tabs
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .setCustomAnimations(
+                            R.anim.fade_in_fast, R.anim.fade_out_fast,
+                            R.anim.fade_in_fast, R.anim.fade_out_fast)
+                    .replace(R.id.flContainer, frag)
+                    .commit();
+            return true;
         });
 
         if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_home);
-        }
-    }
-
-    private void loadFragment(Fragment fragment) {
-        try {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
-            Log.d(TAG, "Fragment loaded successfully: " + fragment.getClass().getSimpleName());
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to load fragment: " + fragment.getClass().getSimpleName(), e);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        try {
-            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                super.onBackPressed();
-            } else {
-                getSupportFragmentManager().popBackStack();
-                Log.d(TAG, "Back pressed: navigating to previous fragment");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error during back navigation", e);
+            bottomNavigation.setSelectedItemId(R.id.action_home);
         }
     }
 }

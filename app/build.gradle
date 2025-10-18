@@ -2,17 +2,44 @@ plugins {
     id 'com.android.application'
 }
 
+import java.util.Properties
+
+// --- Secrets loader: apikey.properties (or environment variables as fallback) ---
+def secrets = new Properties()
+def secretsFile = rootProject.file("apikey.properties")
+if (secretsFile.exists()) {
+    secrets.load(new FileInputStream(secretsFile))
+}
+def readSecret = { String key, String defVal = "" ->
+    def fromEnv = System.getenv(key)
+    return (fromEnv != null && !fromEnv.isEmpty()) ? fromEnv : (secrets.getProperty(key, defVal) ?: defVal)
+}
+def DEFAULT_BACK4APP_URL = "https://parseapi.back4app.com/"
+// -------------------------------------------------------------------------------
+
 android {
-    compileSdk 32
+    namespace 'com.example.fludde'
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.fludde"
         minSdk 21
-        targetSdk 32
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+        buildConfigField "String", "SPOTIFY_KEY", "\"${readSecret('SPOTIFY_KEY')}\""
+        buildConfigField "String", "TMDB_API_KEY", "\"${readSecret('TMDB_API_KEY')}\""
+        buildConfigField "String", "NY_TIMES_API_KEY", "\"${readSecret('NY_TIMES_API_KEY')}\""
+
+        // Back4App / Parse
+        buildConfigField "String", "BACK4APP_APP_ID", "\"${readSecret('BACK4APP_APP_ID')}\""
+        buildConfigField "String", "BACK4APP_CLIENT_KEY", "\"${readSecret('BACK4APP_CLIENT_KEY')}\""
+        buildConfigField "String", "BACK4APP_SERVER_URL", "\"${readSecret('BACK4APP_SERVER_URL', DEFAULT_BACK4APP_URL)}\""
     }
 
     buildTypes {
@@ -20,39 +47,39 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug { }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
-def apikeyPropertiesFile = rootProject.file("apikey.properties")
-def apikeyProperties = new Properties()
-apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
-android {
-
-    defaultConfig {
-
-        buildConfigField("String", "NY_TIMES_API_KEY", apikeyProperties['NY_TIMES_API_KEY'])
-        buildConfigField("String","SPOTIFY_KEY",apikeyProperties['SPOTIFY_KEY'])
+    buildFeatures {
+        buildConfig true
+        viewBinding true
     }
 }
 
 dependencies {
+    // Parse SDK
+    implementation "com.github.parse-community.Parse-SDK-Android:parse:4.2.0"
 
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.codepath.libraries:asynchttpclient:2.2.0'
-    implementation 'com.google.mlkit:common:17.2.0'
-    testImplementation 'junit:junit:4.13.2'
-    implementation 'commons-io:commons-io:2.6'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation "com.github.parse-community.Parse-SDK-Android:parse:1.18.5"
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // Glide
+    implementation "com.github.bumptech.glide:glide:4.16.0"
+    annotationProcessor "com.github.bumptech.glide:compiler:4.16.0"
+
+    // AndroidX + Material
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "androidx.recyclerview:recyclerview:1.3.2"
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
+
+    // HTTP (loopj)
+    implementation "com.loopj.android:android-async-http:1.4.11"
+    implementation "cz.msebera.android:httpclient:4.5.8"
+
+    // ✅ Shimmer skeletons for loading states
+    implementation "com.facebook.shimmer:shimmer:0.5.0"
 }

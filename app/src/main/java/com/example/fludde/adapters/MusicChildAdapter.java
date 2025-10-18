@@ -1,125 +1,112 @@
 package com.example.fludde.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.fludde.R;
 import com.example.fludde.model.MusicContent;
+import com.example.fludde.utils.GlideExtensions;
+import com.example.fludde.utils.Haptics;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
 public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.MusicViewHolder> {
 
-    Context context;
-    private List<MusicContent> musicContentList;
-    private OnMusicContentListener musicContentListener;
-    private  int selectedItem = -1;
+    private final Context context;
+    private final List<MusicContent> items;
+    private final OnMusicContentListener listener;
 
+    private int selectedPos = RecyclerView.NO_POSITION;
 
-    public MusicChildAdapter(Context context, List<MusicContent> musicContentList, OnMusicContentListener musicContentListener) {
+    public MusicChildAdapter(@NonNull Context context,
+                             @NonNull List<MusicContent> items,
+                             @NonNull OnMusicContentListener listener) {
         this.context = context;
-        this.musicContentList = musicContentList;
-        this.musicContentListener = musicContentListener;
+        this.items = items;
+        this.listener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = items.get(position).getTitle() + items.get(position).getArtist() + position;
+        return key.hashCode();
     }
 
     @NonNull
     @Override
     public MusicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View music = LayoutInflater.from(context).inflate(R.layout.music_content_post,parent,false);
-        return new MusicViewHolder(music,musicContentListener);
+        View v = LayoutInflater.from(context).inflate(R.layout.music_content_post, parent, false);
+        v.setBackgroundResource(R.drawable.list_item_bg);
+        return new MusicViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MusicViewHolder holder, int position) {
-        MusicContent musicContent = musicContentList.get(position);
-
-        if(selectedItem == holder.getAdapterPosition())     //add the position to
-        {
-            holder.itemView.setBackgroundColor(Color.parseColor("#33F5FF")); //Color to change the selected Item too
-
-
-        }
-        else
-        {
-            holder.itemView.setBackgroundColor(Color.parseColor("#ffffff")); //change it back to write if its not click
-
-        }
-
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selectedItem=holder.getAdapterPosition();
-                holder.onMusicContentListener.onMusicContentClick(holder.getAdapterPosition());
-                notifyDataSetChanged();
-            }
-        });
-        holder.bind(musicContent);
-
-
+        holder.bind(items.get(position), position == selectedPos);
     }
 
     @Override
-    public int getItemCount() {
-        return musicContentList.size();
-    }
+    public int getItemCount() { return items.size(); }
 
-
-    class MusicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
-
-        OnMusicContentListener onMusicContentListener;
+    class MusicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         ImageView ivAlbumCoverImage;
         TextView tvSongTitle;
         TextView tvArtistName;
 
-
-        public MusicViewHolder(@NonNull View itemView, OnMusicContentListener onMusicContentListener) {
+        MusicViewHolder(@NonNull View itemView) {
             super(itemView);
-
             ivAlbumCoverImage = itemView.findViewById(R.id.ivAlbumCoverImage);
             tvSongTitle = itemView.findViewById(R.id.tvSongTitle);
             tvArtistName = itemView.findViewById(R.id.tvArtistName);
-            this.onMusicContentListener =onMusicContentListener;
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
-
         }
 
+        void bind(MusicContent data, boolean selected) {
+            tvSongTitle.setText(data.getTitle());
+            tvArtistName.setText(data.getArtist());
+            GlideExtensions.loadSquare(ivAlbumCoverImage, data.getCoverIMGUrl());
 
-
-        public void bind(MusicContent musicContent) {
-            tvSongTitle.setText(musicContent.getTitle());
-            tvArtistName.setText(musicContent.getArtist());
-
-
-            Glide.with(context).load(musicContent.getCoverIMGUrl()).into(ivAlbumCoverImage);
-
-
-        }
-        @Override
-        public void onClick(View view) {
-            notifyDataSetChanged();
+            MaterialCardView card = (MaterialCardView) itemView;
+            card.setChecked(selected);
+            itemView.setSelected(selected);
         }
 
         @Override
-        public boolean onLongClick(View view) {
+        public void onClick(View v) {
+            int pos = getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+            int old = selectedPos;
+            selectedPos = pos;
+            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
+            notifyItemChanged(selectedPos);
+
+            Haptics.tick(v);
+            if (listener != null) listener.onMusicContentClick(pos);
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            int pos = getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION && listener != null) {
+                Haptics.longPress(v);
+                listener.onMusicContentLongClick(pos);
+                return true;
+            }
             return false;
         }
-
-
     }
 
-    public interface OnMusicContentListener{
+    public interface OnMusicContentListener {
         void onMusicContentClick(int position);
         void onMusicContentLongClick(int position);
     }
