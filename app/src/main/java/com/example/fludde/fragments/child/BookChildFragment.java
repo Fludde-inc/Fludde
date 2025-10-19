@@ -1,9 +1,12 @@
 package com.example.fludde.fragments.child;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,17 +31,18 @@ import java.util.List;
 import cz.msebera.android.httpclient.Header;
 
 /**
- * Books tab for Compose:
- * - Horizontal carousel list with stable item sizing from dimens.
- * - Only data fetching + adapter hookup; card look from layout/styles XML.
+ * Books tab carousel with defensive parsing + noisy logs.
  */
 public class BookChildFragment extends Fragment {
+
+    private static final String TAG = "BookChildFragment";
 
     // Public Google Books query with friendly defaults (no key required).
     private static final String BOOKS_URL =
             "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
 
     private RecyclerView rv;
+    private ProgressBar progress;
     private BookChildAdapter adapter;
     private final List<BooksContent> items = new ArrayList<>();
 
@@ -55,11 +59,12 @@ public class BookChildFragment extends Fragment {
         super.onViewCreated(v, savedInstanceState);
 
         rv = v.findViewById(R.id.rvBookHorizontalView);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        progress = v.findViewById(R.id.progressBar);
 
+        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         adapter = new BookChildAdapter(requireContext(), items, new BookChildAdapter.OnBookContentListener() {
-            @Override public void onBookContentClick(int position) { /* no-op for now */ }
-            @Override public void onBookContentLongClick(int position) { /* no-op for now */ }
+            @Override public void onBookContentClick(int position) {}
+            @Override public void onBookContentLongClick(int position) {}
         });
         rv.setAdapter(adapter);
 
@@ -74,23 +79,41 @@ public class BookChildFragment extends Fragment {
         fetchBooks();
     }
 
+    private void setLoading(boolean show) {
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
+    }
+
     private void fetchBooks() {
+        setLoading(true);
+        Log.d(TAG, "Fetching books: " + BOOKS_URL);
+
         ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    JSONArray results = response.optJSONArray("items");
-                    if (results != null) {
-                        items.clear();
-                        items.addAll(BooksContent.fromJsonArray(results));
-                        adapter.notifyDataSetChanged();
+                    JSONArray arr = response.optJSONArray("items");
+                    items.clear();
+                    items.addAll(BooksContent.fromGoogleBooks(arr));
+                    adapter.notifyDataSetChanged();
+
+                    Log.d(TAG, "Books loaded ✓ count=" + items.size());
+                    if (items.isEmpty()) {
+                        Toast.makeText(requireContext(), getString(R.string.empty_books_message), Toast.LENGTH_SHORT).show();
                     }
-                } catch (Exception ignore) {}
+                } catch (Exception e) {
+                    Log.e(TAG, "Parse error (books)", e);
+                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                } finally {
+                    setLoading(false);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                setLoading(false);
                 ApiUtils.handleFailure(statusCode, throwable);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -179,165 +179,6 @@ settings.gradle
 <files>
 This section contains the contents of the repository's files.
 
-<file path="scripts/android-run.sh">
-#!/usr/bin/env bash
-set -Eeuo pipefail
-
-# ------------------------------------------------------------
-# Fludde: build + install the debug APK onto an Android emulator
-# ------------------------------------------------------------
-# What this does:
-# 1) Picks a valid AVD (or uses $FLUDDE_AVD if set)
-# 2) Starts the emulator if none is running
-# 3) Waits for full boot (sys.boot_completed=1)
-# 4) Installs app/build/outputs/apk/debug/app-debug.apk
-# 5) Launches com.example.fludde/.MainActivity
-#
-# Usage:
-#   ./scripts/android-run.sh             # uses default APK path & best AVD
-#   FLUDDE_AVD=Pixel_7_API_35 ./scripts/android-run.sh
-#   ./scripts/android-run.sh path/to/your.apk
-# ------------------------------------------------------------
-
-APP_ID="com.example.fludde"
-MAIN_ACTIVITY=".MainActivity"
-APK="${1:-app/build/outputs/apk/debug/app-debug.apk}"
-
-log() { printf "👉 %s\n" "$*"; }
-ok()  { printf "✅ %s\n" "$*"; }
-err() { printf "❌ %s\n" "$*" >&2; }
-
-require_cmd() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    err "Missing command: $1 (check your Android SDK install and PATH)"
-    exit 1
-  fi
-}
-
-require_cmd adb
-require_cmd emulator
-
-if [[ ! -f "$APK" ]]; then
-  err "APK not found at: $APK"
-  log "Try: ./gradlew :app:assembleDebug"
-  exit 1
-fi
-
-pick_avd() {
-  local preferred="${FLUDDE_AVD:-}"
-  local list
-  if ! list="$(emulator -list-avds)"; then
-    err "Failed to list AVDs. Create one in Android Studio or with avdmanager."
-    exit 1
-  fi
-
-  # If user provided a preferred AVD, use it (and validate).
-  if [[ -n "$preferred" ]]; then
-    if grep -Fxq "$preferred" <<<"$list"; then
-      echo "$preferred"
-      return
-    else
-      err "Requested AVD '$preferred' not found. Available:"
-      echo "$list"
-      exit 1
-    fi
-  fi
-
-  # Good defaults if present.
-  if grep -Fxq "Pixel_7_API_35" <<<"$list"; then echo "Pixel_7_API_35"; return; fi
-  if grep -Fxq "fluddeApi35"   <<<"$list"; then echo "fluddeApi35";   return; fi
-
-  # Otherwise, just take the first in the list.
-  local first
-  first="$(head -n 1 <<<"$list" || true)"
-  if [[ -z "$first" ]]; then
-    err "No AVDs exist yet."
-    log "Create one in Android Studio (AVD Manager) or run:"
-    cat <<'EOF'
-sdkmanager --install "platform-tools" "emulator" "platforms;android-35" "system-images;android-35;google_apis;x86_64"
-echo "no" | avdmanager create avd -n fluddeApi35 -k "system-images;android-35;google_apis;x86_64" --device "pixel_7"
-EOF
-    exit 1
-  fi
-  echo "$first"
-}
-
-avd_name="$(pick_avd)"
-ok "Using AVD: $avd_name"
-
-adb_start() {
-  adb start-server >/dev/null 2>&1 || true
-}
-
-any_device_online() {
-  adb devices | awk 'NR>1 && $2=="device"{print $1}' | head -n1
-}
-
-start_emulator_if_needed() {
-  local dev
-  dev="$(any_device_online || true)"
-  if [[ -n "$dev" ]]; then
-    ok "Device already online: $dev"
-    return
-  fi
-
-  log "Starting emulator: $avd_name"
-  # Tips: -no-boot-anim speeds boot a bit; -netdelay/-netspeed avoid net throttling in tests.
-  # Omit wipes/snapshots to preserve userland state between runs.
-  nohup emulator -avd "$avd_name" -no-boot-anim -netdelay none -netspeed full >/dev/null 2>&1 &
-
-  # Wait for the emulator process to at least bind to adb.
-  adb wait-for-device
-}
-
-wait_for_boot_complete() {
-  log "Waiting for Android to finish booting…"
-  # sys.boot_completed flips to '1' once system is fully up.
-  # Also make sure the package manager responds.
-  local boot=""
-  # Some shells echo \r — strip it to be safe.
-  until boot="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"; [[ "$boot" == "1" ]]; do
-    sleep 1
-  done
-
-  # Make sure package manager responds (pm list packages will block until ready).
-  until adb shell pm list packages >/dev/null 2>&1; do
-    sleep 1
-  done
-
-  # Wake/unlock just in case lock screen is showing.
-  adb shell input keyevent 82 || true
-  ok "Boot complete."
-}
-
-install_apk() {
-  log "Installing APK: $APK"
-  # -r replace existing; -t allow test APKs.
-  adb install -r -t "$APK"
-  ok "Installed."
-}
-
-launch_app() {
-  log "Launching $APP_ID/$MAIN_ACTIVITY"
-  if adb shell am start -n "$APP_ID/$MAIN_ACTIVITY" >/dev/null 2>&1; then
-    ok "App launched."
-  else
-    # Fallback to monkey if MAIN isn't exported/known.
-    adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
-    ok "Launch requested."
-  fi
-}
-
-# ---- Run it all ----
-adb_start
-start_emulator_if_needed
-wait_for_boot_complete
-install_apk
-launch_app
-
-ok "All done 🎉"
-</file>
-
 <file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
 package com.example.fludde.model;
 
@@ -896,6 +737,161 @@ public class User extends ParseUser {
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+</file>
+
+<file path="scripts/android-run.sh">
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# ------------------------------------------------------------
+# Fludde: build + install the debug APK onto an Android emulator
+# then launch the app deterministically with Activity Manager.
+# Falls back to a *forced* Monkey app-switch if needed.
+# ------------------------------------------------------------
+# Usage:
+#   ./scripts/android-run.sh                 # uses default APK path & best AVD
+#   FLUDDE_AVD=Pixel_7_API_35 ./scripts/android-run.sh
+#   ./scripts/android-run.sh path/to/your.apk
+# ------------------------------------------------------------
+
+APP_ID="com.example.fludde"
+MAIN_ACTIVITY=".MainActivity"
+APK="${1:-app/build/outputs/apk/debug/app-debug.apk}"
+
+log() { printf "👉 %s\n" "$*"; }
+ok()  { printf "✅ %s\n" "$*"; }
+warn(){ printf "⚠️  %s\n" "$*" >&2; }
+err() { printf "❌ %s\n" "$*" >&2; }
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    err "Missing command: $1 (check your Android SDK install and PATH)"
+    exit 1
+  fi
+}
+
+require_cmd adb
+require_cmd emulator
+
+if [[ ! -f "$APK" ]]; then
+  err "APK not found at: $APK"
+  log "Try: ./gradlew :app:assembleDebug"
+  exit 1
+fi
+
+pick_avd() {
+  local preferred="${FLUDDE_AVD:-}"
+  local list
+  if ! list="$(emulator -list-avds)"; then
+    err "Failed to list AVDs. Create one in Android Studio or with avdmanager."
+    exit 1
+  fi
+
+  if [[ -n "$preferred" ]]; then
+    if grep -Fxq "$preferred" <<<"$list"; then
+      echo "$preferred"; return
+    else
+      err "Requested AVD '$preferred' not found. Available:"
+      echo "$list"
+      exit 1
+    fi
+  fi
+
+  if grep -Fxq "Pixel_7_API_35" <<<"$list"; then echo "Pixel_7_API_35"; return; fi
+  if grep -Fxq "fluddeApi35"   <<<"$list"; then echo "fluddeApi35";   return; fi
+
+  local first
+  first="$(head -n 1 <<<"$list" || true)"
+  if [[ -z "$first" ]]; then
+    err "No AVDs exist yet."
+    cat <<'EOF'
+Create an AVD, e.g.:
+  sdkmanager --install "platform-tools" "emulator" "platforms;android-35" "system-images;android-35;google_apis;x86_64"
+  echo "no" | avdmanager create avd -n fluddeApi35 -k "system-images;android-35;google_apis;x86_64" --device "pixel_7"
+EOF
+    exit 1
+  fi
+  echo "$first"
+}
+
+avd_name="$(pick_avd)"
+ok "Using AVD: $avd_name"
+
+adb_start() {
+  adb start-server >/dev/null 2>&1 || true
+}
+
+any_device_online() {
+  adb devices | awk 'NR>1 && $2=="device"{print $1}' | head -n1
+}
+
+start_emulator_if_needed() {
+  local dev
+  dev="$(any_device_online || true)"
+  if [[ -n "$dev" ]]; then
+    ok "Device already online: $dev"
+    return
+  fi
+
+  log "Starting emulator: $avd_name"
+  nohup emulator -avd "$avd_name" -no-boot-anim -netdelay none -netspeed full >/dev/null 2>&1 &
+  adb wait-for-device
+}
+
+wait_for_boot_complete() {
+  log "Waiting for Android to finish booting…"
+  local boot=""
+  until boot="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"; [[ "$boot" == "1" ]]; do
+    sleep 1
+  done
+  until adb shell pm list packages >/dev/null 2>&1; do sleep 1; done
+  adb shell input keyevent 82 || true
+  ok "Boot complete."
+}
+
+install_apk() {
+  log "Installing APK: $APK"
+  adb install -r -t "$APK" >/dev/null
+  ok "Installed."
+}
+
+# Deterministic launch with Activity Manager (recommended)
+launch_with_am() {
+  log "Launching with am start: $APP_ID/$MAIN_ACTIVITY"
+  if adb shell am start -n "$APP_ID/$MAIN_ACTIVITY" >/dev/null 2>&1; then
+    ok "App launched via am."
+    return 0
+  fi
+  return 1
+}
+
+# Fallback: force Monkey to do an app-switch as the *first* event
+launch_with_monkey_forced() {
+  log "Fallback: launching with Monkey (forced app-switch)…"
+  # Force 100% app-switch so the very first event is a launch.
+  # Monkey often returns non-zero; treat that as a warning, not a hard fail.
+  if adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER --pct-appswitch 100 -v 1 >/dev/null 2>&1; then
+    ok "Monkey sent app-switch event."
+  else
+    warn "Monkey returned non-zero (common). If am launch worked, you can ignore this."
+  fi
+}
+
+launch_app() {
+  if launch_with_am; then
+    return
+  fi
+  launch_with_monkey_forced
+}
+
+# ---- Run it all ----
+adb_start
+start_emulator_if_needed
+wait_for_boot_complete
+install_apk
+launch_app
+
+ok "All done 🎉"
 </file>
 
 <file path="LICENSE">
@@ -1485,61 +1481,6 @@ public class MusicContent {
 
     public void setRecordLabel(String recordLabel) {
         this.recordLabel = recordLabel;
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
-package com.example.fludde;
-
-import android.app.Application;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.parse.Parse;
-import com.parse.ParseObject;
-
-public class ParseApplication extends Application {
-    private static final String TAG = "ParseApplication";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Register Parse subclasses
-        ParseObject.registerSubclass(Post.class);
-        ParseObject.registerSubclass(User.class);
-
-        // Read credentials injected by Gradle (see app/build.gradle)
-        final String appId = BuildConfig.BACK4APP_APP_ID;
-        final String clientKey = BuildConfig.BACK4APP_CLIENT_KEY;
-        final String serverUrl = BuildConfig.BACK4APP_SERVER_URL;
-
-        if (isValidParseConfig(appId, clientKey, serverUrl)) {
-            try {
-                Parse.initialize(new Parse.Configuration.Builder(this)
-                        .applicationId(appId)
-                        .clientKey(clientKey)
-                        .server(serverUrl)
-                        .build());
-                Log.i(TAG, "Parse initialized.");
-            } catch (Throwable t) {
-                // Never hard-crash the whole app if a remote service misconfigures
-                Log.e(TAG, "Parse initialization failed; continuing without Parse.", t);
-            }
-        } else {
-            Log.w(TAG,
-                    "Parse credentials not configured (BACK4APP_*). " +
-                    "Skipping Parse.initialize to avoid startup crash.");
-        }
-    }
-
-    private static boolean isValidParseConfig(String appId, String clientKey, String serverUrl) {
-        if (TextUtils.isEmpty(appId) || TextUtils.isEmpty(clientKey) || TextUtils.isEmpty(serverUrl)) {
-            return false;
-        }
-        // Minimal sanity check: Parse requires an http(s) endpoint
-        return serverUrl.startsWith("http://") || serverUrl.startsWith("https://");
     }
 }
 </file>
@@ -2231,6 +2172,7 @@ import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.utils.GlideExtensions;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -2302,18 +2244,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         }
 
         void bind(Post post) {
-            tvContentCategory.setText(post.getCategory());
-            tvContentDescription.setText(post.getDescription());
-            tvContentTitle.setText(post.getContentTitle());
-            tvUsername.setText(post.getUser().getUsername());
-            tvReview.setText(post.getReview());
+            // Defensive null-safety — prevents NPEs if a Post is partially filled.
+            String category = safeString(post.getCategory());
+            String description = safeString(post.getDescription());
+            String title = safeString(post.getContentTitle());
+            String review = safeString(post.getReview());
 
-            ParseFile contentImage = post.getContentImage();
-            ParseFile userImage = post.getUser().getParseFile("image");
+            tvContentCategory.setText(category);
+            tvContentDescription.setText(description);
+            tvContentTitle.setText(title);
+            tvReview.setText(review);
+
+            ParseUser user = null;
+            try { user = post.getUser(); } catch (Exception ignore) {}
+            String username = user != null && user.getUsername() != null ? user.getUsername() : "";
+            tvUsername.setText(username);
+
+            ParseFile contentImage = null;
+            try { contentImage = post.getContentImage(); } catch (Exception ignore) {}
+            ParseFile userImage = null;
+            try { userImage = (user != null) ? user.getParseFile("image") : null; } catch (Exception ignore) {}
 
             GlideExtensions.loadPoster(ivContent, contentImage != null ? contentImage.getUrl() : null);
             GlideExtensions.loadAvatar(ivUserPic, userImage != null ? userImage.getUrl() : null);
         }
+
+        private String safeString(String s) { return s != null ? s : ""; }
     }
 }
 </file>
@@ -2373,7 +2329,8 @@ public class PostFragment extends Fragment {
         rvPost = view.findViewById(R.id.rvPost);
         shimmer = view.findViewById(R.id.shimmerContainer);
 
-        errorCard = view.findViewById(R.id.inlineError);
+        // IMPORTANT: this must match the android:id used on the <include> tag in fragment_post.xml
+        errorCard = view.findViewById(R.id.includeError);
         tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
         btnRetry = view.findViewById(R.id.btnRetry);
 
@@ -2404,8 +2361,8 @@ public class PostFragment extends Fragment {
     }
 
     private void showError(boolean show, @Nullable String message) {
-        errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show) {
+        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show && tvErrorMessage != null) {
             tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
         }
     }
@@ -2429,7 +2386,7 @@ public class PostFragment extends Fragment {
                     return;
                 }
                 allPosts.clear();
-                allPosts.addAll(posts);
+                if (posts != null) allPosts.addAll(posts);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -2824,6 +2781,67 @@ public class LoginActivity extends AppCompatActivity {
 }
 </file>
 
+<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
+package com.example.fludde;
+
+import android.app.Application;
+import android.util.Log;
+
+import com.parse.Parse;
+import com.parse.ParseInstallation;
+import com.parse.ParseObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class ParseApplication extends Application {
+
+    private static final String TAG = "ParseApplication";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        // Read credentials from resources
+        final String appId = getString(R.string.back4app_app_id);
+        final String clientKey = getString(R.string.back4app_client_key);
+        final String serverUrl = getString(R.string.back4app_server_url);
+
+        // Defensive validation so we never boot with a bad URL again.
+        try {
+            URL url = new URL(serverUrl); // will throw if malformed
+            if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
+                throw new MalformedURLException("Server URL must start with http or https");
+            }
+        } catch (MalformedURLException e) {
+            // Crash early with a clear reason to avoid the vague Parse stack trace.
+            throw new IllegalStateException(
+                    "Invalid PARSE server URL: \"" + serverUrl + "\". " +
+                    "It must be a full URL like https://parseapi.back4app.com/ .", e);
+        }
+
+        // Register Parse subclasses BEFORE using queries with typed classes
+        // (e.g., ParseQuery<Post>) so results map to your models.
+        ParseObject.registerSubclass(Post.class);
+        ParseObject.registerSubclass(User.class);
+
+        // Initialize Parse
+        Parse.initialize(new Parse.Configuration.Builder(this)
+                .applicationId(appId)
+                .clientKey(clientKey)
+                .server(serverUrl)
+                .build());
+
+        // Optional: save installation (push, analytics, etc.)
+        try {
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+        } catch (Throwable t) {
+            Log.w(TAG, "ParseInstallation save failed (non-fatal): " + t.getMessage());
+        }
+    }
+}
+</file>
+
 <file path="app/src/main/res/layout/activity_login.xml">
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -3141,47 +3159,64 @@ public class LoginActivity extends AppCompatActivity {
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Inline, non-blocking error w/ retry -->
-    <include
-        android:id="@+id/includeError"
-        layout="@layout/include_inline_error"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+    <!-- Your feed list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHomeFeed"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/includeError"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/inlineError"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Simple progress indicator (optional; keep if your code uses it) -->
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Shimmer skeleton overlay -->
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmerContainer"
-        android:visibility="gone"
+    <!-- Inline error card expected by HomeFragment.showError(...) -->
+    <LinearLayout
+        android:id="@+id/inlineError"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/includeError"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/colorErrorContainer"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/rvHomeFeed"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvErrorMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="@string/generic_error_message"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:paddingBottom="8dp"/>
 
-            <include layout="@layout/item_post_skeleton"/>
-            <include layout="@layout/item_post_skeleton"/>
-            <include layout="@layout/item_post_skeleton"/>
-        </LinearLayout>
-    </com.facebook.shimmer.ShimmerFrameLayout>
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/retry"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </file>
@@ -4744,6 +4779,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -4758,7 +4794,6 @@ import android.util.Log;
 import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
-import com.facebook.shimmer.ShimmerFrameLayout;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -4771,7 +4806,10 @@ public class HomeFragment extends Fragment {
     private PostAdapter adapter;
     private final List<Post> posts = new ArrayList<>();
 
-    private ShimmerFrameLayout shimmer;
+    // Use the ProgressBar that already exists in fragment_home.xml
+    private ProgressBar progress;
+
+    // Inline error
     private View errorCard;
     private TextView tvErrorMessage;
     private Button btnRetry;
@@ -4786,7 +4824,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         rvHomeFeed = view.findViewById(R.id.rvHomeFeed);
-        shimmer = view.findViewById(R.id.shimmerContainer);
+        progress = view.findViewById(R.id.progress);
 
         errorCard = view.findViewById(R.id.inlineError);
         tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
@@ -4805,20 +4843,18 @@ public class HomeFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
-        if (show) {
-            shimmer.setVisibility(View.VISIBLE);
-            shimmer.startShimmer();
-            rvHomeFeed.setAlpha(0f);
-        } else {
-            shimmer.stopShimmer();
-            shimmer.setVisibility(View.GONE);
-            rvHomeFeed.setAlpha(1f);
+        if (progress != null) {
+            progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        // Fade list a touch while loading (optional)
+        if (rvHomeFeed != null) {
+            rvHomeFeed.setAlpha(show ? 0.3f : 1f);
         }
     }
 
     private void showError(boolean show, @Nullable String message) {
-        errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show) {
+        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show && tvErrorMessage != null) {
             tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
         }
     }
@@ -4841,7 +4877,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 posts.clear();
-                posts.addAll(result);
+                if (result != null) posts.addAll(result);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -4947,6 +4983,16 @@ public class HomeFragment extends Fragment {
     <!-- Samples -->
     <string name="johndoe2016" translatable="false">johndoe2016</string>
     <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
+        <!-- Back4App / Parse credentials -->
+    <string name="back4app_app_id">PASTE_YOUR_APP_ID_HERE</string>
+    <string name="back4app_client_key">PASTE_YOUR_CLIENT_KEY_HERE</string>
+    <!-- IMPORTANT: must be a full URL with protocol -->
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+
+    <!-- UI text used by the inline error block (fragment_home.xml) -->
+    <string name="generic_error_title">Something went wrong</string>
+    <string name="generic_error_message">We couldn’t load the feed. Please try again.</string>
+    <string name="retry">Retry</string>
 </resources>
 </file>
 
@@ -4994,88 +5040,82 @@ plugins {
     id 'com.android.application'
 }
 
-import java.util.Properties
-
-// --- Load API keys from apikey.properties (kept out of VCS) ---
-def apikeyProps = new Properties()
-def apikeyFile = rootProject.file("apikey.properties")
-if (apikeyFile.exists()) {
-    apikeyFile.withInputStream { apikeyProps.load(it) }
-}
-
 android {
     namespace 'com.example.fludde'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.fludde"
         minSdk 24
+        // You can keep targetSdk as-is; updating compileSdk is enough for RecyclerView 1.4.0.
         targetSdk 34
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // BuildConfig fields used by ParseApplication and fragments
-        buildConfigField "String", "BACK4APP_APP_ID", "\"${(apikeyProps['BACK4APP_APP_ID'] ?: System.getenv('BACK4APP_APP_ID') ?: "")}\""
-        buildConfigField "String", "BACK4APP_CLIENT_KEY", "\"${(apikeyProps['BACK4APP_CLIENT_KEY'] ?: System.getenv('BACK4APP_CLIENT_KEY') ?: "")}\""
-        buildConfigField "String", "BACK4APP_SERVER_URL", "\"${(apikeyProps['BACK4APP_SERVER_URL'] ?: System.getenv('BACK4APP_SERVER_URL') ?: "")}\""
-
-        // TMDB key used in MovieChildFragment
-        buildConfigField "String", "TMDB_API_KEY", "\"${(apikeyProps['TMDB_API_KEY'] ?: System.getenv('TMDB_API_KEY') ?: "")}\""
+        // ---- BuildConfig: TMDB key from apikey.properties (kept optional) ----
+        def tmdbKey = ""
+        def propsFile = rootProject.file("apikey.properties")
+        if (propsFile.exists()) {
+            def p = new Properties()
+            propsFile.withInputStream { p.load(it) }
+            tmdbKey = p.getProperty("TMDB_API_KEY", "")
+        }
+        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug {
-            // keep defaults
-        }
     }
 
-    // Use Java 17 (works with AGP 8.x and modern SDKs)
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    // ✅ Proper way to enable BuildConfig on AGP 8+
     buildFeatures {
         buildConfig true
     }
 
-    packagingOptions {
-        // keep default; add excludes here only if you hit duplicate META-INF entries
+    compileOptions {
+        // AGP 8.x uses JDK 17 toolchain; set source/target for your Java code.
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources {
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
+        }
     }
 }
 
 dependencies {
-    // --- Parse Android SDK (use a published version; 4.3.0 is current on JitPack) ---
-    implementation "com.github.parse-community.Parse-SDK-Android:parse:4.3.0"
-
-    // UI + AndroidX
-    implementation 'com.google.android.material:material:1.12.0'
+    // AndroidX UI
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    // Explicitly use RecyclerView 1.4.0 (requires compileSdk 35)
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.core:core:1.13.1'
 
-    // Glide
+    // Glide (image loading)
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    // Shimmer
+    // Parse Android SDK (via JitPack; your settings.gradle already includes JitPack)
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.3.0'
+
+    // Networking helpers
+    implementation 'com.loopj.android:android-async-http:1.4.11'
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
-    // HTTP client used by ApiUtils (loopj)
-    implementation 'com.loopj.android:android-async-http:1.4.9'
-
-    // Unit/UI tests
+    // Tests
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
 </file>
 

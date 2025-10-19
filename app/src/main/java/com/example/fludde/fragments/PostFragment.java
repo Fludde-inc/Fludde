@@ -52,7 +52,8 @@ public class PostFragment extends Fragment {
         rvPost = view.findViewById(R.id.rvPost);
         shimmer = view.findViewById(R.id.shimmerContainer);
 
-        errorCard = view.findViewById(R.id.inlineError);
+        // IMPORTANT: this must match the android:id used on the <include> tag in fragment_post.xml
+        errorCard = view.findViewById(R.id.includeError);
         tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
         btnRetry = view.findViewById(R.id.btnRetry);
 
@@ -83,8 +84,8 @@ public class PostFragment extends Fragment {
     }
 
     private void showError(boolean show, @Nullable String message) {
-        errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show) {
+        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show && tvErrorMessage != null) {
             tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
         }
     }
@@ -108,7 +109,7 @@ public class PostFragment extends Fragment {
                     return;
                 }
                 allPosts.clear();
-                allPosts.addAll(posts);
+                if (posts != null) allPosts.addAll(posts);
                 adapter.notifyDataSetChanged();
             }
         });

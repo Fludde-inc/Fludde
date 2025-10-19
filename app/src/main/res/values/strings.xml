@@ -95,4 +95,14 @@
     <!-- Samples -->
     <string name="johndoe2016" translatable="false">johndoe2016</string>
     <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
+        <!-- Back4App / Parse credentials -->
+    <string name="back4app_app_id">PASTE_YOUR_APP_ID_HERE</string>
+    <string name="back4app_client_key">PASTE_YOUR_CLIENT_KEY_HERE</string>
+    <!-- IMPORTANT: must be a full URL with protocol -->
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+
+    <!-- UI text used by the inline error block (fragment_home.xml) -->
+    <string name="generic_error_title">Something went wrong</string>
+    <string name="generic_error_message">We couldn’t load the feed. Please try again.</string>
+    <string name="retry">Retry</string>
 </resources>

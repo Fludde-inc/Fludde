@@ -14,6 +14,7 @@ import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.utils.GlideExtensions;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -85,17 +86,31 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         }
 
         void bind(Post post) {
-            tvContentCategory.setText(post.getCategory());
-            tvContentDescription.setText(post.getDescription());
-            tvContentTitle.setText(post.getContentTitle());
-            tvUsername.setText(post.getUser().getUsername());
-            tvReview.setText(post.getReview());
+            // Defensive null-safety — prevents NPEs if a Post is partially filled.
+            String category = safeString(post.getCategory());
+            String description = safeString(post.getDescription());
+            String title = safeString(post.getContentTitle());
+            String review = safeString(post.getReview());
 
-            ParseFile contentImage = post.getContentImage();
-            ParseFile userImage = post.getUser().getParseFile("image");
+            tvContentCategory.setText(category);
+            tvContentDescription.setText(description);
+            tvContentTitle.setText(title);
+            tvReview.setText(review);
+
+            ParseUser user = null;
+            try { user = post.getUser(); } catch (Exception ignore) {}
+            String username = user != null && user.getUsername() != null ? user.getUsername() : "";
+            tvUsername.setText(username);
+
+            ParseFile contentImage = null;
+            try { contentImage = post.getContentImage(); } catch (Exception ignore) {}
+            ParseFile userImage = null;
+            try { userImage = (user != null) ? user.getParseFile("image") : null; } catch (Exception ignore) {}
 
             GlideExtensions.loadPoster(ivContent, contentImage != null ? contentImage.getUrl() : null);
             GlideExtensions.loadAvatar(ivUserPic, userImage != null ? userImage.getUrl() : null);
         }
+
+        private String safeString(String s) { return s != null ? s : ""; }
     }
 }

@@ -1,9 +1,12 @@
 package com.example.fludde.fragments.child;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,10 +32,13 @@ import cz.msebera.android.httpclient.Header;
 
 public class MusicChildFragment extends Fragment {
 
+    private static final String TAG = "MusicChildFragment";
+
     private static final String ITUNES_URL =
             "https://itunes.apple.com/search?term=pop&entity=song&limit=20";
 
     private RecyclerView rv;
+    private ProgressBar progress;
     private MusicChildAdapter adapter;
     private final List<MusicContent> items = new ArrayList<>();
 
@@ -47,6 +53,8 @@ public class MusicChildFragment extends Fragment {
         super.onViewCreated(v, savedInstanceState);
 
         rv = v.findViewById(R.id.rvMusicHorizontalView);
+        progress = v.findViewById(R.id.progressBar);
+
         rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         adapter = new MusicChildAdapter(requireContext(), items, new MusicChildAdapter.OnMusicContentListener() {
             @Override public void onMusicContentClick(int position) {}
@@ -54,7 +62,6 @@ public class MusicChildFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        // Carousel affordance: peeking edges + per-item snap
         final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
         final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
         rv.setClipToPadding(false);
@@ -65,23 +72,43 @@ public class MusicChildFragment extends Fragment {
         fetchMusic();
     }
 
+    private void setLoading(boolean show) {
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
+    }
+
     private void fetchMusic() {
+        setLoading(true);
+        Log.d(TAG, "Fetching music: " + ITUNES_URL);
+
         ApiUtils.get(ITUNES_URL, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONArray results = response.optJSONArray("results");
+                    items.clear();
                     if (results != null) {
-                        items.clear();
                         items.addAll(MusicContent.fromJsonArray(results));
-                        adapter.notifyDataSetChanged();
                     }
-                } catch (Exception ignore) {}
+                    adapter.notifyDataSetChanged();
+
+                    Log.d(TAG, "Music loaded ✓ count=" + items.size());
+                    if (items.isEmpty()) {
+                        Toast.makeText(requireContext(), getString(R.string.empty_music_message), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Parse error (music)", e);
+                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                } finally {
+                    setLoading(false);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                setLoading(false);
                 ApiUtils.handleFailure(statusCode, throwable);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
             }
         });
     }

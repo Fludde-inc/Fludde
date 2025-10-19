@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +19,6 @@ import android.util.Log;
 import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
-import com.facebook.shimmer.ShimmerFrameLayout;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -31,7 +31,10 @@ public class HomeFragment extends Fragment {
     private PostAdapter adapter;
     private final List<Post> posts = new ArrayList<>();
 
-    private ShimmerFrameLayout shimmer;
+    // Use the ProgressBar that already exists in fragment_home.xml
+    private ProgressBar progress;
+
+    // Inline error
     private View errorCard;
     private TextView tvErrorMessage;
     private Button btnRetry;
@@ -46,7 +49,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         rvHomeFeed = view.findViewById(R.id.rvHomeFeed);
-        shimmer = view.findViewById(R.id.shimmerContainer);
+        progress = view.findViewById(R.id.progress);
 
         errorCard = view.findViewById(R.id.inlineError);
         tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
@@ -65,20 +68,18 @@ public class HomeFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
-        if (show) {
-            shimmer.setVisibility(View.VISIBLE);
-            shimmer.startShimmer();
-            rvHomeFeed.setAlpha(0f);
-        } else {
-            shimmer.stopShimmer();
-            shimmer.setVisibility(View.GONE);
-            rvHomeFeed.setAlpha(1f);
+        if (progress != null) {
+            progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        // Fade list a touch while loading (optional)
+        if (rvHomeFeed != null) {
+            rvHomeFeed.setAlpha(show ? 0.3f : 1f);
         }
     }
 
     private void showError(boolean show, @Nullable String message) {
-        errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show) {
+        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show && tvErrorMessage != null) {
             tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
         }
     }
@@ -101,7 +102,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 posts.clear();
-                posts.addAll(result);
+                if (result != null) posts.addAll(result);
                 adapter.notifyDataSetChanged();
             }
         });
