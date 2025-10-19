@@ -163,6 +163,8 @@ gradle/
   wrapper/
     gradle-wrapper.jar
     gradle-wrapper.properties
+scripts/
+  android-run.sh
 .gitignore
 .repomixignore
 build.gradle
@@ -176,6 +178,165 @@ settings.gradle
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="scripts/android-run.sh">
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# ------------------------------------------------------------
+# Fludde: build + install the debug APK onto an Android emulator
+# ------------------------------------------------------------
+# What this does:
+# 1) Picks a valid AVD (or uses $FLUDDE_AVD if set)
+# 2) Starts the emulator if none is running
+# 3) Waits for full boot (sys.boot_completed=1)
+# 4) Installs app/build/outputs/apk/debug/app-debug.apk
+# 5) Launches com.example.fludde/.MainActivity
+#
+# Usage:
+#   ./scripts/android-run.sh             # uses default APK path & best AVD
+#   FLUDDE_AVD=Pixel_7_API_35 ./scripts/android-run.sh
+#   ./scripts/android-run.sh path/to/your.apk
+# ------------------------------------------------------------
+
+APP_ID="com.example.fludde"
+MAIN_ACTIVITY=".MainActivity"
+APK="${1:-app/build/outputs/apk/debug/app-debug.apk}"
+
+log() { printf "👉 %s\n" "$*"; }
+ok()  { printf "✅ %s\n" "$*"; }
+err() { printf "❌ %s\n" "$*" >&2; }
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    err "Missing command: $1 (check your Android SDK install and PATH)"
+    exit 1
+  fi
+}
+
+require_cmd adb
+require_cmd emulator
+
+if [[ ! -f "$APK" ]]; then
+  err "APK not found at: $APK"
+  log "Try: ./gradlew :app:assembleDebug"
+  exit 1
+fi
+
+pick_avd() {
+  local preferred="${FLUDDE_AVD:-}"
+  local list
+  if ! list="$(emulator -list-avds)"; then
+    err "Failed to list AVDs. Create one in Android Studio or with avdmanager."
+    exit 1
+  fi
+
+  # If user provided a preferred AVD, use it (and validate).
+  if [[ -n "$preferred" ]]; then
+    if grep -Fxq "$preferred" <<<"$list"; then
+      echo "$preferred"
+      return
+    else
+      err "Requested AVD '$preferred' not found. Available:"
+      echo "$list"
+      exit 1
+    fi
+  fi
+
+  # Good defaults if present.
+  if grep -Fxq "Pixel_7_API_35" <<<"$list"; then echo "Pixel_7_API_35"; return; fi
+  if grep -Fxq "fluddeApi35"   <<<"$list"; then echo "fluddeApi35";   return; fi
+
+  # Otherwise, just take the first in the list.
+  local first
+  first="$(head -n 1 <<<"$list" || true)"
+  if [[ -z "$first" ]]; then
+    err "No AVDs exist yet."
+    log "Create one in Android Studio (AVD Manager) or run:"
+    cat <<'EOF'
+sdkmanager --install "platform-tools" "emulator" "platforms;android-35" "system-images;android-35;google_apis;x86_64"
+echo "no" | avdmanager create avd -n fluddeApi35 -k "system-images;android-35;google_apis;x86_64" --device "pixel_7"
+EOF
+    exit 1
+  fi
+  echo "$first"
+}
+
+avd_name="$(pick_avd)"
+ok "Using AVD: $avd_name"
+
+adb_start() {
+  adb start-server >/dev/null 2>&1 || true
+}
+
+any_device_online() {
+  adb devices | awk 'NR>1 && $2=="device"{print $1}' | head -n1
+}
+
+start_emulator_if_needed() {
+  local dev
+  dev="$(any_device_online || true)"
+  if [[ -n "$dev" ]]; then
+    ok "Device already online: $dev"
+    return
+  fi
+
+  log "Starting emulator: $avd_name"
+  # Tips: -no-boot-anim speeds boot a bit; -netdelay/-netspeed avoid net throttling in tests.
+  # Omit wipes/snapshots to preserve userland state between runs.
+  nohup emulator -avd "$avd_name" -no-boot-anim -netdelay none -netspeed full >/dev/null 2>&1 &
+
+  # Wait for the emulator process to at least bind to adb.
+  adb wait-for-device
+}
+
+wait_for_boot_complete() {
+  log "Waiting for Android to finish booting…"
+  # sys.boot_completed flips to '1' once system is fully up.
+  # Also make sure the package manager responds.
+  local boot=""
+  # Some shells echo \r — strip it to be safe.
+  until boot="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"; [[ "$boot" == "1" ]]; do
+    sleep 1
+  done
+
+  # Make sure package manager responds (pm list packages will block until ready).
+  until adb shell pm list packages >/dev/null 2>&1; do
+    sleep 1
+  done
+
+  # Wake/unlock just in case lock screen is showing.
+  adb shell input keyevent 82 || true
+  ok "Boot complete."
+}
+
+install_apk() {
+  log "Installing APK: $APK"
+  # -r replace existing; -t allow test APKs.
+  adb install -r -t "$APK"
+  ok "Installed."
+}
+
+launch_app() {
+  log "Launching $APP_ID/$MAIN_ACTIVITY"
+  if adb shell am start -n "$APP_ID/$MAIN_ACTIVITY" >/dev/null 2>&1; then
+    ok "App launched."
+  else
+    # Fallback to monkey if MAIN isn't exported/known.
+    adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
+    ok "Launch requested."
+  fi
+}
+
+# ---- Run it all ----
+adb_start
+start_emulator_if_needed
+wait_for_boot_complete
+install_apk
+launch_app
+
+ok "All done 🎉"
+</file>
 
 <file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
 package com.example.fludde.model;
@@ -1332,23 +1493,53 @@ public class MusicContent {
 package com.example.fludde;
 
 import android.app.Application;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.parse.Parse;
 import com.parse.ParseObject;
 
 public class ParseApplication extends Application {
+    private static final String TAG = "ParseApplication";
+
     @Override
     public void onCreate() {
         super.onCreate();
 
+        // Register Parse subclasses
         ParseObject.registerSubclass(Post.class);
         ParseObject.registerSubclass(User.class);
 
-        // Read secrets from BuildConfig (injected by Gradle)
-        Parse.initialize(new Parse.Configuration.Builder(this)
-                .applicationId(BuildConfig.BACK4APP_APP_ID)
-                .clientKey(BuildConfig.BACK4APP_CLIENT_KEY)
-                .server(BuildConfig.BACK4APP_SERVER_URL)
-                .build());
+        // Read credentials injected by Gradle (see app/build.gradle)
+        final String appId = BuildConfig.BACK4APP_APP_ID;
+        final String clientKey = BuildConfig.BACK4APP_CLIENT_KEY;
+        final String serverUrl = BuildConfig.BACK4APP_SERVER_URL;
+
+        if (isValidParseConfig(appId, clientKey, serverUrl)) {
+            try {
+                Parse.initialize(new Parse.Configuration.Builder(this)
+                        .applicationId(appId)
+                        .clientKey(clientKey)
+                        .server(serverUrl)
+                        .build());
+                Log.i(TAG, "Parse initialized.");
+            } catch (Throwable t) {
+                // Never hard-crash the whole app if a remote service misconfigures
+                Log.e(TAG, "Parse initialization failed; continuing without Parse.", t);
+            }
+        } else {
+            Log.w(TAG,
+                    "Parse credentials not configured (BACK4APP_*). " +
+                    "Skipping Parse.initialize to avoid startup crash.");
+        }
+    }
+
+    private static boolean isValidParseConfig(String appId, String clientKey, String serverUrl) {
+        if (TextUtils.isEmpty(appId) || TextUtils.isEmpty(clientKey) || TextUtils.isEmpty(serverUrl)) {
+            return false;
+        }
+        // Minimal sanity check: Parse requires an http(s) endpoint
+        return serverUrl.startsWith("http://") || serverUrl.startsWith("https://");
     }
 }
 </file>
@@ -1650,72 +1841,6 @@ public class SignupActivity extends AppCompatActivity {
             app:layout_constraintTop_toBottomOf="@id/skTitle"
             app:layout_constraintStart_toStartOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
-</file>
-
-<file path="app/src/main/res/layout/music_content_post.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cvMusicPostLayout"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/space_8"
-    android:layout_marginTop="@dimen/space_8"
-    android:layout_marginBottom="@dimen/space_8"
-    android:clickable="true"
-    android:focusable="true"
-    app:checkable="true"
-    app:cardUseCompatPadding="true"
-    app:cardBackgroundColor="@color/card_bg_selector"
-    app:strokeColor="@color/card_stroke_selector"
-    app:strokeWidth="@dimen/divider_thin"
-    app:rippleColor="@color/ripple_stateful">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/ccMusicFrameLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_8">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivAlbumCoverImage"
-            android:layout_width="@dimen/image_square_sm"
-            android:layout_height="@dimen/image_square_sm"
-            android:contentDescription="@string/cd_album_cover"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Medium"
-            tools:srcCompat="@drawable/placeholder_square" />
-
-        <TextView
-            android:id="@+id/tvSongTitle"
-            android:layout_width="@dimen/image_square_sm"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_4"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ivAlbumCoverImage"
-            tools:text="Some Very Long Song Title That Truncates…" />
-
-        <TextView
-            android:id="@+id/tvArtistName"
-            android:layout_width="@dimen/image_square_sm"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
-            tools:text="Artist" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
 </file>
@@ -2876,60 +3001,6 @@ public class LoginActivity extends AppCompatActivity {
 </androidx.constraintlayout.widget.ConstraintLayout>
 </file>
 
-<file path="app/src/main/res/layout/content_post_img.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cvContentPostLayout"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/space_8"
-    android:layout_marginTop="@dimen/space_8"
-    android:layout_marginBottom="@dimen/space_8"
-    android:clickable="true"
-    android:focusable="true"
-    app:checkable="true"
-    app:cardUseCompatPadding="true"
-    app:cardBackgroundColor="@color/card_bg_selector"
-    app:strokeColor="@color/card_stroke_selector"
-    app:strokeWidth="@dimen/divider_thin"
-    app:rippleColor="@color/ripple_stateful">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/ccContentFrameLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_8">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivContentImage"
-            android:layout_width="@dimen/poster_md_w"
-            android:layout_height="@dimen/poster_md_h"
-            android:contentDescription="@string/cd_content_image"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Medium"
-            tools:srcCompat="@drawable/placeholder_poster" />
-
-        <TextView
-            android:id="@+id/tvImageContentTitle"
-            android:layout_width="@dimen/poster_md_w"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_4"
-            android:textAlignment="center"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ivContentImage"
-            tools:text="Bad Boys II" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
-</file>
-
 <file path="app/src/main/res/layout/fragment_child_book.xml">
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -3217,6 +3288,72 @@ public class LoginActivity extends AppCompatActivity {
         tools:listitem="@layout/users_query" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</file>
+
+<file path="app/src/main/res/layout/music_content_post.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cvMusicPostLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_8"
+    android:layout_marginTop="@dimen/space_8"
+    android:layout_marginBottom="@dimen/space_8"
+    android:clickable="true"
+    android:focusable="true"
+    android:checkable="true"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@color/card_bg_selector"
+    app:strokeColor="@color/card_stroke_selector"
+    app:strokeWidth="@dimen/divider_thin"
+    app:rippleColor="@color/ripple_stateful">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ccMusicFrameLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_8">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivAlbumCoverImage"
+            android:layout_width="@dimen/image_square_sm"
+            android:layout_height="@dimen/image_square_sm"
+            android:contentDescription="@string/cd_album_cover"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Medium"
+            tools:srcCompat="@drawable/placeholder_square" />
+
+        <TextView
+            android:id="@+id/tvSongTitle"
+            android:layout_width="@dimen/image_square_sm"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivAlbumCoverImage"
+            tools:text="Some Very Long Song Title That Truncates…" />
+
+        <TextView
+            android:id="@+id/tvArtistName"
+            android:layout_width="@dimen/image_square_sm"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
+            tools:text="Artist" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
 </file>
 
 <file path="app/src/main/res/layout/user_profile.xml">
@@ -3862,6 +3999,60 @@ public class MusicChildFragment extends Fragment {
         });
     }
 }
+</file>
+
+<file path="app/src/main/res/layout/content_post_img.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cvContentPostLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_8"
+    android:layout_marginTop="@dimen/space_8"
+    android:layout_marginBottom="@dimen/space_8"
+    android:clickable="true"
+    android:focusable="true"
+    android:checkable="true"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@color/card_bg_selector"
+    app:strokeColor="@color/card_stroke_selector"
+    app:strokeWidth="@dimen/divider_thin"
+    app:rippleColor="@color/ripple_stateful">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ccContentFrameLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_8">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivContentImage"
+            android:layout_width="@dimen/poster_md_w"
+            android:layout_height="@dimen/poster_md_h"
+            android:contentDescription="@string/cd_content_image"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Fludde.Medium"
+            tools:srcCompat="@drawable/placeholder_poster" />
+
+        <TextView
+            android:id="@+id/tvImageContentTitle"
+            android:layout_width="@dimen/poster_md_w"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:textAlignment="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivContentImage"
+            tools:text="Bad Boys II" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
 </file>
 
 <file path="app/src/main/res/layout/fragment_profile.xml">
