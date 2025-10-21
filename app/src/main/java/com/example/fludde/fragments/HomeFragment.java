@@ -1,10 +1,11 @@
 package com.example.fludde.fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,135 +13,67 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.util.Log;
-
 import com.example.fludde.BuildConfig;
-import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
 import com.example.fludde.model.PostUi;
 import com.example.fludde.utils.MockData;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/** Home shows a friendly feed. In MOCK_MODE we always show canned posts. */
 public class HomeFragment extends Fragment {
-    private RecyclerView rvHomeFeed;
-    private PostAdapter adapter;
-    private final List<PostUi> posts = new ArrayList<>();
 
-    private ProgressBar progress;
+    private RecyclerView rv;
     private View errorCard;
-    private TextView tvErrorMessage;
+    private TextView tvError;
     private Button btnRetry;
 
-    @Nullable
-    @Override
+    private final List<PostUi> items = new ArrayList<>();
+    private PostAdapter adapter;
+
+    @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        rvHomeFeed = view.findViewById(R.id.rvHomeFeed);
-        progress = view.findViewById(R.id.progress);
-        errorCard = view.findViewById(R.id.inlineError);
-        tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
-        btnRetry = view.findViewById(R.id.btnRetry);
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
 
-        adapter = new PostAdapter(requireContext(), posts);
-        rvHomeFeed.setAdapter(adapter);
-        rvHomeFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rvHomeFeed.setHasFixedSize(true);
+        rv = v.findViewById(R.id.rvHomeFeed);
+        errorCard = v.findViewById(R.id.inlineError);
+        tvError = errorCard != null ? errorCard.findViewById(R.id.tvErrorMessage) : null;
+        btnRetry = errorCard != null ? errorCard.findViewById(R.id.btnRetry) : null;
 
-        btnRetry.setOnClickListener(v -> loadFeed());
+        adapter = new PostAdapter(requireContext(), items);
+        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv.setAdapter(adapter);
 
-        showError(false, null);
-        showLoading(true);
-        loadFeed();
+        if (btnRetry != null) btnRetry.setOnClickListener(view -> load());
+
+        load();
     }
 
-    private void showLoading(boolean show) {
-        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (rvHomeFeed != null) rvHomeFeed.setAlpha(show ? 0.3f : 1f);
-    }
-
-    private void showError(boolean show, @Nullable String message) {
+    private void showError(boolean show, @Nullable String msg) {
         if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show && tvErrorMessage != null) {
-            tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
-        }
+        if (show && tvError != null) tvError.setText(msg == null ? getString(R.string.generic_error_message) : msg);
     }
 
-    private void loadFeed() {
+    private void load() {
         showError(false, null);
-        showLoading(true);
+        items.clear();
 
+        // Always show something in debug: mock posts
         if (BuildConfig.MOCK_MODE) {
-            posts.clear();
-            posts.addAll(MockData.mockPosts());
+            items.addAll(MockData.mockPosts());
             adapter.notifyDataSetChanged();
-            showLoading(false);
             return;
         }
 
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> result, ParseException e) {
-                showLoading(false);
-                if (e != null) {
-                    Log.e("HomeFragment", "Failed to load posts", e);
-                    showError(true, getString(R.string.error_load_feed));
-                    return;
-                }
-                posts.clear();
-                if (result != null) {
-                    for (Post p : result) {
-                        posts.add(mapToUi(p));
-                    }
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
+        // (Non-mock path could query a backend; for now just surface empty state)
+        showError(true, getString(R.string.empty_profile_message));
+        adapter.notifyDataSetChanged();
     }
-
-    private PostUi mapToUi(Post p) {
-        String cat = safe(p.getCategory());
-        String desc = safe(p.getDescription());
-        String title = safe(p.getContentTitle());
-        String rev = safe(p.getReview());
-
-        String contentUrl = "";
-        try {
-            ParseFile f = p.getContentImage();
-            if (f != null && f.getUrl() != null) contentUrl = f.getUrl();
-        } catch (Exception ignore) {}
-
-        String username = "";
-        String userUrl = "";
-        try {
-            ParseUser u = p.getUser();
-            if (u != null) {
-                if (u.getUsername() != null) username = u.getUsername();
-                ParseFile avatar = u.getParseFile("image");
-                if (avatar != null && avatar.getUrl() != null) userUrl = avatar.getUrl();
-            }
-        } catch (Exception ignore) {}
-
-        return new PostUi(cat, desc, title, rev, contentUrl, username, userUrl);
-    }
-
-    private static String safe(String s) { return s == null ? "" : s; }
 }

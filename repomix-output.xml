@@ -182,6 +182,44 @@ settings.gradle
 <files>
 This section contains the contents of the repository's files.
 
+<file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
+package com.example.fludde.model;
+
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+public class BookDetails {
+
+    // creating variables for strings,text view, image views and button.
+
+    String title, subtitle, publisher, publishedDate, description, thumbnail, previewLink, infoLink, buyLink;
+
+    int pageCount;
+
+    private ArrayList<String> authors;
+
+    TextView titleTV, subtitleTV, publisherTV, descTV, pageTV, publishDateTV;
+    Button previewBtn, buyBtn;
+
+    private ImageView bookIV;
+
+
+
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/model/ContentsClick.java">
+package com.example.fludde.model;
+
+public interface ContentsClick {
+
+     void OnContentClick(int pos);
+}
+</file>
+
 <file path="app/src/main/java/com/example/fludde/model/PostUi.java">
 package com.example.fludde.model;
 
@@ -233,166 +271,6 @@ public final class UserUi {
 
     public String getUsername() { return username; }
     public String getImageUrl() { return imageUrl; }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/utils/MockData.java">
-package com.example.fludde.utils;
-
-import com.example.fludde.model.PostUi;
-import com.example.fludde.model.UserUi;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/** Tiny factory of offline mock data for UI rendering. */
-public final class MockData {
-    private MockData() {}
-
-    public static JSONObject tmdbTrendingJson() throws Exception {
-        JSONArray results = new JSONArray();
-
-        results.put(new JSONObject()
-                .put("poster_path", "kqjL17yufvn9OVLyXYpvtyrFfak.jpg")
-                .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
-                .put("title", "Mock: The Lost City")
-                .put("overview", "Two brilliant adventurers embark on a mock journey."));
-
-        results.put(new JSONObject()
-                .put("poster_path", "6DrHO1jr3qVrViUO6s6kFiAGM7.jpg")
-                .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
-                .put("title", "Mock: Night Patrol")
-                .put("overview", "A stylish mystery that totally doesn't require an API key."));
-
-        results.put(new JSONObject()
-                .put("poster_path", "t6HIqrRAclMCA60NsSmeqe9RmNV.jpg")
-                .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
-                .put("title", "Mock: Ocean Deep")
-                .put("overview", "An epic dive into mock data excellence."));
-
-        JSONObject payload = new JSONObject();
-        payload.put("results", results);
-        return payload;
-    }
-
-    public static JSONObject itunesSearchJson() throws Exception {
-        JSONArray results = new JSONArray();
-
-        results.put(new JSONObject()
-                .put("name", "Mock Song One")
-                .put("artistName", "The Mockers")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1069"));
-
-        results.put(new JSONObject()
-                .put("name", "Dreams in JSON")
-                .put("artistName", "Null & Void")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1027"));
-
-        results.put(new JSONObject()
-                .put("name", "Offline Anthem")
-                .put("artistName", "Airplane Mode")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1003"));
-
-        JSONObject payload = new JSONObject();
-        payload.put("results", results);
-        return payload;
-    }
-
-    public static List<PostUi> mockPosts() {
-        List<PostUi> list = new ArrayList<>();
-
-        list.add(new PostUi(
-                "Movie",
-                "Buddy cops wreak havoc while being lovable.",
-                "Bad Boys II",
-                "A classic turn-your-brain-off action flick.",
-                // poster
-                "https://image.tmdb.org/t/p/w342/yCvB5fG5aEPqa1St7ihY6KEAsHD.jpg",
-                // user
-                "johndoe2016",
-                "https://i.pravatar.cc/150?img=12"
-        ));
-
-        list.add(new PostUi(
-                "Book",
-                "A sweeping mock fantasy adventure across lands unknown.",
-                "The Winds of JSON",
-                "Compelling world-building; waiting for the next chapter…",
-                "https://picsum.photos/342/513?image=1067",
-                "mockreader",
-                "https://i.pravatar.cc/150?img=3"
-        ));
-
-        list.add(new PostUi(
-                "Music",
-                "A synthwave album that makes you want to code.",
-                "Neon Arrays",
-                "Track 3 slaps. Would recommend for late-night sessions.",
-                "https://picsum.photos/342/513?image=1039",
-                "airplanemode",
-                "https://i.pravatar.cc/150?img=20"
-        ));
-
-        return list;
-    }
-
-    public static List<UserUi> mockUsers(String query) {
-        String q = query == null ? "" : query.toLowerCase();
-        List<UserUi> base = new ArrayList<>();
-        base.add(new UserUi("johndoe2016", "https://i.pravatar.cc/150?img=12"));
-        base.add(new UserUi("janedoe", "https://i.pravatar.cc/150?img=5"));
-        base.add(new UserUi("mockreader", "https://i.pravatar.cc/150?img=3"));
-        base.add(new UserUi("airplanemode", "https://i.pravatar.cc/150?img=20"));
-        base.add(new UserUi("nullpointer", "https://i.pravatar.cc/150?img=8"));
-
-        if (q.isEmpty()) return base;
-        List<UserUi> filtered = new ArrayList<>();
-        for (UserUi u : base) {
-            if (u.getUsername().toLowerCase().contains(q)) filtered.add(u);
-        }
-        return filtered;
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
-package com.example.fludde.model;
-
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import java.util.ArrayList;
-
-public class BookDetails {
-
-    // creating variables for strings,text view, image views and button.
-
-    String title, subtitle, publisher, publishedDate, description, thumbnail, previewLink, infoLink, buyLink;
-
-    int pageCount;
-
-    private ArrayList<String> authors;
-
-    TextView titleTV, subtitleTV, publisherTV, descTV, pageTV, publishDateTV;
-    Button previewBtn, buyBtn;
-
-    private ImageView bookIV;
-
-
-
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/model/ContentsClick.java">
-package com.example.fludde.model;
-
-public interface ContentsClick {
-
-     void OnContentClick(int pos);
 }
 </file>
 
@@ -570,6 +448,128 @@ public final class InsetsUtils {
             ViewCompat.requestApplyInsets(container);
             ViewCompat.requestApplyInsets(bottomNav);
         });
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/MockData.java">
+package com.example.fludde.utils;
+
+import com.example.fludde.model.PostUi;
+import com.example.fludde.model.UserUi;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Tiny factory of offline mock data for UI rendering. */
+public final class MockData {
+    private MockData() {}
+
+    public static JSONObject tmdbTrendingJson() throws Exception {
+        JSONArray results = new JSONArray();
+
+        results.put(new JSONObject()
+                .put("poster_path", "kqjL17yufvn9OVLyXYpvtyrFfak.jpg")
+                .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
+                .put("title", "Mock: The Lost City")
+                .put("overview", "Two brilliant adventurers embark on a mock journey."));
+
+        results.put(new JSONObject()
+                .put("poster_path", "6DrHO1jr3qVrViUO6s6kFiAGM7.jpg")
+                .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
+                .put("title", "Mock: Night Patrol")
+                .put("overview", "A stylish mystery that totally doesn't require an API key."));
+
+        results.put(new JSONObject()
+                .put("poster_path", "t6HIqrRAclMCA60NsSmeqe9RmNV.jpg")
+                .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
+                .put("title", "Mock: Ocean Deep")
+                .put("overview", "An epic dive into mock data excellence."));
+
+        JSONObject payload = new JSONObject();
+        payload.put("results", results);
+        return payload;
+    }
+
+    public static JSONObject itunesSearchJson() throws Exception {
+        JSONArray results = new JSONArray();
+
+        results.put(new JSONObject()
+                .put("name", "Mock Song One")
+                .put("artistName", "The Mockers")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1069"));
+
+        results.put(new JSONObject()
+                .put("name", "Dreams in JSON")
+                .put("artistName", "Null & Void")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1027"));
+
+        results.put(new JSONObject()
+                .put("name", "Offline Anthem")
+                .put("artistName", "Airplane Mode")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1003"));
+
+        JSONObject payload = new JSONObject();
+        payload.put("results", results);
+        return payload;
+    }
+
+    public static List<PostUi> mockPosts() {
+        List<PostUi> list = new ArrayList<>();
+
+        list.add(new PostUi(
+                "Movie",
+                "Buddy cops wreak havoc while being lovable.",
+                "Bad Boys II",
+                "A classic turn-your-brain-off action flick.",
+                // poster
+                "https://image.tmdb.org/t/p/w342/yCvB5fG5aEPqa1St7ihY6KEAsHD.jpg",
+                // user
+                "johndoe2016",
+                "https://i.pravatar.cc/150?img=12"
+        ));
+
+        list.add(new PostUi(
+                "Book",
+                "A sweeping mock fantasy adventure across lands unknown.",
+                "The Winds of JSON",
+                "Compelling world-building; waiting for the next chapter…",
+                "https://picsum.photos/342/513?image=1067",
+                "mockreader",
+                "https://i.pravatar.cc/150?img=3"
+        ));
+
+        list.add(new PostUi(
+                "Music",
+                "A synthwave album that makes you want to code.",
+                "Neon Arrays",
+                "Track 3 slaps. Would recommend for late-night sessions.",
+                "https://picsum.photos/342/513?image=1039",
+                "airplanemode",
+                "https://i.pravatar.cc/150?img=20"
+        ));
+
+        return list;
+    }
+
+    public static List<UserUi> mockUsers(String query) {
+        String q = query == null ? "" : query.toLowerCase();
+        List<UserUi> base = new ArrayList<>();
+        base.add(new UserUi("johndoe2016", "https://i.pravatar.cc/150?img=12"));
+        base.add(new UserUi("janedoe", "https://i.pravatar.cc/150?img=5"));
+        base.add(new UserUi("mockreader", "https://i.pravatar.cc/150?img=3"));
+        base.add(new UserUi("airplanemode", "https://i.pravatar.cc/150?img=20"));
+        base.add(new UserUi("nullpointer", "https://i.pravatar.cc/150?img=8"));
+
+        if (q.isEmpty()) return base;
+        List<UserUi> filtered = new ArrayList<>();
+        for (UserUi u : base) {
+            if (u.getUsername().toLowerCase().contains(q)) filtered.add(u);
+        }
+        return filtered;
     }
 }
 </file>
@@ -752,44 +752,6 @@ public class User extends ParseUser {
         app:fontProviderQuery="Black Han Sans"
         app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
 </font-family>
-</file>
-
-<file path="app/src/main/res/layout/include_inline_error.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone"
-    android:layout_margin="@dimen/space_8"
-    app:cardUseCompatPadding="true">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_16"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:id="@+id/tvErrorMessage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:text="@string/error_generic" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRetry"
-            style="@style/Widget.Fludde.Button.Text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/action_retry" />
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
 </file>
 
 <file path="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml">
@@ -1291,85 +1253,6 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/adapters/SearchFragmentAdapter.java">
-package com.example.fludde.adapters;
-
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.example.fludde.R;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.fludde.model.UserUi;
-
-import java.util.List;
-
-public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAdapter.UserViewHolder> {
-    private final Context context;
-    private final List<UserUi> users;
-
-    public SearchFragmentAdapter(Context context, List<UserUi> users) {
-        this.context = context;
-        this.users = users;
-        setHasStableIds(true);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        String key = users.get(position).getUsername() + "|" + position;
-        return key.hashCode();
-    }
-
-    @NonNull
-    @Override
-    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.users_query, parent, false);
-        return new UserViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        holder.bind(users.get(position));
-    }
-
-    @Override
-    public int getItemCount() { return users.size(); }
-
-    class UserViewHolder extends RecyclerView.ViewHolder{
-        private final TextView tvUName;
-        private final ImageView ivUserImage;
-
-        public UserViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvUName = itemView.findViewById(R.id.tvUName);
-            ivUserImage = itemView.findViewById(R.id.ivUserImage);
-        }
-
-        public void bind(UserUi user) {
-            tvUName.setText(user.getUsername());
-
-            Glide.with(context)
-                .load(user.getImageUrl().isEmpty() ? null : user.getImageUrl())
-                .apply(new RequestOptions().transform(new CenterCrop()))
-                .placeholder(R.drawable.placeholder_avatar)
-                .error(R.drawable.placeholder_avatar)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .into(ivUserImage);
-        }
-    }
-}
-</file>
-
 <file path="app/src/main/java/com/example/fludde/fragments/ComposeParentFragment.java">
 package com.example.fludde.fragments;
 
@@ -1616,171 +1499,6 @@ public class MusicContent {
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
-package com.example.fludde.utils;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
-import com.example.fludde.BuildConfig;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
-
-/**
- * Centralized HTTP helper with timeouts, retries, and verbose logging.
- * Logs request lifecycle with timings and body sizes so failures are obvious.
- */
-public final class ApiUtils {
-    private static final String TAG = "ApiUtils";
-    private static final AsyncHttpClient client = new AsyncHttpClient();
-
-    static {
-        try {
-            client.setConnectTimeout(15_000);
-            client.setResponseTimeout(25_000);
-            client.setMaxRetriesAndTimeout(2, 2_000);
-            client.setUserAgent("Fludde/1.0 (Android)");
-            Log.d(TAG, "init: timeouts(connect=15s resp=25s) retries=2 UA=Fludde/1.0 MOCK_MODE=" + BuildConfig.MOCK_MODE);
-        } catch (Throwable t) {
-            Log.e(TAG, "init: Failed to configure AsyncHttpClient", t);
-        }
-    }
-
-    private ApiUtils() {}
-
-    /** GET with verbose logging; in MOCK_MODE returns canned JSON for known URLs. */
-    public static void get(String url, JsonHttpResponseHandler handler) {
-        final long start = System.currentTimeMillis();
-        final String reqTag = "GET " + url;
-
-        if (BuildConfig.MOCK_MODE) {
-            Log.d(TAG, reqTag + " -> MOCK intercept (no network)");
-            mockGet(url, handler, start);
-            return;
-        }
-
-        Log.d(TAG, reqTag + " -> sending");
-        client.get(url, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
-                long ms = System.currentTimeMillis() - start;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONObject len=" + (response != null ? response.length() : -1));
-                if (handler != null) handler.onSuccess(statusCode, headers, response);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, org.json.JSONArray response) {
-                long ms = System.currentTimeMillis() - start;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONArray len=" + (response != null ? response.length() : -1));
-                if (handler != null) handler.onSuccess(statusCode, headers, response);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                long ms = System.currentTimeMillis() - start;
-                int len = responseString == null ? -1 : responseString.length();
-                String preview = responseString != null && len > 160 ? responseString.substring(0, 160) + "…" : responseString;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) String len=" + len + " preview=" + preview);
-                if (handler != null) handler.onSuccess(statusCode, headers, responseString);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
-                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
-                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONArray errorResponse) {
-                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
-                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                logFailure(reqTag, statusCode, throwable, responseString, start);
-                if (handler != null) handler.onFailure(statusCode, headers, responseString, throwable);
-            }
-        });
-    }
-
-    /** POST with no params (unchanged; not used by mocks for now). */
-    public static void post(String url, JsonHttpResponseHandler handler) {
-        final long start = System.currentTimeMillis();
-        final String reqTag = "POST " + url;
-        Log.d(TAG, reqTag + " -> sending");
-
-        client.post(url, null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
-                long ms = System.currentTimeMillis() - start;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms)");
-                if (handler != null) handler.onSuccess(statusCode, headers, response);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
-                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
-                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-        });
-    }
-
-    /** Optional bearer header helper. */
-    public static void setApiKey(String apiKey) {
-        try {
-            client.addHeader("Authorization", "Bearer " + apiKey);
-            Log.d(TAG, "Authorization header set (Bearer ... len=" + (apiKey == null ? 0 : apiKey.length()) + ")");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to set API key", e);
-        }
-    }
-
-    /** Centralized failure log (consistent with Android logging guidance). */
-    public static void handleFailure(int statusCode, Throwable throwable) {
-        Log.e(TAG, "Network request failed status=" + statusCode, throwable);
-    }
-
-    // ---- internal helpers ----
-    private static void logFailure(String tag, int status, Throwable t, String bodyOrNull, long start) {
-        long ms = System.currentTimeMillis() - start;
-        if (bodyOrNull != null && bodyOrNull.length() > 500) {
-            bodyOrNull = bodyOrNull.substring(0, 500) + "…";
-        }
-        Log.e(TAG, tag + " ✗ " + status + " (" + ms + "ms) body=" + (bodyOrNull == null ? "null" : bodyOrNull), t);
-    }
-
-    // ---- mock engine ----
-    private static void mockGet(String url, JsonHttpResponseHandler handler, long start) {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                JSONObject payload;
-
-                if (url.contains("themoviedb.org/3/trending/movie")) {
-                    payload = MockData.tmdbTrendingJson();
-                } else if (url.contains("itunes.apple.com/search")) {
-                    payload = MockData.itunesSearchJson();
-                } else {
-                    payload = new JSONObject();
-                }
-
-                long ms = System.currentTimeMillis() - start;
-                Log.d(TAG, "MOCK " + url + " ✓ 200 (" + ms + "ms) body=JSONObject(len=" + payload.length() + ")");
-                if (handler != null) handler.onSuccess(200, new Header[0], payload);
-            } catch (Throwable t) {
-                Log.e(TAG, "MOCK " + url + " ✗ error generating payload", t);
-                if (handler != null) handler.onFailure(500, new Header[0], t, (JSONObject) null);
-            }
-        }, 450);
-    }
-}
-</file>
-
 <file path="app/src/main/java/com/example/fludde/Post.java">
 package com.example.fludde;
 
@@ -1932,56 +1650,42 @@ public class SignupActivity extends AppCompatActivity {
 </selector>
 </file>
 
-<file path="app/src/main/res/layout/fragment_post.xml">
+<file path="app/src/main/res/layout/include_inline_error.xml">
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:visibility="gone"
+    android:layout_margin="@dimen/space_8"
+    app:cardUseCompatPadding="true">
 
-    <!-- Inline, non-blocking error with retry.
-         IMPORTANT: Give the <include> its OWN id so the parent can find it. -->
-    <include
-        android:id="@+id/inlineError"
-        layout="@layout/include_inline_error"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_16"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPost"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:padding="1dp"
-        app:layout_constraintTop_toBottomOf="@id/inlineError"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Shimmer skeleton overlay -->
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmerContainer"
-        android:visibility="gone"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/inlineError"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvErrorMessage"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="@string/error_generic" />
 
-            <include layout="@layout/item_post_skeleton"/>
-            <include layout="@layout/item_post_skeleton"/>
-            <include layout="@layout/item_post_skeleton"/>
-        </LinearLayout>
-    </com.facebook.shimmer.ShimmerFrameLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            style="@style/Widget.Fludde.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_retry" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
 </file>
 
 <file path="app/src/main/res/layout/item_post_skeleton.xml">
@@ -2452,320 +2156,246 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/fragments/ProfileFragment.java">
-package com.example.fludde.fragments;
+<file path="app/src/main/java/com/example/fludde/adapters/SearchFragmentAdapter.java">
+package com.example.fludde.adapters;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.example.fludde.R;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.request.RequestOptions;
-import com.example.fludde.BuildConfig;
-import com.example.fludde.LoginActivity;
-import com.example.fludde.R;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.parse.LogOutCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseUser;
+import com.example.fludde.model.UserUi;
 
-/**
- * Profile screen with mock-mode support.
- */
-public class ProfileFragment extends Fragment {
-    private static final String TAG = "ProfileFragment";
+import java.util.List;
 
-    private ShapeableImageView ivAvatar;
-    private TextView tvUsername;
-    private TextView tvEmail;
-    private MaterialButton btnEditProfile;
-    private MaterialButton btnLogout;
+public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAdapter.UserViewHolder> {
+    private final Context context;
+    private final List<UserUi> users;
 
-    private LinearLayout emptyState;
-    private MaterialButton btnCreateFirstPost;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+    public SearchFragmentAdapter(Context context, List<UserUi> users) {
+        this.context = context;
+        this.users = users;
+        setHasStableIds(true);
     }
 
     @Override
-    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(v, savedInstanceState);
-
-        ivAvatar = v.findViewById(R.id.ivAvatar);
-        tvUsername = v.findViewById(R.id.tvUsername);
-        tvEmail = v.findViewById(R.id.tvEmail);
-        btnEditProfile = v.findViewById(R.id.btnEditProfile);
-        btnLogout = v.findViewById(R.id.btnLogout);
-        emptyState = v.findViewById(R.id.emptyState);
-        btnCreateFirstPost = v.findViewById(R.id.btnCreateFirstPost);
-
-        bindUser();
-        wireActions();
+    public long getItemId(int position) {
+        String key = users.get(position).getUsername() + "|" + position;
+        return key.hashCode();
     }
 
-    private void bindUser() {
-        if (BuildConfig.MOCK_MODE) {
-            tvUsername.setText("johndoe2016");
-            tvEmail.setText("johndoe@youknow.com");
-
-            Glide.with(this)
-                    .load("https://i.pravatar.cc/150?img=12")
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_avatar)
-                    .error(R.drawable.placeholder_avatar)
-                    .into(ivAvatar);
-            Log.d(TAG, "Mock profile bound");
-            return;
-        }
-
-        try {
-            ParseUser current = ParseUser.getCurrentUser();
-            String username = current != null && current.getUsername() != null ? current.getUsername() : "";
-            String email = current != null && current.getEmail() != null ? current.getEmail() : "";
-
-            tvUsername.setText(username);
-            tvEmail.setText(email);
-
-            ParseFile avatar = current != null ? current.getParseFile("image") : null;
-            Glide.with(this)
-                    .load(avatar != null ? avatar.getUrl() : null)
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_avatar)
-                    .error(R.drawable.placeholder_avatar)
-                    .into(ivAvatar);
-
-            Log.d(TAG, "User profile bound");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to bind user profile", e);
-            Toast.makeText(getContext(), getString(R.string.error_load_profile), Toast.LENGTH_SHORT).show();
-        }
+    @NonNull
+    @Override
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(context).inflate(R.layout.users_query, parent, false);
+        return new UserViewHolder(v);
     }
 
-    private void wireActions() {
-        btnEditProfile.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), getString(R.string.action_edit_profile), Toast.LENGTH_SHORT).show();
-        });
+    @Override
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+        holder.bind(users.get(position));
+    }
 
-        btnLogout.setOnClickListener(v -> {
-            if (BuildConfig.MOCK_MODE) {
-                // In mock mode, just go to login.
-                Intent i = new Intent(requireContext(), LoginActivity.class);
-                startActivity(i);
-                requireActivity().finish();
-                return;
-            }
+    @Override
+    public int getItemCount() { return users.size(); }
 
-            try {
-                ParseUser.logOutInBackground(new LogOutCallback() {
-                    @Override public void done(ParseException e) {
-                        if (e != null) {
-                            Log.e(TAG, "Logout failed", e);
-                            Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Intent i = new Intent(requireContext(), LoginActivity.class);
-                        startActivity(i);
-                        requireActivity().finish();
-                    }
-                });
-            } catch (Exception ex) {
-                Log.e(TAG, "Logout error", ex);
-                Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
-            }
-        });
+    class UserViewHolder extends RecyclerView.ViewHolder{
+        private final TextView tvUName;
+        private final ImageView ivUserImage;
 
-        btnCreateFirstPost.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), getString(R.string.nav_compose), Toast.LENGTH_SHORT).show();
-        });
+        public UserViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvUName = itemView.findViewById(R.id.tvUName);
+            ivUserImage = itemView.findViewById(R.id.ivUserImage);
+        }
+
+        public void bind(UserUi user) {
+            tvUName.setText(user.getUsername());
+
+            Glide.with(context)
+                .load(user.getImageUrl().isEmpty() ? null : user.getImageUrl())
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_avatar)
+                .error(R.drawable.placeholder_avatar)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(ivUserImage);
+        }
     }
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/fragments/SearchFragment.java">
-package com.example.fludde.fragments;
+<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
+package com.example.fludde.utils;
 
-import android.content.Context;
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.text.TextUtils;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.fludde.BuildConfig;
-import com.example.fludde.R;
-import com.example.fludde.adapters.SearchFragmentAdapter;
-import com.example.fludde.model.UserUi;
-import com.example.fludde.utils.MockData;
-import com.google.android.material.textfield.TextInputEditText;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONObject;
 
-public class SearchFragment extends Fragment {
+import cz.msebera.android.httpclient.Header;
 
-    private static final String TAG = "SearchFragment";
+/**
+ * Centralized HTTP helper with timeouts, retries, and verbose logging.
+ * Logs request lifecycle with timings and body sizes so failures are obvious.
+ */
+public final class ApiUtils {
+    private static final String TAG = "ApiUtils";
+    private static final AsyncHttpClient client = new AsyncHttpClient();
 
-    private RecyclerView rvUserQuery;
-    private SearchFragmentAdapter searchFragmentAdapter;
-    private final List<UserUi> allUsers = new ArrayList<>();
-
-    private TextInputEditText etSearchFieldUser;
-    private Button btSearch;
-
-    private View emptyState;
-
-    public SearchFragment() { }
-
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_search, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        rvUserQuery = view.findViewById(R.id.rvUserQuery);
-        etSearchFieldUser = view.findViewById(R.id.etSearchFieldUser);
-        btSearch = view.findViewById(R.id.btSearch);
-        emptyState = view.findViewById(R.id.emptyState);
-
-        searchFragmentAdapter = new SearchFragmentAdapter(requireContext(), allUsers);
-        rvUserQuery.setAdapter(searchFragmentAdapter);
-        rvUserQuery.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        btSearch.setOnClickListener(v -> performSearch(getQueryText()));
-
-        etSearchFieldUser.setOnEditorActionListener((tv, actionId, event) -> {
-            boolean handled = false;
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch(getQueryText());
-                handled = true;
-            } else if (event != null
-                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
-                    && event.getAction() == KeyEvent.ACTION_DOWN) {
-                performSearch(getQueryText());
-                handled = true;
-            }
-            return handled;
-        });
-
-        showEmptyState(true);
-    }
-
-    private String getQueryText() {
-        String q = etSearchFieldUser.getText() != null ? etSearchFieldUser.getText().toString().trim() : "";
-        return q;
-    }
-
-    private void performSearch(String userName) {
-        hideKeyboard();
-        if (TextUtils.isEmpty(userName)) {
-            Toast.makeText(getContext(), getString(R.string.hint_search_user), Toast.LENGTH_SHORT).show();
-            allUsers.clear();
-            searchFragmentAdapter.notifyDataSetChanged();
-            showEmptyState(true);
-            return;
-        }
-        lookForUser(userName);
-    }
-
-    private void showEmptyState(boolean show) {
-        if (emptyState != null) emptyState.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    private void hideKeyboard() {
+    static {
         try {
-            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            View v = requireActivity().getCurrentFocus();
-            if (imm != null && v != null) {
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            }
-        } catch (Exception ignore) { }
+            client.setConnectTimeout(15_000);
+            client.setResponseTimeout(25_000);
+            client.setMaxRetriesAndTimeout(2, 2_000);
+            client.setUserAgent("Fludde/1.0 (Android)");
+            Log.d(TAG, "init: timeouts(connect=15s resp=25s) retries=2 UA=Fludde/1.0 MOCK_MODE=" + BuildConfig.MOCK_MODE);
+        } catch (Throwable t) {
+            Log.e(TAG, "init: Failed to configure AsyncHttpClient", t);
+        }
     }
 
-    private void lookForUser(String userName) {
+    private ApiUtils() {}
+
+    /** GET with verbose logging; in MOCK_MODE returns canned JSON for known URLs. */
+    public static void get(String url, JsonHttpResponseHandler handler) {
+        final long start = System.currentTimeMillis();
+        final String reqTag = "GET " + url;
+
         if (BuildConfig.MOCK_MODE) {
-            allUsers.clear();
-            allUsers.addAll(MockData.mockUsers(userName));
-            searchFragmentAdapter.notifyDataSetChanged();
-            showEmptyState(allUsers.isEmpty());
+            Log.d(TAG, reqTag + " -> MOCK intercept (no network)");
+            mockGet(url, handler, start);
             return;
         }
 
-        ParseQuery<ParseUser> query = ParseUser.getQuery();
-        query.whereContains("username", userName);
-        query.setLimit(50);
-
-        query.findInBackground((users, e) -> {
-            if (e != null) {
-                Log.e(TAG, "Search failed", e);
-                Toast.makeText(getContext(), getString(R.string.error_search), Toast.LENGTH_SHORT).show();
-                allUsers.clear();
-                searchFragmentAdapter.notifyDataSetChanged();
-                showEmptyState(true);
-                return;
+        Log.d(TAG, reqTag + " -> sending");
+        client.get(url, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONObject len=" + (response != null ? response.length() : -1));
+                if (handler != null) handler.onSuccess(statusCode, headers, response);
             }
 
-            allUsers.clear();
-            if (users != null) {
-                for (ParseUser pu : users) {
-                    String username = pu.getUsername() != null ? pu.getUsername() : "";
-                    String imageUrl = "";
-                    try {
-                        if (pu.getParseFile("image") != null && pu.getParseFile("image").getUrl() != null) {
-                            imageUrl = pu.getParseFile("image").getUrl();
-                        }
-                    } catch (Exception ignore) {}
-                    allUsers.add(new UserUi(username, imageUrl));
-                }
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONArray response) {
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONArray len=" + (response != null ? response.length() : -1));
+                if (handler != null) handler.onSuccess(statusCode, headers, response);
             }
-            searchFragmentAdapter.notifyDataSetChanged();
-            showEmptyState(allUsers.isEmpty());
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                long ms = System.currentTimeMillis() - start;
+                int len = responseString == null ? -1 : responseString.length();
+                String preview = responseString != null && len > 160 ? responseString.substring(0, 160) + "…" : responseString;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) String len=" + len + " preview=" + preview);
+                if (handler != null) handler.onSuccess(statusCode, headers, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
+                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
+                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONArray errorResponse) {
+                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
+                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                logFailure(reqTag, statusCode, throwable, responseString, start);
+                if (handler != null) handler.onFailure(statusCode, headers, responseString, throwable);
+            }
         });
+    }
+
+    /** POST with no params (unchanged; not used by mocks for now). */
+    public static void post(String url, JsonHttpResponseHandler handler) {
+        final long start = System.currentTimeMillis();
+        final String reqTag = "POST " + url;
+        Log.d(TAG, reqTag + " -> sending");
+
+        client.post(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms)");
+                if (handler != null) handler.onSuccess(statusCode, headers, response);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
+                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
+                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
+    }
+
+    /** Optional bearer header helper. */
+    public static void setApiKey(String apiKey) {
+        try {
+            client.addHeader("Authorization", "Bearer " + apiKey);
+            Log.d(TAG, "Authorization header set (Bearer ... len=" + (apiKey == null ? 0 : apiKey.length()) + ")");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to set API key", e);
+        }
+    }
+
+    /** Centralized failure log (consistent with Android logging guidance). */
+    public static void handleFailure(int statusCode, Throwable throwable) {
+        Log.e(TAG, "Network request failed status=" + statusCode, throwable);
+    }
+
+    // ---- internal helpers ----
+    private static void logFailure(String tag, int status, Throwable t, String bodyOrNull, long start) {
+        long ms = System.currentTimeMillis() - start;
+        if (bodyOrNull != null && bodyOrNull.length() > 500) {
+            bodyOrNull = bodyOrNull.substring(0, 500) + "…";
+        }
+        Log.e(TAG, tag + " ✗ " + status + " (" + ms + "ms) body=" + (bodyOrNull == null ? "null" : bodyOrNull), t);
+    }
+
+    // ---- mock engine ----
+    private static void mockGet(String url, JsonHttpResponseHandler handler, long start) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                JSONObject payload;
+
+                if (url.contains("themoviedb.org/3/trending/movie")) {
+                    payload = MockData.tmdbTrendingJson();
+                } else if (url.contains("itunes.apple.com/search")) {
+                    payload = MockData.itunesSearchJson();
+                } else {
+                    payload = new JSONObject();
+                }
+
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, "MOCK " + url + " ✓ 200 (" + ms + "ms) body=JSONObject(len=" + payload.length() + ")");
+                if (handler != null) handler.onSuccess(200, new Header[0], payload);
+            } catch (Throwable t) {
+                Log.e(TAG, "MOCK " + url + " ✗ error generating payload", t);
+                if (handler != null) handler.onFailure(500, new Header[0], t, (JSONObject) null);
+            }
+        }, 450);
     }
 }
 </file>
@@ -3154,6 +2784,58 @@ public class LoginActivity extends AppCompatActivity {
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</file>
+
+<file path="app/src/main/res/layout/fragment_post.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Inline, non-blocking error with retry.
+         IMPORTANT: Give the <include> its OWN id so the parent can find it. -->
+    <include
+        android:id="@+id/inlineError"
+        layout="@layout/include_inline_error"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPost"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="1dp"
+        app:layout_constraintTop_toBottomOf="@id/inlineError"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Shimmer skeleton overlay -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmerContainer"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/inlineError"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include layout="@layout/item_post_skeleton"/>
+            <include layout="@layout/item_post_skeleton"/>
+            <include layout="@layout/item_post_skeleton"/>
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 </file>
 
@@ -3881,101 +3563,185 @@ if "%OS%"=="Windows_NT" endlocal
 :omega
 </file>
 
-<file path="app/src/main/java/com/example/fludde/adapters/PostAdapter.java">
-package com.example.fludde.adapters;
+<file path="app/src/main/java/com/example/fludde/fragments/ProfileFragment.java">
+package com.example.fludde.fragments;
 
-import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
+import com.example.fludde.BuildConfig;
+import com.example.fludde.LoginActivity;
 import com.example.fludde.R;
+import com.example.fludde.adapters.PostAdapter;
 import com.example.fludde.model.PostUi;
-import com.example.fludde.utils.GlideExtensions;
+import com.example.fludde.utils.MockData;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.parse.LogOutCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseUser;
 
+import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
+/** Profile with mock-mode support; shows a small list of your posts in mock. */
+public class ProfileFragment extends Fragment {
+    private static final String TAG = "ProfileFragment";
 
-    private final Context context;
-    private final List<PostUi> posts;
+    private ShapeableImageView ivAvatar;
+    private TextView tvUsername;
+    private TextView tvEmail;
+    private MaterialButton btnEditProfile;
+    private MaterialButton btnLogout;
 
-    public PostAdapter(Context context, List<PostUi> posts) {
-        this.context = context;
-        this.posts = posts;
-        setHasStableIds(true);
+    private LinearLayout emptyState;
+    private MaterialButton btnCreateFirstPost;
+
+    private RecyclerView rvPosts;
+    private final List<PostUi> posts = new ArrayList<>();
+    private PostAdapter adapter;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
     @Override
-    public long getItemId(int position) {
-        String key = posts.get(position).getTitle() + "|" + posts.get(position).getUserName() + "|" + position;
-        return key.hashCode();
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+
+        ivAvatar = v.findViewById(R.id.ivAvatar);
+        tvUsername = v.findViewById(R.id.tvUsername);
+        tvEmail = v.findViewById(R.id.tvEmail);
+        btnEditProfile = v.findViewById(R.id.btnEditProfile);
+        btnLogout = v.findViewById(R.id.btnLogout);
+        emptyState = v.findViewById(R.id.emptyState);
+        btnCreateFirstPost = v.findViewById(R.id.btnCreateFirstPost);
+        rvPosts = v.findViewById(R.id.rvProfilePosts);
+
+        adapter = new PostAdapter(requireContext(), posts);
+        rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvPosts.setAdapter(adapter);
+
+        bindUser();
+        wireActions();
+        bindPosts();
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
-        view.setBackgroundResource(R.drawable.list_item_bg);
-        return new ViewHolder(view);
-    }
+    private void bindUser() {
+        if (BuildConfig.MOCK_MODE) {
+            tvUsername.setText("johndoe2016");
+            tvEmail.setText("johndoe@youknow.com");
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(posts.get(position));
-    }
-
-    @Override
-    public int getItemCount() { return posts.size(); }
-
-    class ViewHolder extends RecyclerView.ViewHolder{
-        private final TextView tvContentCategory;
-        private final TextView tvContentDescription;
-        private final TextView tvContentTitle;
-        private final TextView tvUsername;
-        private final TextView tvReview;
-        private final ImageView ivUserPic;
-        private final ImageView ivContent;
-
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvContentCategory = itemView.findViewById(R.id.tvContentCategory);
-            tvContentDescription = itemView.findViewById(R.id.tvContentDescription);
-            tvContentTitle = itemView.findViewById(R.id.tvContentTitle);
-            tvUsername = itemView.findViewById(R.id.tvUsername);
-            tvReview = itemView.findViewById(R.id.tvReview);
-            ivUserPic = itemView.findViewById(R.id.ivUserPic);
-            ivContent = itemView.findViewById(R.id.ivContent);
-
-            itemView.setOnLongClickListener(v -> {
-                com.example.fludde.utils.Haptics.longPress(v);
-                return false;
-            });
+            Glide.with(this)
+                    .load("https://i.pravatar.cc/150?img=12")
+                    .apply(new RequestOptions().transform(new CenterCrop()))
+                    .placeholder(R.drawable.placeholder_avatar)
+                    .error(R.drawable.placeholder_avatar)
+                    .into(ivAvatar);
+            Log.d(TAG, "Mock profile bound");
+            return;
         }
 
-        void bind(PostUi post) {
-            tvContentCategory.setText(post.getCategory());
-            tvContentDescription.setText(post.getDescription());
-            tvContentTitle.setText(post.getTitle());
-            tvReview.setText(post.getReview());
-            tvUsername.setText(post.getUserName());
+        try {
+            ParseUser current = ParseUser.getCurrentUser();
+            String username = current != null && current.getUsername() != null ? current.getUsername() : "";
+            String email = current != null && current.getEmail() != null ? current.getEmail() : "";
 
-            GlideExtensions.loadPoster(ivContent, post.getContentImageUrl());
-            GlideExtensions.loadAvatar(ivUserPic, post.getUserImageUrl());
+            tvUsername.setText(username);
+            tvEmail.setText(email);
+
+            ParseFile avatar = current != null ? current.getParseFile("image") : null;
+            Glide.with(this)
+                    .load(avatar != null ? avatar.getUrl() : null)
+                    .apply(new RequestOptions().transform(new CenterCrop()))
+                    .placeholder(R.drawable.placeholder_avatar)
+                    .error(R.drawable.placeholder_avatar)
+                    .into(ivAvatar);
+
+            Log.d(TAG, "User profile bound");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to bind user profile", e);
+            Toast.makeText(getContext(), getString(R.string.error_load_profile), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void bindPosts() {
+        if (BuildConfig.MOCK_MODE) {
+            posts.clear();
+            posts.addAll(MockData.mockPosts());
+            adapter.notifyDataSetChanged();
+
+            // Show list; hide empty state
+            rvPosts.setVisibility(View.VISIBLE);
+            emptyState.setVisibility(View.GONE);
+            return;
+        }
+
+        // Non-mock path: until wired, keep empty state visible
+        rvPosts.setVisibility(View.GONE);
+        emptyState.setVisibility(View.VISIBLE);
+    }
+
+    private void wireActions() {
+        btnEditProfile.setOnClickListener(v ->
+                Toast.makeText(requireContext(), getString(R.string.action_edit_profile), Toast.LENGTH_SHORT).show());
+
+        btnLogout.setOnClickListener(v -> {
+            if (BuildConfig.MOCK_MODE) {
+                startActivity(new Intent(requireContext(), LoginActivity.class));
+                requireActivity().finish();
+                return;
+            }
+            try {
+                ParseUser.logOutInBackground(new LogOutCallback() {
+                    @Override public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Logout failed", e);
+                            Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        startActivity(new Intent(requireContext(), LoginActivity.class));
+                        requireActivity().finish();
+                    }
+                });
+            } catch (Exception ex) {
+                Log.e(TAG, "Logout error", ex);
+                Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnCreateFirstPost.setOnClickListener(v ->
+                Toast.makeText(requireContext(), getString(R.string.nav_compose), Toast.LENGTH_SHORT).show());
     }
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/fragments/PostFragment.java">
+<file path="app/src/main/java/com/example/fludde/fragments/SearchFragment.java">
 package com.example.fludde.fragments;
 
-import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -3984,321 +3750,161 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.fludde.BuildConfig;
-import com.example.fludde.Post;
 import com.example.fludde.R;
-import com.example.fludde.adapters.PostAdapter;
-import com.example.fludde.model.PostUi;
+import com.example.fludde.adapters.SearchFragmentAdapter;
+import com.example.fludde.model.UserUi;
 import com.example.fludde.utils.MockData;
-import com.facebook.shimmer.ShimmerFrameLayout;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
+import com.google.android.material.textfield.TextInputEditText;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Timeline / feed fragment with very defensive view lookups and detailed logging.
- * We scope child lookups under the included error card to avoid nulls from <include>.
- */
-public class PostFragment extends Fragment {
+public class SearchFragment extends Fragment {
 
-    private static final String TAG = "PostFragment";
+    private static final String TAG = "SearchFragment";
 
-    private RecyclerView rvPost;
-    protected PostAdapter adapter;
-    protected final List<PostUi> allPosts = new ArrayList<>();
+    private RecyclerView rvUserQuery;
+    private SearchFragmentAdapter searchFragmentAdapter;
+    private final List<UserUi> allUsers = new ArrayList<>();
 
-    private ShimmerFrameLayout shimmer;
-    private View errorCard;          // root of the included error layout
-    private TextView tvErrorMessage; // found under errorCard
-    private Button btnRetry;         // found under errorCard
+    private TextInputEditText etSearchFieldUser;
+    private Button btSearch;
 
-    public PostFragment() {}
+    private View emptyState;
+
+    public SearchFragment() { }
+
+    public static SearchFragment newInstance(String param1, String param2) {
+        SearchFragment fragment = new SearchFragment();
+        Bundle args = new Bundle();
+        args.putString("param1", param1);
+        args.putString("param2", param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView() inflating fragment_post");
-        View v = inflater.inflate(R.layout.fragment_post, container, false);
-        Log.d(TAG, "onCreateView() inflate OK, view=" + v);
-        return v;
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onViewCreated() start");
         super.onViewCreated(view, savedInstanceState);
 
-        // --- find views ---
-        rvPost = view.findViewById(R.id.rvPost);
-        shimmer = view.findViewById(R.id.shimmerContainer);
+        rvUserQuery = view.findViewById(R.id.rvUserQuery);
+        etSearchFieldUser = view.findViewById(R.id.etSearchFieldUser);
+        btSearch = view.findViewById(R.id.btSearch);
+        emptyState = view.findViewById(R.id.emptyState);
 
-        // Included error card root (android:id set on <include> tag)
-        errorCard = view.findViewById(R.id.inlineError);
-        if (errorCard == null) {
-            Log.e(TAG, "onViewCreated(): errorCard is NULL (inlineError not found). " +
-                    "Check fragment_post.xml <include> has android:id='@id/inlineError'.");
-        } else {
-            // Scope lookups to the included root to avoid accidental nulls
-            tvErrorMessage = errorCard.findViewById(R.id.tvErrorMessage);
-            btnRetry = errorCard.findViewById(R.id.btnRetry);
-            Log.d(TAG, "onViewCreated(): errorCard=" + idName(errorCard) +
-                    " tvErrorMessage=" + idName(tvErrorMessage) +
-                    " btnRetry=" + idName(btnRetry));
-        }
+        searchFragmentAdapter = new SearchFragmentAdapter(requireContext(), allUsers);
+        rvUserQuery.setAdapter(searchFragmentAdapter);
+        rvUserQuery.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // --- recycler setup ---
-        adapter = new PostAdapter(requireContext(), allPosts);
-        rvPost.setAdapter(adapter);
-        rvPost.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvPost.setHasFixedSize(true);
-        Log.d(TAG, "onViewCreated(): RecyclerView + adapter wired, items=" + allPosts.size());
+        btSearch.setOnClickListener(v -> performSearch(getQueryText()));
 
-        if (btnRetry != null) {
-            btnRetry.setOnClickListener(v -> {
-                Log.d(TAG, "Retry tapped");
-                queryPosts();
-            });
-        } else {
-            Log.w(TAG, "onViewCreated(): btnRetry null; retry won’t work");
-        }
-
-        // Initial state
-        showError(false, null);
-        showLoading(true);
-        queryPosts();
-        Log.d(TAG, "onViewCreated() end (query issued)");
-    }
-
-    private void showLoading(boolean show) {
-        Log.d(TAG, "showLoading(" + show + ")");
-        if (shimmer == null || rvPost == null) {
-            Log.w(TAG, "showLoading(): shimmer or rvPost null; shimmer=" + (shimmer != null) + " rv=" + (rvPost != null));
-            return;
-        }
-        try {
-            if (show) {
-                shimmer.setVisibility(View.VISIBLE);
-                shimmer.startShimmer();
-                rvPost.setAlpha(0f);
-                Log.d(TAG, "showLoading(): shimmer started");
-            } else {
-                shimmer.stopShimmer();
-                shimmer.setVisibility(View.GONE);
-                rvPost.setAlpha(1f);
-                Log.d(TAG, "showLoading(): shimmer stopped and hidden");
+        etSearchFieldUser.setOnEditorActionListener((tv, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch(getQueryText());
+                handled = true;
+            } else if (event != null
+                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                    && event.getAction() == KeyEvent.ACTION_DOWN) {
+                performSearch(getQueryText());
+                handled = true;
             }
-        } catch (Throwable t) {
-            Log.e(TAG, "showLoading(): error toggling shimmer", t);
-        }
-    }
-
-    private void showError(boolean show, @Nullable String message) {
-        Log.d(TAG, "showError(show=" + show + ", msg=" + (message == null ? "<null>" : message) + ")");
-        try {
-            if (errorCard != null) {
-                errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-                Log.d(TAG, "showError(): errorCard visibility set to " + (show ? "VISIBLE" : "GONE"));
-            } else {
-                Log.w(TAG, "showError(): errorCard null (cannot change visibility)");
-            }
-
-            if (show) {
-                if (tvErrorMessage != null) {
-                    tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
-                    Log.d(TAG, "showError(): tvErrorMessage updated");
-                } else {
-                    Log.e(TAG, "showError(): tvErrorMessage is NULL — cannot set text");
-                }
-            }
-        } catch (Throwable t) {
-            Log.e(TAG, "showError(): unexpected error", t);
-        }
-    }
-
-    protected void queryPosts() {
-        Log.d(TAG, "queryPosts(): begin; MOCK_MODE=" + BuildConfig.MOCK_MODE);
-        showError(false, null);
-        showLoading(true);
-
-        if (BuildConfig.MOCK_MODE) {
-            Log.d(TAG, "queryPosts(): using MockData");
-            allPosts.clear();
-            allPosts.addAll(MockData.mockPosts());
-            Log.d(TAG, "queryPosts(): mock items loaded count=" + allPosts.size());
-            adapter.notifyDataSetChanged();
-            showLoading(false);
-            return;
-        }
-
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addAscendingOrder(Post.KEY_CREATED_AT);
-        Log.d(TAG, "queryPosts(): dispatching Parse query; limit=20 sort=createdAt ASC");
-
-        query.findInBackground(new FindCallback<Post>() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                Log.d(TAG, "queryPosts(): callback; e=" + e + " postsCount=" + (posts == null ? -1 : posts.size()));
-                showLoading(false);
-                if (e != null) {
-                    Log.e(TAG, "queryPosts(): Parse error", e);
-                    showError(true, getString(R.string.error_load_feed));
-                    return;
-                }
-                allPosts.clear();
-                if (posts != null) {
-                    for (Post p : posts) {
-                        PostUi ui = mapToUi(p);
-                        allPosts.add(ui);
-                    }
-                }
-                Log.d(TAG, "queryPosts(): mapped UI items=" + allPosts.size());
-                adapter.notifyDataSetChanged();
-            }
+            return handled;
         });
+
+        showEmptyState(true);
     }
 
-    private PostUi mapToUi(Post p) {
-        if (p == null) {
-            Log.w(TAG, "mapToUi(): post null; returning empty");
-            return new PostUi("", "", "", "", "", "", "");
-        }
-        String cat = safe(p.getCategory());
-        String desc = safe(p.getDescription());
-        String title = safe(p.getContentTitle());
-        String rev = safe(p.getReview());
+    private String getQueryText() {
+        String q = etSearchFieldUser.getText() != null ? etSearchFieldUser.getText().toString().trim() : "";
+        return q;
+    }
 
-        String contentUrl = "";
-        try {
-            ParseFile f = p.getContentImage();
-            if (f != null && f.getUrl() != null) contentUrl = f.getUrl();
-        } catch (Exception ex) {
-            Log.w(TAG, "mapToUi(): content image error", ex);
+    private void performSearch(String userName) {
+        hideKeyboard();
+        if (TextUtils.isEmpty(userName)) {
+            Toast.makeText(getContext(), getString(R.string.hint_search_user), Toast.LENGTH_SHORT).show();
+            allUsers.clear();
+            searchFragmentAdapter.notifyDataSetChanged();
+            showEmptyState(true);
+            return;
         }
+        lookForUser(userName);
+    }
 
-        String username = "";
-        String userUrl = "";
+    private void showEmptyState(boolean show) {
+        if (emptyState != null) emptyState.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void hideKeyboard() {
         try {
-            ParseUser u = p.getUser();
-            if (u != null) {
-                if (u.getUsername() != null) username = u.getUsername();
-                ParseFile avatar = u.getParseFile("image");
-                if (avatar != null && avatar.getUrl() != null) userUrl = avatar.getUrl();
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            View v = requireActivity().getCurrentFocus();
+            if (imm != null && v != null) {
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
-        } catch (Exception ex) {
-            Log.w(TAG, "mapToUi(): user/avatar error", ex);
-        }
-
-        Log.d(TAG, "mapToUi(): title=\"" + title + "\" user=\"" + username + "\" img?=" + (!contentUrl.isEmpty()));
-        return new PostUi(cat, desc, title, rev, contentUrl, username, userUrl);
+        } catch (Exception ignore) { }
     }
 
-    private static String safe(String s) { return s == null ? "" : s; }
-
-    /** Pretty id name for logging (null-safe). */
-    private String idName(View v) {
-        if (v == null) return "null";
-        try {
-            int id = v.getId();
-            if (id == View.NO_ID) return v.getClass().getSimpleName() + "(no-id)";
-            return v.getClass().getSimpleName() + "(@" + getResources().getResourceEntryName(id) + ")";
-        } catch (Exception ignore) {
-            return v.getClass().getSimpleName() + "(id?)";
-        }
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
-package com.example.fludde;
-
-import android.app.Application;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-
-/**
- * Parse bootstrapping with defensive URL validation and MOCK_MODE support.
- */
-public class ParseApplication extends Application {
-
-    private static final String TAG = "ParseApplication";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
+    private void lookForUser(String userName) {
         if (BuildConfig.MOCK_MODE) {
-            Log.i(TAG, "MOCK_MODE=true → Skipping Parse.initialize() entirely.");
-            // Still register subclasses so code referencing them compiles/loads fine (not required in mock though)
-            try {
-                ParseObject.registerSubclass(Post.class);
-                ParseObject.registerSubclass(User.class);
-            } catch (Throwable ignored) {}
+            allUsers.clear();
+            allUsers.addAll(MockData.mockUsers(userName));
+            searchFragmentAdapter.notifyDataSetChanged();
+            showEmptyState(allUsers.isEmpty());
             return;
         }
 
-        final String appId = getString(R.string.back4app_app_id);
-        final String clientKey = getString(R.string.back4app_client_key);
-        final String serverUrl = getString(R.string.back4app_server_url);
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereContains("username", userName);
+        query.setLimit(50);
 
-        try {
-            URL url = new URL(serverUrl);
-            if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
-                throw new MalformedURLException("Server URL must start with http or https");
+        query.findInBackground((users, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Search failed", e);
+                Toast.makeText(getContext(), getString(R.string.error_search), Toast.LENGTH_SHORT).show();
+                allUsers.clear();
+                searchFragmentAdapter.notifyDataSetChanged();
+                showEmptyState(true);
+                return;
             }
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(
-                    "Invalid PARSE server URL: \"" + serverUrl + "\". " +
-                            "It must be a full URL like https://parseapi.back4app.com/ .", e);
-        }
 
-        ParseObject.registerSubclass(Post.class);
-        ParseObject.registerSubclass(User.class);
-
-        Parse.setLogLevel(Parse.LOG_LEVEL_DEBUG);
-
-        try {
-            Parse.initialize(new Parse.Configuration.Builder(this)
-                    .applicationId(appId)
-                    .clientKey(clientKey)
-                    .server(serverUrl)
-                    .build());
-            Log.i(TAG, "Parse.initialize ✓ server=" + serverUrl);
-
-            boolean hasTmdbKey = !TextUtils.isEmpty(BuildConfig.TMDB_API_KEY);
-            Log.i(TAG, "BuildConfig.TMDB_API_KEY present=" + hasTmdbKey +
-                       (hasTmdbKey ? " (len=" + BuildConfig.TMDB_API_KEY.length() + ")" : ""));
-        } catch (Throwable t) {
-            Log.e(TAG, "Parse.initialize ✗", t);
-            throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
-        }
-
-        try {
-            ParseInstallation.getCurrentInstallation().saveInBackground();
-        } catch (Throwable t) {
-            Log.w(TAG, "ParseInstallation save failed (non-fatal): " + t.getMessage());
-        }
+            allUsers.clear();
+            if (users != null) {
+                for (ParseUser pu : users) {
+                    String username = pu.getUsername() != null ? pu.getUsername() : "";
+                    String imageUrl = "";
+                    try {
+                        if (pu.getParseFile("image") != null && pu.getParseFile("image").getUrl() != null) {
+                            imageUrl = pu.getParseFile("image").getUrl();
+                        }
+                    } catch (Exception ignore) {}
+                    allUsers.add(new UserUi(username, imageUrl));
+                }
+            }
+            searchFragmentAdapter.notifyDataSetChanged();
+            showEmptyState(allUsers.isEmpty());
+        });
     }
 }
 </file>
@@ -5002,15 +4608,95 @@ plugins {
 }
 </file>
 
-<file path="gradle.properties">
-# JVM args for the Gradle Daemon (3 GB heap + consistent encoding)
-# Also enables native access to silence JDK 24 restricted-method warnings during Gradle runs.
-org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
+<file path="app/src/main/java/com/example/fludde/adapters/PostAdapter.java">
+package com.example.fludde.adapters;
 
-# AndroidX / Jetifier / non-transitive R flags
-android.useAndroidX=true
-android.enableJetifier=true
-android.nonTransitiveRClass=true
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fludde.R;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.GlideExtensions;
+
+import java.util.List;
+
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
+
+    private final Context context;
+    private final List<PostUi> posts;
+
+    public PostAdapter(Context context, List<PostUi> posts) {
+        this.context = context;
+        this.posts = posts;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = posts.get(position).getTitle() + "|" + posts.get(position).getUserName() + "|" + position;
+        return key.hashCode();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        view.setBackgroundResource(R.drawable.list_item_bg);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(posts.get(position));
+    }
+
+    @Override
+    public int getItemCount() { return posts.size(); }
+
+    class ViewHolder extends RecyclerView.ViewHolder{
+        private final TextView tvContentCategory;
+        private final TextView tvContentDescription;
+        private final TextView tvContentTitle;
+        private final TextView tvUsername;
+        private final TextView tvReview;
+        private final ImageView ivUserPic;
+        private final ImageView ivContent;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvContentCategory = itemView.findViewById(R.id.tvContentCategory);
+            tvContentDescription = itemView.findViewById(R.id.tvContentDescription);
+            tvContentTitle = itemView.findViewById(R.id.tvContentTitle);
+            tvUsername = itemView.findViewById(R.id.tvUsername);
+            tvReview = itemView.findViewById(R.id.tvReview);
+            ivUserPic = itemView.findViewById(R.id.ivUserPic);
+            ivContent = itemView.findViewById(R.id.ivContent);
+
+            itemView.setOnLongClickListener(v -> {
+                com.example.fludde.utils.Haptics.longPress(v);
+                return false;
+            });
+        }
+
+        void bind(PostUi post) {
+            tvContentCategory.setText(post.getCategory());
+            tvContentDescription.setText(post.getDescription());
+            tvContentTitle.setText(post.getTitle());
+            tvReview.setText(post.getReview());
+            tvUsername.setText(post.getUserName());
+
+            GlideExtensions.loadPoster(ivContent, post.getContentImageUrl());
+            GlideExtensions.loadAvatar(ivUserPic, post.getUserImageUrl());
+        }
+    }
+}
 </file>
 
 <file path="app/src/main/java/com/example/fludde/fragments/child/MusicChildFragment.java">
@@ -5131,6 +4817,259 @@ public class MusicChildFragment extends Fragment {
 }
 </file>
 
+<file path="app/src/main/java/com/example/fludde/fragments/PostFragment.java">
+package com.example.fludde.fragments;
+
+import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.example.fludde.BuildConfig;
+import com.example.fludde.Post;
+import com.example.fludde.R;
+import com.example.fludde.adapters.PostAdapter;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.MockData;
+import com.facebook.shimmer.ShimmerFrameLayout;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Timeline / feed (always shows data in MOCK_MODE). */
+public class PostFragment extends Fragment {
+
+    private RecyclerView rvPost;
+    private PostAdapter adapter;
+    private final List<PostUi> allPosts = new ArrayList<>();
+
+    private ShimmerFrameLayout shimmer;
+    private View errorCard;
+    private TextView tvErrorMessage;
+    private Button btnRetry;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_post, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        rvPost = view.findViewById(R.id.rvPost);
+        shimmer = view.findViewById(R.id.shimmerContainer);
+
+        errorCard = view.findViewById(R.id.inlineError);
+        tvErrorMessage = errorCard != null ? errorCard.findViewById(R.id.tvErrorMessage) : null;
+        btnRetry = errorCard != null ? errorCard.findViewById(R.id.btnRetry) : null;
+
+        adapter = new PostAdapter(requireContext(), allPosts);
+        rvPost.setAdapter(adapter);
+        rvPost.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvPost.setHasFixedSize(true);
+
+        if (btnRetry != null) btnRetry.setOnClickListener(v -> queryPosts());
+
+        showError(false, null);
+        showLoading(true);
+        queryPosts();
+    }
+
+    private void showLoading(boolean show) {
+        if (shimmer == null || rvPost == null) return;
+        if (show) {
+            shimmer.setVisibility(View.VISIBLE);
+            shimmer.startShimmer();
+            rvPost.setAlpha(0f);
+        } else {
+            shimmer.stopShimmer();
+            shimmer.setVisibility(View.GONE);
+            rvPost.setAlpha(1f);
+        }
+    }
+
+    private void showError(boolean show, @Nullable String msg) {
+        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show && tvErrorMessage != null) {
+            tvErrorMessage.setText(msg == null ? getString(R.string.error_generic) : msg);
+        }
+    }
+
+    private void bindMock() {
+        allPosts.clear();
+        allPosts.addAll(MockData.mockPosts());
+        adapter.notifyDataSetChanged();
+    }
+
+    private void queryPosts() {
+        // In mock mode, just bind canned data.
+        if (BuildConfig.MOCK_MODE) {
+            bindMock();
+            showLoading(false);
+            showError(false, null);
+            return;
+        }
+
+        // Real backend path (Parse). If your backend isn't ready, you'll still see mock in debug.
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.include(Post.KEY_USER);
+        query.setLimit(50);
+        query.orderByDescending(Post.KEY_CREATED_AT);
+
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                showLoading(false);
+                if (e != null) {
+                    showError(true, getString(R.string.error_generic));
+                    return;
+                }
+                allPosts.clear();
+                if (posts != null) {
+                    for (Post p : posts) {
+                        String category = nz(p.getString(Post.KEY_CATEGORY));
+                        String desc = nz(p.getString(Post.KEY_DESCRIPTION));
+                        String title = nz(p.getString(Post.KEY_CONTENT_TITLE));
+                        String review = nz(p.getString(Post.KEY_REVIEW));
+
+                        String contentUrl = "";
+                        try {
+                            ParseFile f = p.getParseFile(Post.KEY_CONTENT_IMAGE);
+                            if (f != null) contentUrl = nz(f.getUrl());
+                        } catch (Exception ignore) {}
+
+                        String userName = "";
+                        String userImageUrl = "";
+                        try {
+                            ParseUser u = p.getParseUser(Post.KEY_USER);
+                            if (u != null) {
+                                userName = nz(u.getUsername());
+                                ParseFile uf = u.getParseFile("image");
+                                if (uf != null) userImageUrl = nz(uf.getUrl());
+                            }
+                        } catch (Exception ignore) {}
+
+                        allPosts.add(new PostUi(category, desc, title, review, contentUrl, userName, userImageUrl));
+                    }
+                }
+                if (allPosts.isEmpty()) {
+                    // graceful empty state
+                    showError(true, getString(R.string.empty_profile_message));
+                } else {
+                    showError(false, null);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private static String nz(String s) { return s == null ? "" : s; }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
+package com.example.fludde;
+
+import android.app.Application;
+import android.text.TextUtils;
+import android.util.Log;
+
+import com.parse.Parse;
+import com.parse.ParseInstallation;
+import com.parse.ParseObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+/**
+ * Parse bootstrapping with defensive URL validation and MOCK_MODE support.
+ */
+public class ParseApplication extends Application {
+
+    private static final String TAG = "ParseApplication";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        if (BuildConfig.MOCK_MODE) {
+            Log.i(TAG, "MOCK_MODE=true → Skipping Parse.initialize() entirely.");
+            // Still register subclasses so code referencing them compiles/loads fine (not required in mock though)
+            try {
+                ParseObject.registerSubclass(Post.class);
+                ParseObject.registerSubclass(User.class);
+            } catch (Throwable ignored) {}
+            return;
+        }
+
+        final String appId = getString(R.string.back4app_app_id);
+        final String clientKey = getString(R.string.back4app_client_key);
+        final String serverUrl = getString(R.string.back4app_server_url);
+
+        try {
+            URL url = new URL(serverUrl);
+            if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
+                throw new MalformedURLException("Server URL must start with http or https");
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(
+                    "Invalid PARSE server URL: \"" + serverUrl + "\". " +
+                            "It must be a full URL like https://parseapi.back4app.com/ .", e);
+        }
+
+        ParseObject.registerSubclass(Post.class);
+        ParseObject.registerSubclass(User.class);
+
+        Parse.setLogLevel(Parse.LOG_LEVEL_DEBUG);
+
+        try {
+            Parse.initialize(new Parse.Configuration.Builder(this)
+                    .applicationId(appId)
+                    .clientKey(clientKey)
+                    .server(serverUrl)
+                    .build());
+            Log.i(TAG, "Parse.initialize ✓ server=" + serverUrl);
+
+            boolean hasTmdbKey = !TextUtils.isEmpty(BuildConfig.TMDB_API_KEY);
+            Log.i(TAG, "BuildConfig.TMDB_API_KEY present=" + hasTmdbKey +
+                       (hasTmdbKey ? " (len=" + BuildConfig.TMDB_API_KEY.length() + ")" : ""));
+        } catch (Throwable t) {
+            Log.e(TAG, "Parse.initialize ✗", t);
+            throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
+        }
+
+        try {
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+        } catch (Throwable t) {
+            Log.w(TAG, "ParseInstallation save failed (non-fatal): " + t.getMessage());
+        }
+    }
+}
+</file>
+
+<file path="gradle.properties">
+# JVM heap + native-access flag to silence the JDK warning you saw
+org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
+
+# AndroidX flags
+android.useAndroidX=true
+android.enableJetifier=true
+android.nonTransitiveRClass=true
+</file>
+
 <file path="app/src/main/java/com/example/fludde/fragments/child/MovieChildFragment.java">
 package com.example.fludde.fragments.child;
 
@@ -5244,155 +5183,6 @@ public class MovieChildFragment extends Fragment {
             }
         });
     }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/fragments/HomeFragment.java">
-package com.example.fludde.fragments;
-
-import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Button;
-import android.widget.ProgressBar;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.util.Log;
-
-import com.example.fludde.BuildConfig;
-import com.example.fludde.Post;
-import com.example.fludde.R;
-import com.example.fludde.adapters.PostAdapter;
-import com.example.fludde.model.PostUi;
-import com.example.fludde.utils.MockData;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class HomeFragment extends Fragment {
-    private RecyclerView rvHomeFeed;
-    private PostAdapter adapter;
-    private final List<PostUi> posts = new ArrayList<>();
-
-    private ProgressBar progress;
-    private View errorCard;
-    private TextView tvErrorMessage;
-    private Button btnRetry;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        rvHomeFeed = view.findViewById(R.id.rvHomeFeed);
-        progress = view.findViewById(R.id.progress);
-        errorCard = view.findViewById(R.id.inlineError);
-        tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
-        btnRetry = view.findViewById(R.id.btnRetry);
-
-        adapter = new PostAdapter(requireContext(), posts);
-        rvHomeFeed.setAdapter(adapter);
-        rvHomeFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rvHomeFeed.setHasFixedSize(true);
-
-        btnRetry.setOnClickListener(v -> loadFeed());
-
-        showError(false, null);
-        showLoading(true);
-        loadFeed();
-    }
-
-    private void showLoading(boolean show) {
-        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (rvHomeFeed != null) rvHomeFeed.setAlpha(show ? 0.3f : 1f);
-    }
-
-    private void showError(boolean show, @Nullable String message) {
-        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show && tvErrorMessage != null) {
-            tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
-        }
-    }
-
-    private void loadFeed() {
-        showError(false, null);
-        showLoading(true);
-
-        if (BuildConfig.MOCK_MODE) {
-            posts.clear();
-            posts.addAll(MockData.mockPosts());
-            adapter.notifyDataSetChanged();
-            showLoading(false);
-            return;
-        }
-
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> result, ParseException e) {
-                showLoading(false);
-                if (e != null) {
-                    Log.e("HomeFragment", "Failed to load posts", e);
-                    showError(true, getString(R.string.error_load_feed));
-                    return;
-                }
-                posts.clear();
-                if (result != null) {
-                    for (Post p : result) {
-                        posts.add(mapToUi(p));
-                    }
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    private PostUi mapToUi(Post p) {
-        String cat = safe(p.getCategory());
-        String desc = safe(p.getDescription());
-        String title = safe(p.getContentTitle());
-        String rev = safe(p.getReview());
-
-        String contentUrl = "";
-        try {
-            ParseFile f = p.getContentImage();
-            if (f != null && f.getUrl() != null) contentUrl = f.getUrl();
-        } catch (Exception ignore) {}
-
-        String username = "";
-        String userUrl = "";
-        try {
-            ParseUser u = p.getUser();
-            if (u != null) {
-                if (u.getUsername() != null) username = u.getUsername();
-                ParseFile avatar = u.getParseFile("image");
-                if (avatar != null && avatar.getUrl() != null) userUrl = avatar.getUrl();
-            }
-        } catch (Exception ignore) {}
-
-        return new PostUi(cat, desc, title, rev, contentUrl, username, userUrl);
-    }
-
-    private static String safe(String s) { return s == null ? "" : s; }
 }
 </file>
 
@@ -5546,225 +5336,139 @@ public class HomeFragment extends Fragment {
 </manifest>
 </file>
 
+<file path="app/src/main/java/com/example/fludde/fragments/HomeFragment.java">
+package com.example.fludde.fragments;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fludde.BuildConfig;
+import com.example.fludde.R;
+import com.example.fludde.adapters.PostAdapter;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.MockData;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Home shows a friendly feed. In MOCK_MODE we always show canned posts. */
+public class HomeFragment extends Fragment {
+
+    private RecyclerView rv;
+    private View errorCard;
+    private TextView tvError;
+    private Button btnRetry;
+
+    private final List<PostUi> items = new ArrayList<>();
+    private PostAdapter adapter;
+
+    @Nullable @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_home, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+
+        rv = v.findViewById(R.id.rvHomeFeed);
+        errorCard = v.findViewById(R.id.inlineError);
+        tvError = errorCard != null ? errorCard.findViewById(R.id.tvErrorMessage) : null;
+        btnRetry = errorCard != null ? errorCard.findViewById(R.id.btnRetry) : null;
+
+        adapter = new PostAdapter(requireContext(), items);
+        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv.setAdapter(adapter);
+
+        if (btnRetry != null) btnRetry.setOnClickListener(view -> load());
+
+        load();
+    }
+
+    private void showError(boolean show, @Nullable String msg) {
+        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show && tvError != null) tvError.setText(msg == null ? getString(R.string.generic_error_message) : msg);
+    }
+
+    private void load() {
+        showError(false, null);
+        items.clear();
+
+        // Always show something in debug: mock posts
+        if (BuildConfig.MOCK_MODE) {
+            items.addAll(MockData.mockPosts());
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
+        // (Non-mock path could query a backend; for now just surface empty state)
+        showError(true, getString(R.string.empty_profile_message));
+        adapter.notifyDataSetChanged();
+    }
+}
+</file>
+
 <file path="app/src/main/java/com/example/fludde/MainActivity.java">
 package com.example.fludde;
 
 import android.os.Bundle;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
+import com.example.fludde.fragments.ComposeParentFragment;
 import com.example.fludde.fragments.HomeFragment;
 import com.example.fludde.fragments.PostFragment;
 import com.example.fludde.fragments.ProfileFragment;
 import com.example.fludde.fragments.SearchFragment;
-import com.example.fludde.fragments.ComposeParentFragment;
-import com.example.fludde.utils.FragmentTransitions;
 import com.example.fludde.utils.InsetsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Single-activity host:
- * - Owns bottom navigation and fragment swaps.
- * - No styling hardcodes; all appearance driven by theme/styles.
- * - Edge-to-edge insets handled centrally via InsetsUtils (WindowCompat + ViewCompat).
- * - Predictable back behavior:
- *      * If not on Home, back selects Home.
- *      * If on Home, back finishes Activity.
- *      * (Per-component back stacks can be added later if a tab pushes details.)
- */
 public class MainActivity extends AppCompatActivity {
 
-    private static final String STATE_SELECTED_TAB = "state:selected_tab";
-
-    private BottomNavigationView bottomNav;
-
-    // Keep fragments by tag to avoid re-creating on tab switch.
-    private final Map<Integer, String> tagsById = new HashMap<>();
-    private int currentItemId = 0;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        bottomNav = findViewById(R.id.bottomNavigation);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+        InsetsUtils.applyEdgeToEdge(this, findViewById(R.id.flContainer), bottomNavigation);
 
-        // Edge-to-edge: pad the container and bottom nav for system bars.
-        InsetsUtils.applyEdgeToEdge(
-                this,
-                findViewById(R.id.flContainer),
-                bottomNav
-        );
-
-        // Map menu IDs to stable fragment tags
-        tagsById.put(R.id.action_home, "tab:home");
-        tagsById.put(R.id.action_feed, "tab:feed");
-        tagsById.put(R.id.action_compose, "tab:compose");
-        tagsById.put(R.id.action_search, "tab:search");
-        tagsById.put(R.id.action_profile, "tab:profile");
-
-        bottomNav.setOnItemSelectedListener(item -> {
-            switchTo(item.getItemId());
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            Fragment f;
+            int id = item.getItemId();
+            if (id == R.id.action_home) {
+                f = new HomeFragment();                         // Home
+            } else if (id == R.id.action_feed) {
+                f = new PostFragment();                          // Timeline
+            } else if (id == R.id.action_compose) {
+                f = new ComposeParentFragment();                 // Compose
+            } else if (id == R.id.action_search) {
+                f = new SearchFragment();                        // Search
+            } else { // R.id.action_profile
+                f = new ProfileFragment();                       // Profile
+            }
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flContainer, f)
+                    .commit();
             return true;
         });
 
-        // Re-selection: pop child back stack or scroll-to-top could go here later.
-        bottomNav.setOnItemReselectedListener(item -> {
-            Fragment f = getSupportFragmentManager().findFragmentByTag(tagsById.get(item.getItemId()));
-            if (f != null) {
-                // If a tab uses a nested stack later, you can do:
-                // f.getChildFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                // For now, no-op to keep behavior simple and predictable.
-            }
-        });
-
-        // Back: if not on Home, go Home. If on Home, finish.
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() {
-                if (currentItemId != R.id.action_home) {
-                    bottomNav.setSelectedItemId(R.id.action_home);
-                } else {
-                    setEnabled(false);
-                    onBackPressed(); // default finish()
-                }
-            }
-        });
-
-        final int startTab = savedInstanceState != null
-                ? savedInstanceState.getInt(STATE_SELECTED_TAB, R.id.action_home)
-                : R.id.action_home;
-
-        bottomNav.setSelectedItemId(startTab);
-        switchTo(startTab);
+        // Default tab
+        bottomNavigation.setSelectedItemId(R.id.action_home);
     }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SELECTED_TAB, currentItemId);
-    }
-
-    private void switchTo(@IdRes int itemId) {
-        if (currentItemId == itemId) return;
-        currentItemId = itemId;
-
-        final String tag = tagsById.get(itemId);
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        FragmentTransitions.applyFastFade(tx);
-
-        // Hide all current fragments
-        for (Map.Entry<Integer, String> e : tagsById.entrySet()) {
-            Fragment f = getSupportFragmentManager().findFragmentByTag(e.getValue());
-            if (f != null && !f.isHidden()) {
-                tx.hide(f);
-            }
-        }
-
-        Fragment target = getSupportFragmentManager().findFragmentByTag(tag);
-        if (target == null) {
-            target = createFragmentFor(itemId);
-            tx.add(R.id.flContainer, target, tag);
-        } else {
-            tx.show(target);
-        }
-
-        tx.commit();
-    }
-
-    private Fragment createFragmentFor(@IdRes int itemId) {
-        if (itemId == R.id.action_home) return new HomeFragment();
-        if (itemId == R.id.action_feed) return new PostFragment();
-        if (itemId == R.id.action_compose) return new ComposeParentFragment();
-        if (itemId == R.id.action_search) return new SearchFragment();
-        if (itemId == R.id.action_profile) return new ProfileFragment();
-        // Fallback
-        return new HomeFragment();
-    }
-}
-</file>
-
-<file path="app/build.gradle">
-plugins {
-    id 'com.android.application'
-}
-
-android {
-    namespace 'com.example.fludde'
-    compileSdk 35
-
-    defaultConfig {
-        applicationId "com.example.fludde"
-        minSdk 24
-        targetSdk 35
-        versionCode 1
-        versionName "1.0"
-
-        // If you already had custom BuildConfig fields, keep them here.
-        // These are examples that match usages in the codebase:
-        //   - BuildConfig.MOCK_MODE
-        //   - BuildConfig.TMDB_API_KEY
-        def props = new Properties()
-        def propsFile = rootProject.file("apikey.properties")
-        if (propsFile.exists()) {
-            props.load(new FileInputStream(propsFile))
-        }
-
-        boolean mockMode = (props.getProperty("MOCK_MODE", "true")).toBoolean()
-        String tmdbKey = props.getProperty("TMDB_API_KEY", "")
-
-        buildConfigField "boolean", "MOCK_MODE", String.valueOf(mockMode)
-        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
-    }
-
-    // ✅ Fix for the AGP error: explicitly enable BuildConfig generation
-    buildFeatures {
-        buildConfig true
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    packaging {
-        resources {
-            excludes += [ "META-INF/DEPENDENCIES", "META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/*.kotlin_module" ]
-        }
-    }
-}
-
-dependencies {
-    // AndroidX
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'com.google.android.material:material:1.12.0'
-
-    // Glide (image loading)
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
-
-    // Async HTTP client used by ApiUtils
-    implementation 'com.loopj.android:android-async-http:1.4.11'
-
-    // Facebook Shimmer used by PostFragment skeletons
-    implementation 'com.facebook.shimmer:shimmer:0.5.0'
-
-    // Parse Android SDK (JitPack repo is already in settings.gradle)
-    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.2.1'
-
-    // Unit tests
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
 </file>
 
@@ -5953,6 +5657,100 @@ public class BooksContent {
     private static String coalesce(String a, String b, String c) {
         return a != null ? a : (b != null ? b : c);
     }
+}
+</file>
+
+<file path="app/build.gradle">
+plugins {
+    id 'com.android.application'
+}
+
+import java.util.Properties
+import java.io.FileInputStream
+
+android {
+    namespace 'com.example.fludde'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.example.fludde"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        // JUnit runner for androidTest if/when you wire tests
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // If you use viewBinding later, enable it here
+    buildFeatures {
+        // buildConfig is on by default in modern AGP, but explicitly keeping it true doesn’t hurt.
+        buildConfig true
+    }
+
+    // ---- Load secrets from apikey.properties (kept out of VCS) ----
+    def propsFile = rootProject.file("apikey.properties")
+    def props = new Properties()
+    if (propsFile.exists()) {
+        props.load(new FileInputStream(propsFile))
+    }
+    def tmdbKey = (props.getProperty("TMDB_API_KEY", "") ?: "")
+    // Escape any backslashes/quotes to be safe in a Java string literal
+    def tmdbKeyEscaped = tmdbKey.replace("\\", "\\\\").replace("\"", "\\\"")
+
+    buildTypes {
+        debug {
+            // Your app already references BuildConfig.MOCK_MODE in a few places
+            buildConfigField "boolean", "MOCK_MODE", "true"
+            // ✔️ Add the missing field so code like BuildConfig.TMDB_API_KEY compiles
+            buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKeyEscaped}\""
+            // Keep debuggable etc. default
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "MOCK_MODE", "false"
+            buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKeyEscaped}\""
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        // keep defaults
+    }
+}
+
+dependencies {
+    // AndroidX + Material
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.fragment:fragment:1.8.3'
+
+    // Glide (images)
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
+    // Shimmer
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    // Async HTTP
+    implementation 'com.loopj.android:android-async-http:1.4.10'
+
+    // Parse Android SDK (JitPack already configured in settings.gradle)
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.4.1'
+
+    // Tests (optional)
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
 </file>
 
