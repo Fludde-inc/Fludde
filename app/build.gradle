@@ -9,72 +9,65 @@ android {
     defaultConfig {
         applicationId "com.example.fludde"
         minSdk 24
-        // You can keep targetSdk as-is; updating compileSdk is enough for RecyclerView 1.4.0.
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        // ---- BuildConfig: TMDB key from apikey.properties (kept optional) ----
-        def tmdbKey = ""
+        // If you already had custom BuildConfig fields, keep them here.
+        // These are examples that match usages in the codebase:
+        //   - BuildConfig.MOCK_MODE
+        //   - BuildConfig.TMDB_API_KEY
+        def props = new Properties()
         def propsFile = rootProject.file("apikey.properties")
         if (propsFile.exists()) {
-            def p = new Properties()
-            propsFile.withInputStream { p.load(it) }
-            tmdbKey = p.getProperty("TMDB_API_KEY", "")
+            props.load(new FileInputStream(propsFile))
         }
+
+        boolean mockMode = (props.getProperty("MOCK_MODE", "true")).toBoolean()
+        String tmdbKey = props.getProperty("TMDB_API_KEY", "")
+
+        buildConfigField "boolean", "MOCK_MODE", String.valueOf(mockMode)
         buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
     }
 
-    buildTypes {
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
-        }
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
+    // ✅ Fix for the AGP error: explicitly enable BuildConfig generation
     buildFeatures {
         buildConfig true
     }
 
     compileOptions {
-        // AGP 8.x uses JDK 17 toolchain; set source/target for your Java code.
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 
     packaging {
         resources {
-            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
+            excludes += [ "META-INF/DEPENDENCIES", "META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/*.kotlin_module" ]
         }
     }
 }
 
 dependencies {
-    // AndroidX UI
+    // AndroidX
     implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    // Explicitly use RecyclerView 1.4.0 (requires compileSdk 35)
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.core:core:1.13.1'
 
     // Glide (image loading)
     implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    // Parse Android SDK (via JitPack; your settings.gradle already includes JitPack)
-    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.3.0'
-
-    // Networking helpers
+    // Async HTTP client used by ApiUtils
     implementation 'com.loopj.android:android-async-http:1.4.11'
+
+    // Facebook Shimmer used by PostFragment skeletons
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
-    // Tests
+    // Parse Android SDK (JitPack repo is already in settings.gradle)
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.2.1'
+
+    // Unit tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

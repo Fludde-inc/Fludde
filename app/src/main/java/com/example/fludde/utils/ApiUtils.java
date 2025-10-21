@@ -1,13 +1,20 @@
 package com.example.fludde.utils;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
+import com.example.fludde.BuildConfig;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
+
 /**
  * Centralized HTTP helper with timeouts, retries, and verbose logging.
- * All network calls flow through here so it's easy to see what's going on.
+ * Logs request lifecycle with timings and body sizes so failures are obvious.
  */
 public final class ApiUtils {
     private static final String TAG = "ApiUtils";
@@ -15,90 +22,90 @@ public final class ApiUtils {
 
     static {
         try {
-            // Reasonable network defaults for flaky connections:
-            client.setConnectTimeout(15_000);     // 15s to connect
-            client.setResponseTimeout(25_000);    // 25s to read response
-            client.setMaxRetriesAndTimeout(2, 2_000); // 2 retries with 2s backoff
+            client.setConnectTimeout(15_000);
+            client.setResponseTimeout(25_000);
+            client.setMaxRetriesAndTimeout(2, 2_000);
             client.setUserAgent("Fludde/1.0 (Android)");
-            Log.d(TAG, "AsyncHttpClient configured: timeouts + retries + UA");
+            Log.d(TAG, "init: timeouts(connect=15s resp=25s) retries=2 UA=Fludde/1.0 MOCK_MODE=" + BuildConfig.MOCK_MODE);
         } catch (Throwable t) {
-            Log.e(TAG, "Failed to configure AsyncHttpClient", t);
+            Log.e(TAG, "init: Failed to configure AsyncHttpClient", t);
         }
     }
 
     private ApiUtils() {}
 
-    /**
-     * GET with verbose logging. Wraps the passed handler so we always log status + payload basics.
-     */
+    /** GET with verbose logging; in MOCK_MODE returns canned JSON for known URLs. */
     public static void get(String url, JsonHttpResponseHandler handler) {
         final long start = System.currentTimeMillis();
         final String reqTag = "GET " + url;
-        Log.d(TAG, reqTag + " → sending");
 
+        if (BuildConfig.MOCK_MODE) {
+            Log.d(TAG, reqTag + " -> MOCK intercept (no network)");
+            mockGet(url, handler, start);
+            return;
+        }
+
+        Log.d(TAG, reqTag + " -> sending");
         client.get(url, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, org.json.JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
                 long ms = System.currentTimeMillis() - start;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) body=JSONObject(len=" + (response != null ? response.length() : 0) + ")");
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONObject len=" + (response != null ? response.length() : -1));
                 if (handler != null) handler.onSuccess(statusCode, headers, response);
             }
 
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, org.json.JSONArray response) {
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONArray response) {
                 long ms = System.currentTimeMillis() - start;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) body=JSONArray(len=" + (response != null ? response.length() : 0) + ")");
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONArray len=" + (response != null ? response.length() : -1));
                 if (handler != null) handler.onSuccess(statusCode, headers, response);
             }
 
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString) {
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
                 long ms = System.currentTimeMillis() - start;
-                String preview = responseString != null && responseString.length() > 200
-                        ? responseString.substring(0, 200) + "…"
-                        : responseString;
-                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) body=String(len=" + (responseString != null ? responseString.length() : 0) + ") preview=\"" + preview + "\"");
+                int len = responseString == null ? -1 : responseString.length();
+                String preview = responseString != null && len > 160 ? responseString.substring(0, 160) + "…" : responseString;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) String len=" + len + " preview=" + preview);
                 if (handler != null) handler.onSuccess(statusCode, headers, responseString);
             }
 
             @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
                 logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
                 if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
             }
 
             @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, org.json.JSONArray errorResponse) {
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONArray errorResponse) {
                 logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
                 if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
             }
 
             @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 logFailure(reqTag, statusCode, throwable, responseString, start);
                 if (handler != null) handler.onFailure(statusCode, headers, responseString, throwable);
             }
         });
     }
 
-    /**
-     * POST with no params (convenience) + logging. Add overloads as needed.
-     */
+    /** POST with no params (unchanged; not used by mocks for now). */
     public static void post(String url, JsonHttpResponseHandler handler) {
         final long start = System.currentTimeMillis();
         final String reqTag = "POST " + url;
-        Log.d(TAG, reqTag + " → sending");
+        Log.d(TAG, reqTag + " -> sending");
 
         client.post(url, null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, org.json.JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
                 long ms = System.currentTimeMillis() - start;
                 Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms)");
                 if (handler != null) handler.onSuccess(statusCode, headers, response);
             }
 
             @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
                 logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
                 if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
             }
@@ -109,13 +116,13 @@ public final class ApiUtils {
     public static void setApiKey(String apiKey) {
         try {
             client.addHeader("Authorization", "Bearer " + apiKey);
-            Log.d(TAG, "Authorization header set (Bearer …" + (apiKey != null ? Math.max(0, apiKey.length() - 4) : 0) + " chars)");
+            Log.d(TAG, "Authorization header set (Bearer ... len=" + (apiKey == null ? 0 : apiKey.length()) + ")");
         } catch (Exception e) {
             Log.e(TAG, "Failed to set API key", e);
         }
     }
 
-    /** Centralized failure log (also safe to call from your fragments). */
+    /** Centralized failure log (consistent with Android logging guidance). */
     public static void handleFailure(int statusCode, Throwable throwable) {
         Log.e(TAG, "Network request failed status=" + statusCode, throwable);
     }
@@ -127,5 +134,29 @@ public final class ApiUtils {
             bodyOrNull = bodyOrNull.substring(0, 500) + "…";
         }
         Log.e(TAG, tag + " ✗ " + status + " (" + ms + "ms) body=" + (bodyOrNull == null ? "null" : bodyOrNull), t);
+    }
+
+    // ---- mock engine ----
+    private static void mockGet(String url, JsonHttpResponseHandler handler, long start) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                JSONObject payload;
+
+                if (url.contains("themoviedb.org/3/trending/movie")) {
+                    payload = MockData.tmdbTrendingJson();
+                } else if (url.contains("itunes.apple.com/search")) {
+                    payload = MockData.itunesSearchJson();
+                } else {
+                    payload = new JSONObject();
+                }
+
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, "MOCK " + url + " ✓ 200 (" + ms + "ms) body=JSONObject(len=" + payload.length() + ")");
+                if (handler != null) handler.onSuccess(200, new Header[0], payload);
+            } catch (Throwable t) {
+                Log.e(TAG, "MOCK " + url + " ✗ error generating payload", t);
+                if (handler != null) handler.onFailure(500, new Header[0], t, (JSONObject) null);
+            }
+        }, 450);
     }
 }

@@ -3,32 +3,37 @@ package com.example.fludde.adapters;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.example.fludde.R;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fludde.User;
-import com.parse.ParseFile;
-import com.parse.ParseUser;
+import com.example.fludde.model.UserUi;
 
 import java.util.List;
 
 public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAdapter.UserViewHolder> {
-    Context context;
-    List<ParseUser> users;
+    private final Context context;
+    private final List<UserUi> users;
 
-    public SearchFragmentAdapter(Context context, List<ParseUser> users) {
+    public SearchFragmentAdapter(Context context, List<UserUi> users) {
         this.context = context;
         this.users = users;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = users.get(position).getUsername() + "|" + position;
+        return key.hashCode();
     }
 
     @NonNull
@@ -40,34 +45,27 @@ public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAd
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        ParseUser user = users.get(position);
-        holder.bind((User) user);
+        holder.bind(users.get(position));
     }
 
     @Override
-    public int getItemCount() {
-        return users.size();
-    }
+    public int getItemCount() { return users.size(); }
 
     class UserViewHolder extends RecyclerView.ViewHolder{
-
-       private TextView tvUName;
-        private ImageView ivUserImage;
+        private final TextView tvUName;
+        private final ImageView ivUserImage;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvUName = itemView.findViewById(R.id.tvUName);
             ivUserImage = itemView.findViewById(R.id.ivUserImage);
         }
 
-        public void bind(ParseUser user) {
+        public void bind(UserUi user) {
             tvUName.setText(user.getUsername());
 
-            ParseFile userImage = user.getParseFile("image");
-
             Glide.with(context)
-                .load(userImage != null ? userImage.getUrl() : null)
+                .load(user.getImageUrl().isEmpty() ? null : user.getImageUrl())
                 .apply(new RequestOptions().transform(new CenterCrop()))
                 .placeholder(R.drawable.placeholder_avatar)
                 .error(R.drawable.placeholder_avatar)

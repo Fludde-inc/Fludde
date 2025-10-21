@@ -75,12 +75,15 @@ app/
                 ContentsClick.java
                 MovieContent.java
                 MusicContent.java
+                PostUi.java
+                UserUi.java
               utils/
                 ApiUtils.java
                 FragmentTransitions.java
                 GlideExtensions.java
                 Haptics.java
                 InsetsUtils.java
+                MockData.java
                 SpacesItemDecoration.java
               LoginActivity.java
               MainActivity.java
@@ -179,6 +182,182 @@ settings.gradle
 <files>
 This section contains the contents of the repository's files.
 
+<file path="app/src/main/java/com/example/fludde/model/PostUi.java">
+package com.example.fludde.model;
+
+/** Minimal UI model so the feed can render with or without Parse. */
+public final class PostUi {
+    private final String category;
+    private final String description;
+    private final String title;
+    private final String review;
+    private final String contentImageUrl;
+    private final String userName;
+    private final String userImageUrl;
+
+    public PostUi(String category, String description, String title, String review,
+                  String contentImageUrl, String userName, String userImageUrl) {
+        this.category = nz(category);
+        this.description = nz(description);
+        this.title = nz(title);
+        this.review = nz(review);
+        this.contentImageUrl = nz(contentImageUrl);
+        this.userName = nz(userName);
+        this.userImageUrl = nz(userImageUrl);
+    }
+
+    public String getCategory() { return category; }
+    public String getDescription() { return description; }
+    public String getTitle() { return title; }
+    public String getReview() { return review; }
+    public String getContentImageUrl() { return contentImageUrl; }
+    public String getUserName() { return userName; }
+    public String getUserImageUrl() { return userImageUrl; }
+
+    private static String nz(String s) { return s == null ? "" : s; }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/model/UserUi.java">
+package com.example.fludde.model;
+
+/** Minimal UI model for search results so we don't depend on Parse in mock mode. */
+public final class UserUi {
+    private final String username;
+    private final String imageUrl;
+
+    public UserUi(String username, String imageUrl) {
+        this.username = username == null ? "" : username;
+        this.imageUrl = imageUrl == null ? "" : imageUrl;
+    }
+
+    public String getUsername() { return username; }
+    public String getImageUrl() { return imageUrl; }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/MockData.java">
+package com.example.fludde.utils;
+
+import com.example.fludde.model.PostUi;
+import com.example.fludde.model.UserUi;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Tiny factory of offline mock data for UI rendering. */
+public final class MockData {
+    private MockData() {}
+
+    public static JSONObject tmdbTrendingJson() throws Exception {
+        JSONArray results = new JSONArray();
+
+        results.put(new JSONObject()
+                .put("poster_path", "kqjL17yufvn9OVLyXYpvtyrFfak.jpg")
+                .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
+                .put("title", "Mock: The Lost City")
+                .put("overview", "Two brilliant adventurers embark on a mock journey."));
+
+        results.put(new JSONObject()
+                .put("poster_path", "6DrHO1jr3qVrViUO6s6kFiAGM7.jpg")
+                .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
+                .put("title", "Mock: Night Patrol")
+                .put("overview", "A stylish mystery that totally doesn't require an API key."));
+
+        results.put(new JSONObject()
+                .put("poster_path", "t6HIqrRAclMCA60NsSmeqe9RmNV.jpg")
+                .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
+                .put("title", "Mock: Ocean Deep")
+                .put("overview", "An epic dive into mock data excellence."));
+
+        JSONObject payload = new JSONObject();
+        payload.put("results", results);
+        return payload;
+    }
+
+    public static JSONObject itunesSearchJson() throws Exception {
+        JSONArray results = new JSONArray();
+
+        results.put(new JSONObject()
+                .put("name", "Mock Song One")
+                .put("artistName", "The Mockers")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1069"));
+
+        results.put(new JSONObject()
+                .put("name", "Dreams in JSON")
+                .put("artistName", "Null & Void")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1027"));
+
+        results.put(new JSONObject()
+                .put("name", "Offline Anthem")
+                .put("artistName", "Airplane Mode")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1003"));
+
+        JSONObject payload = new JSONObject();
+        payload.put("results", results);
+        return payload;
+    }
+
+    public static List<PostUi> mockPosts() {
+        List<PostUi> list = new ArrayList<>();
+
+        list.add(new PostUi(
+                "Movie",
+                "Buddy cops wreak havoc while being lovable.",
+                "Bad Boys II",
+                "A classic turn-your-brain-off action flick.",
+                // poster
+                "https://image.tmdb.org/t/p/w342/yCvB5fG5aEPqa1St7ihY6KEAsHD.jpg",
+                // user
+                "johndoe2016",
+                "https://i.pravatar.cc/150?img=12"
+        ));
+
+        list.add(new PostUi(
+                "Book",
+                "A sweeping mock fantasy adventure across lands unknown.",
+                "The Winds of JSON",
+                "Compelling world-building; waiting for the next chapter…",
+                "https://picsum.photos/342/513?image=1067",
+                "mockreader",
+                "https://i.pravatar.cc/150?img=3"
+        ));
+
+        list.add(new PostUi(
+                "Music",
+                "A synthwave album that makes you want to code.",
+                "Neon Arrays",
+                "Track 3 slaps. Would recommend for late-night sessions.",
+                "https://picsum.photos/342/513?image=1039",
+                "airplanemode",
+                "https://i.pravatar.cc/150?img=20"
+        ));
+
+        return list;
+    }
+
+    public static List<UserUi> mockUsers(String query) {
+        String q = query == null ? "" : query.toLowerCase();
+        List<UserUi> base = new ArrayList<>();
+        base.add(new UserUi("johndoe2016", "https://i.pravatar.cc/150?img=12"));
+        base.add(new UserUi("janedoe", "https://i.pravatar.cc/150?img=5"));
+        base.add(new UserUi("mockreader", "https://i.pravatar.cc/150?img=3"));
+        base.add(new UserUi("airplanemode", "https://i.pravatar.cc/150?img=20"));
+        base.add(new UserUi("nullpointer", "https://i.pravatar.cc/150?img=8"));
+
+        if (q.isEmpty()) return base;
+        List<UserUi> filtered = new ArrayList<>();
+        for (UserUi u : base) {
+            if (u.getUsername().toLowerCase().contains(q)) filtered.add(u);
+        }
+        return filtered;
+    }
+}
+</file>
+
 <file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
 package com.example.fludde.model;
 
@@ -214,51 +393,6 @@ package com.example.fludde.model;
 public interface ContentsClick {
 
      void OnContentClick(int pos);
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
-package com.example.fludde.utils;
-
-import android.util.Log;
-
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-public class ApiUtils {
-    private static final String TAG = "ApiUtils";
-    private static final AsyncHttpClient client = new AsyncHttpClient();
-
-    public static void get(String url, JsonHttpResponseHandler responseHandler) {
-        try {
-            client.get(url, responseHandler);
-            Log.d(TAG, "GET request sent to URL: " + url);
-        } catch (Exception e) {
-            Log.e(TAG, "GET request failed for URL: " + url, e);
-        }
-    }
-
-    public static void post(String url, JsonHttpResponseHandler responseHandler) {
-        try {
-            client.post(url, null, responseHandler);
-            Log.d(TAG, "POST request sent to URL: " + url);
-        } catch (Exception e) {
-            Log.e(TAG, "POST request failed for URL: " + url, e);
-        }
-    }
-
-    public static void setApiKey(String apiKey) {
-        try {
-            client.addHeader("Authorization", "Bearer " + apiKey);
-            Log.d(TAG, "API key set for requests");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to set API key", e);
-        }
-    }
-
-    public static void handleFailure(int statusCode, Throwable throwable) {
-        Log.e(TAG, "Network request failed with status code: " + statusCode, throwable);
-    }
 }
 </file>
 
@@ -625,7 +759,6 @@ public class User extends ParseUser {
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/inlineError"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:visibility="gone"
@@ -1164,32 +1297,37 @@ package com.example.fludde.adapters;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.example.fludde.R;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fludde.User;
-import com.parse.ParseFile;
-import com.parse.ParseUser;
+import com.example.fludde.model.UserUi;
 
 import java.util.List;
 
 public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAdapter.UserViewHolder> {
-    Context context;
-    List<ParseUser> users;
+    private final Context context;
+    private final List<UserUi> users;
 
-    public SearchFragmentAdapter(Context context, List<ParseUser> users) {
+    public SearchFragmentAdapter(Context context, List<UserUi> users) {
         this.context = context;
         this.users = users;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = users.get(position).getUsername() + "|" + position;
+        return key.hashCode();
     }
 
     @NonNull
@@ -1201,34 +1339,27 @@ public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAd
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        ParseUser user = users.get(position);
-        holder.bind((User) user);
+        holder.bind(users.get(position));
     }
 
     @Override
-    public int getItemCount() {
-        return users.size();
-    }
+    public int getItemCount() { return users.size(); }
 
     class UserViewHolder extends RecyclerView.ViewHolder{
-
-       private TextView tvUName;
-        private ImageView ivUserImage;
+        private final TextView tvUName;
+        private final ImageView ivUserImage;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvUName = itemView.findViewById(R.id.tvUName);
             ivUserImage = itemView.findViewById(R.id.ivUserImage);
         }
 
-        public void bind(ParseUser user) {
+        public void bind(UserUi user) {
             tvUName.setText(user.getUsername());
 
-            ParseFile userImage = user.getParseFile("image");
-
             Glide.with(context)
-                .load(userImage != null ? userImage.getUrl() : null)
+                .load(user.getImageUrl().isEmpty() ? null : user.getImageUrl())
                 .apply(new RequestOptions().transform(new CenterCrop()))
                 .placeholder(R.drawable.placeholder_avatar)
                 .error(R.drawable.placeholder_avatar)
@@ -1485,6 +1616,171 @@ public class MusicContent {
 }
 </file>
 
+<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
+package com.example.fludde.utils;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
+import com.example.fludde.BuildConfig;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
+
+/**
+ * Centralized HTTP helper with timeouts, retries, and verbose logging.
+ * Logs request lifecycle with timings and body sizes so failures are obvious.
+ */
+public final class ApiUtils {
+    private static final String TAG = "ApiUtils";
+    private static final AsyncHttpClient client = new AsyncHttpClient();
+
+    static {
+        try {
+            client.setConnectTimeout(15_000);
+            client.setResponseTimeout(25_000);
+            client.setMaxRetriesAndTimeout(2, 2_000);
+            client.setUserAgent("Fludde/1.0 (Android)");
+            Log.d(TAG, "init: timeouts(connect=15s resp=25s) retries=2 UA=Fludde/1.0 MOCK_MODE=" + BuildConfig.MOCK_MODE);
+        } catch (Throwable t) {
+            Log.e(TAG, "init: Failed to configure AsyncHttpClient", t);
+        }
+    }
+
+    private ApiUtils() {}
+
+    /** GET with verbose logging; in MOCK_MODE returns canned JSON for known URLs. */
+    public static void get(String url, JsonHttpResponseHandler handler) {
+        final long start = System.currentTimeMillis();
+        final String reqTag = "GET " + url;
+
+        if (BuildConfig.MOCK_MODE) {
+            Log.d(TAG, reqTag + " -> MOCK intercept (no network)");
+            mockGet(url, handler, start);
+            return;
+        }
+
+        Log.d(TAG, reqTag + " -> sending");
+        client.get(url, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONObject len=" + (response != null ? response.length() : -1));
+                if (handler != null) handler.onSuccess(statusCode, headers, response);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONArray response) {
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) JSONArray len=" + (response != null ? response.length() : -1));
+                if (handler != null) handler.onSuccess(statusCode, headers, response);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                long ms = System.currentTimeMillis() - start;
+                int len = responseString == null ? -1 : responseString.length();
+                String preview = responseString != null && len > 160 ? responseString.substring(0, 160) + "…" : responseString;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms) String len=" + len + " preview=" + preview);
+                if (handler != null) handler.onSuccess(statusCode, headers, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
+                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
+                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONArray errorResponse) {
+                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
+                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                logFailure(reqTag, statusCode, throwable, responseString, start);
+                if (handler != null) handler.onFailure(statusCode, headers, responseString, throwable);
+            }
+        });
+    }
+
+    /** POST with no params (unchanged; not used by mocks for now). */
+    public static void post(String url, JsonHttpResponseHandler handler) {
+        final long start = System.currentTimeMillis();
+        final String reqTag = "POST " + url;
+        Log.d(TAG, reqTag + " -> sending");
+
+        client.post(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, org.json.JSONObject response) {
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, reqTag + " ✓ " + statusCode + " (" + ms + "ms)");
+                if (handler != null) handler.onSuccess(statusCode, headers, response);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, org.json.JSONObject errorResponse) {
+                logFailure(reqTag, statusCode, throwable, errorResponse != null ? errorResponse.toString() : null, start);
+                if (handler != null) handler.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
+    }
+
+    /** Optional bearer header helper. */
+    public static void setApiKey(String apiKey) {
+        try {
+            client.addHeader("Authorization", "Bearer " + apiKey);
+            Log.d(TAG, "Authorization header set (Bearer ... len=" + (apiKey == null ? 0 : apiKey.length()) + ")");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to set API key", e);
+        }
+    }
+
+    /** Centralized failure log (consistent with Android logging guidance). */
+    public static void handleFailure(int statusCode, Throwable throwable) {
+        Log.e(TAG, "Network request failed status=" + statusCode, throwable);
+    }
+
+    // ---- internal helpers ----
+    private static void logFailure(String tag, int status, Throwable t, String bodyOrNull, long start) {
+        long ms = System.currentTimeMillis() - start;
+        if (bodyOrNull != null && bodyOrNull.length() > 500) {
+            bodyOrNull = bodyOrNull.substring(0, 500) + "…";
+        }
+        Log.e(TAG, tag + " ✗ " + status + " (" + ms + "ms) body=" + (bodyOrNull == null ? "null" : bodyOrNull), t);
+    }
+
+    // ---- mock engine ----
+    private static void mockGet(String url, JsonHttpResponseHandler handler, long start) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                JSONObject payload;
+
+                if (url.contains("themoviedb.org/3/trending/movie")) {
+                    payload = MockData.tmdbTrendingJson();
+                } else if (url.contains("itunes.apple.com/search")) {
+                    payload = MockData.itunesSearchJson();
+                } else {
+                    payload = new JSONObject();
+                }
+
+                long ms = System.currentTimeMillis() - start;
+                Log.d(TAG, "MOCK " + url + " ✓ 200 (" + ms + "ms) body=JSONObject(len=" + payload.length() + ")");
+                if (handler != null) handler.onSuccess(200, new Header[0], payload);
+            } catch (Throwable t) {
+                Log.e(TAG, "MOCK " + url + " ✗ error generating payload", t);
+                if (handler != null) handler.onFailure(500, new Header[0], t, (JSONObject) null);
+            }
+        }, 450);
+    }
+}
+</file>
+
 <file path="app/src/main/java/com/example/fludde/Post.java">
 package com.example.fludde;
 
@@ -1644,9 +1940,10 @@ public class SignupActivity extends AppCompatActivity {
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Inline, non-blocking error w/ retry -->
+    <!-- Inline, non-blocking error with retry.
+         IMPORTANT: Give the <include> its OWN id so the parent can find it. -->
     <include
-        android:id="@+id/includeError"
+        android:id="@+id/inlineError"
         layout="@layout/include_inline_error"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -1658,7 +1955,7 @@ public class SignupActivity extends AppCompatActivity {
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="1dp"
-        app:layout_constraintTop_toBottomOf="@id/includeError"
+        app:layout_constraintTop_toBottomOf="@id/inlineError"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -1669,7 +1966,7 @@ public class SignupActivity extends AppCompatActivity {
         android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/includeError"
+        app:layout_constraintTop_toBottomOf="@id/inlineError"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -2155,245 +2452,6 @@ public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.Mu
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/adapters/PostAdapter.java">
-package com.example.fludde.adapters;
-
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.fludde.Post;
-import com.example.fludde.R;
-import com.example.fludde.utils.GlideExtensions;
-import com.parse.ParseFile;
-import com.parse.ParseUser;
-
-import java.util.List;
-
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
-
-    private final Context context;
-    private final List<Post> posts;
-
-    public PostAdapter(Context context, List<Post> posts) {
-        this.context = context;
-        this.posts = posts;
-        setHasStableIds(true); // stable for jank-free animations
-    }
-
-    @Override
-    public long getItemId(int position) {
-        // Best effort stable id from Parse objectId if available
-        try {
-            String id = posts.get(position).getObjectId();
-            return id != null ? id.hashCode() : position;
-        } catch (Exception e) {
-            return position;
-        }
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
-        // Press/ ripple background on the whole row
-        view.setBackgroundResource(R.drawable.list_item_bg);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(posts.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return posts.size();
-    }
-
-    class ViewHolder extends RecyclerView.ViewHolder{
-        private final TextView tvContentCategory;
-        private final TextView tvContentDescription;
-        private final TextView tvContentTitle;
-        private final TextView tvUsername;
-        private final TextView tvReview;
-        private final ImageView ivUserPic;
-        private final ImageView ivContent;
-
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvContentCategory = itemView.findViewById(R.id.tvContentCategory);
-            tvContentDescription = itemView.findViewById(R.id.tvContentDescription);
-            tvContentTitle = itemView.findViewById(R.id.tvContentTitle);
-            tvUsername = itemView.findViewById(R.id.tvUsername);
-            tvReview = itemView.findViewById(R.id.tvReview);
-            ivUserPic = itemView.findViewById(R.id.ivUserPic);
-            ivContent = itemView.findViewById(R.id.ivContent);
-
-            // Long-press haptic (discoverability)
-            itemView.setOnLongClickListener(v -> {
-                com.example.fludde.utils.Haptics.longPress(v);
-                return false; // still let context/action propagate
-            });
-        }
-
-        void bind(Post post) {
-            // Defensive null-safety — prevents NPEs if a Post is partially filled.
-            String category = safeString(post.getCategory());
-            String description = safeString(post.getDescription());
-            String title = safeString(post.getContentTitle());
-            String review = safeString(post.getReview());
-
-            tvContentCategory.setText(category);
-            tvContentDescription.setText(description);
-            tvContentTitle.setText(title);
-            tvReview.setText(review);
-
-            ParseUser user = null;
-            try { user = post.getUser(); } catch (Exception ignore) {}
-            String username = user != null && user.getUsername() != null ? user.getUsername() : "";
-            tvUsername.setText(username);
-
-            ParseFile contentImage = null;
-            try { contentImage = post.getContentImage(); } catch (Exception ignore) {}
-            ParseFile userImage = null;
-            try { userImage = (user != null) ? user.getParseFile("image") : null; } catch (Exception ignore) {}
-
-            GlideExtensions.loadPoster(ivContent, contentImage != null ? contentImage.getUrl() : null);
-            GlideExtensions.loadAvatar(ivUserPic, userImage != null ? userImage.getUrl() : null);
-        }
-
-        private String safeString(String s) { return s != null ? s : ""; }
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/fragments/PostFragment.java">
-package com.example.fludde.fragments;
-
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-
-import com.example.fludde.Post;
-import com.example.fludde.adapters.PostAdapter;
-import com.example.fludde.R;
-import com.facebook.shimmer.ShimmerFrameLayout;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class PostFragment extends Fragment {
-    private RecyclerView rvPost;
-    private static final String TAG = "Post";
-    protected PostAdapter adapter;
-    protected List<Post> allPosts;
-
-    private ShimmerFrameLayout shimmer;
-    private View errorCard;
-    private TextView tvErrorMessage;
-    private Button btnRetry;
-
-    public PostFragment() {}
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_post, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        rvPost = view.findViewById(R.id.rvPost);
-        shimmer = view.findViewById(R.id.shimmerContainer);
-
-        // IMPORTANT: this must match the android:id used on the <include> tag in fragment_post.xml
-        errorCard = view.findViewById(R.id.includeError);
-        tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
-        btnRetry = view.findViewById(R.id.btnRetry);
-
-        allPosts = new ArrayList<>();
-        adapter = new PostAdapter(getContext(), allPosts);
-
-        rvPost.setAdapter(adapter);
-        rvPost.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvPost.setHasFixedSize(true);
-
-        btnRetry.setOnClickListener(v -> queryPosts());
-
-        showError(false, null);
-        showLoading(true);
-        queryPosts();
-    }
-
-    private void showLoading(boolean show) {
-        if (show) {
-            shimmer.setVisibility(View.VISIBLE);
-            shimmer.startShimmer();
-            rvPost.setAlpha(0f);
-        } else {
-            shimmer.stopShimmer();
-            shimmer.setVisibility(View.GONE);
-            rvPost.setAlpha(1f);
-        }
-    }
-
-    private void showError(boolean show, @Nullable String message) {
-        if (errorCard != null) errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show && tvErrorMessage != null) {
-            tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
-        }
-    }
-
-    protected void queryPosts() {
-        showError(false, null);
-        showLoading(true);
-
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addAscendingOrder(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                showLoading(false);
-                if (e != null) {
-                    Log.e(TAG, "post error", e);
-                    showError(true, getString(R.string.error_load_feed));
-                    return;
-                }
-                allPosts.clear();
-                if (posts != null) allPosts.addAll(posts);
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }
-}
-</file>
-
 <file path="app/src/main/java/com/example/fludde/fragments/ProfileFragment.java">
 package com.example.fludde.fragments;
 
@@ -2410,13 +2468,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-// (Posts list is a future enhancement; keeping imports minimal)
-// import androidx.recyclerview.widget.LinearLayoutManager;
-// import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.fludde.BuildConfig;
 import com.example.fludde.LoginActivity;
 import com.example.fludde.R;
 import com.google.android.material.button.MaterialButton;
@@ -2427,11 +2483,7 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 /**
- * Profile screen:
- * - Large header (avatar, username, email)
- * - Secondary actions: Edit Profile (tonal), Logout (outlined)
- * - Empty state prompting the first post
- * - Posts list placeholder (future enhancement; no logic changes now)
+ * Profile screen with mock-mode support.
  */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
@@ -2442,12 +2494,8 @@ public class ProfileFragment extends Fragment {
     private MaterialButton btnEditProfile;
     private MaterialButton btnLogout;
 
-    // Empty state
     private LinearLayout emptyState;
     private MaterialButton btnCreateFirstPost;
-
-    // Future list
-    // private RecyclerView rvProfilePosts;
 
     @Nullable
     @Override
@@ -2468,16 +2516,26 @@ public class ProfileFragment extends Fragment {
         btnLogout = v.findViewById(R.id.btnLogout);
         emptyState = v.findViewById(R.id.emptyState);
         btnCreateFirstPost = v.findViewById(R.id.btnCreateFirstPost);
-        // rvProfilePosts = v.findViewById(R.id.rvProfilePosts);
-
-        // Future: set up the posts list
-        // rvProfilePosts.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         bindUser();
         wireActions();
     }
 
     private void bindUser() {
+        if (BuildConfig.MOCK_MODE) {
+            tvUsername.setText("johndoe2016");
+            tvEmail.setText("johndoe@youknow.com");
+
+            Glide.with(this)
+                    .load("https://i.pravatar.cc/150?img=12")
+                    .apply(new RequestOptions().transform(new CenterCrop()))
+                    .placeholder(R.drawable.placeholder_avatar)
+                    .error(R.drawable.placeholder_avatar)
+                    .into(ivAvatar);
+            Log.d(TAG, "Mock profile bound");
+            return;
+        }
+
         try {
             ParseUser current = ParseUser.getCurrentUser();
             String username = current != null && current.getUsername() != null ? current.getUsername() : "";
@@ -2503,11 +2561,18 @@ public class ProfileFragment extends Fragment {
 
     private void wireActions() {
         btnEditProfile.setOnClickListener(v -> {
-            // Placeholder: future edit UI
             Toast.makeText(requireContext(), getString(R.string.action_edit_profile), Toast.LENGTH_SHORT).show();
         });
 
         btnLogout.setOnClickListener(v -> {
+            if (BuildConfig.MOCK_MODE) {
+                // In mock mode, just go to login.
+                Intent i = new Intent(requireContext(), LoginActivity.class);
+                startActivity(i);
+                requireActivity().finish();
+                return;
+            }
+
             try {
                 ParseUser.logOutInBackground(new LogOutCallback() {
                     @Override public void done(ParseException e) {
@@ -2516,7 +2581,6 @@ public class ProfileFragment extends Fragment {
                             Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        // Navigate to login
                         Intent i = new Intent(requireContext(), LoginActivity.class);
                         startActivity(i);
                         requireActivity().finish();
@@ -2529,7 +2593,6 @@ public class ProfileFragment extends Fragment {
         });
 
         btnCreateFirstPost.setOnClickListener(v -> {
-            // For now, just switch to the Compose tab if your MainActivity honors bottom nav IDs.
             Toast.makeText(requireContext(), getString(R.string.nav_compose), Toast.LENGTH_SHORT).show();
         });
     }
@@ -2539,7 +2602,6 @@ public class ProfileFragment extends Fragment {
 <file path="app/src/main/java/com/example/fludde/fragments/SearchFragment.java">
 package com.example.fludde.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -2560,34 +2622,29 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.R;
 import com.example.fludde.adapters.SearchFragmentAdapter;
+import com.example.fludde.model.UserUi;
+import com.example.fludde.utils.MockData;
 import com.google.android.material.textfield.TextInputEditText;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Search screen:
- * - Prominent search field + primary button (consistent placement)
- * - Empty state guidance when no results
- * - Keyboard action (IME_ACTION_SEARCH / Enter) equals tapping the button
- */
 public class SearchFragment extends Fragment {
 
     private static final String TAG = "SearchFragment";
 
     private RecyclerView rvUserQuery;
     private SearchFragmentAdapter searchFragmentAdapter;
-    private final List<ParseUser> allUsers = new ArrayList<>();
+    private final List<UserUi> allUsers = new ArrayList<>();
 
     private TextInputEditText etSearchFieldUser;
     private Button btSearch;
 
-    // Empty state views
     private View emptyState;
 
     public SearchFragment() { }
@@ -2620,10 +2677,8 @@ public class SearchFragment extends Fragment {
         rvUserQuery.setAdapter(searchFragmentAdapter);
         rvUserQuery.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Primary button tap
         btSearch.setOnClickListener(v -> performSearch(getQueryText()));
 
-        // Keyboard action (Search / Enter) == button tap
         etSearchFieldUser.setOnEditorActionListener((tv, actionId, event) -> {
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -2638,7 +2693,6 @@ public class SearchFragment extends Fragment {
             return handled;
         });
 
-        // Show initial guidance
         showEmptyState(true);
     }
 
@@ -2674,13 +2728,16 @@ public class SearchFragment extends Fragment {
     }
 
     private void lookForUser(String userName) {
-        // Make the same action work for button and keyboard
+        if (BuildConfig.MOCK_MODE) {
+            allUsers.clear();
+            allUsers.addAll(MockData.mockUsers(userName));
+            searchFragmentAdapter.notifyDataSetChanged();
+            showEmptyState(allUsers.isEmpty());
+            return;
+        }
+
         ParseQuery<ParseUser> query = ParseUser.getQuery();
-
-        // Use a contains match for a friendlier search experience
         query.whereContains("username", userName);
-
-        // Optional: small limit to keep UI snappy; adjust as needed
         query.setLimit(50);
 
         query.findInBackground((users, e) -> {
@@ -2695,11 +2752,18 @@ public class SearchFragment extends Fragment {
 
             allUsers.clear();
             if (users != null) {
-                allUsers.addAll(users);
+                for (ParseUser pu : users) {
+                    String username = pu.getUsername() != null ? pu.getUsername() : "";
+                    String imageUrl = "";
+                    try {
+                        if (pu.getParseFile("image") != null && pu.getParseFile("image").getUrl() != null) {
+                            imageUrl = pu.getParseFile("image").getUrl();
+                        }
+                    } catch (Exception ignore) {}
+                    allUsers.add(new UserUi(username, imageUrl));
+                }
             }
             searchFragmentAdapter.notifyDataSetChanged();
-
-            // Empty state guidance if nothing found
             showEmptyState(allUsers.isEmpty());
         });
     }
@@ -2776,67 +2840,6 @@ public class LoginActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to MainActivity", e);
             Toast.makeText(this, "An error occurred while navigating to the main screen.", Toast.LENGTH_SHORT).show();
-        }
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
-package com.example.fludde;
-
-import android.app.Application;
-import android.util.Log;
-
-import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-
-public class ParseApplication extends Application {
-
-    private static final String TAG = "ParseApplication";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Read credentials from resources
-        final String appId = getString(R.string.back4app_app_id);
-        final String clientKey = getString(R.string.back4app_client_key);
-        final String serverUrl = getString(R.string.back4app_server_url);
-
-        // Defensive validation so we never boot with a bad URL again.
-        try {
-            URL url = new URL(serverUrl); // will throw if malformed
-            if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
-                throw new MalformedURLException("Server URL must start with http or https");
-            }
-        } catch (MalformedURLException e) {
-            // Crash early with a clear reason to avoid the vague Parse stack trace.
-            throw new IllegalStateException(
-                    "Invalid PARSE server URL: \"" + serverUrl + "\". " +
-                    "It must be a full URL like https://parseapi.back4app.com/ .", e);
-        }
-
-        // Register Parse subclasses BEFORE using queries with typed classes
-        // (e.g., ParseQuery<Post>) so results map to your models.
-        ParseObject.registerSubclass(Post.class);
-        ParseObject.registerSubclass(User.class);
-
-        // Initialize Parse
-        Parse.initialize(new Parse.Configuration.Builder(this)
-                .applicationId(appId)
-                .clientKey(clientKey)
-                .server(serverUrl)
-                .build());
-
-        // Optional: save installation (push, analytics, etc.)
-        try {
-            ParseInstallation.getCurrentInstallation().saveInBackground();
-        } catch (Throwable t) {
-            Log.w(TAG, "ParseInstallation save failed (non-fatal): " + t.getMessage());
         }
     }
 }
@@ -3151,73 +3154,6 @@ public class ParseApplication extends Application {
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
-</file>
-
-<file path="app/src/main/res/layout/fragment_home.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/home_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <!-- Your feed list -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvHomeFeed"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/inlineError"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Simple progress indicator (optional; keep if your code uses it) -->
-    <ProgressBar
-        android:id="@+id/progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Inline error card expected by HomeFragment.showError(...) -->
-    <LinearLayout
-        android:id="@+id/inlineError"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="?attr/colorErrorContainer"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/rvHomeFeed"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/tvErrorMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/generic_error_message"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:paddingBottom="8dp"/>
-
-        <Button
-            android:id="@+id/btnRetry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/retry"/>
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 </file>
 
@@ -3945,93 +3881,424 @@ if "%OS%"=="Windows_NT" endlocal
 :omega
 </file>
 
-<file path="app/src/main/java/com/example/fludde/fragments/child/MusicChildFragment.java">
-package com.example.fludde.fragments.child;
+<file path="app/src/main/java/com/example/fludde/adapters/PostAdapter.java">
+package com.example.fludde.adapters;
 
-import android.os.Bundle;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fludde.R;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.GlideExtensions;
+
+import java.util.List;
+
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
+
+    private final Context context;
+    private final List<PostUi> posts;
+
+    public PostAdapter(Context context, List<PostUi> posts) {
+        this.context = context;
+        this.posts = posts;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String key = posts.get(position).getTitle() + "|" + posts.get(position).getUserName() + "|" + position;
+        return key.hashCode();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        view.setBackgroundResource(R.drawable.list_item_bg);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(posts.get(position));
+    }
+
+    @Override
+    public int getItemCount() { return posts.size(); }
+
+    class ViewHolder extends RecyclerView.ViewHolder{
+        private final TextView tvContentCategory;
+        private final TextView tvContentDescription;
+        private final TextView tvContentTitle;
+        private final TextView tvUsername;
+        private final TextView tvReview;
+        private final ImageView ivUserPic;
+        private final ImageView ivContent;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvContentCategory = itemView.findViewById(R.id.tvContentCategory);
+            tvContentDescription = itemView.findViewById(R.id.tvContentDescription);
+            tvContentTitle = itemView.findViewById(R.id.tvContentTitle);
+            tvUsername = itemView.findViewById(R.id.tvUsername);
+            tvReview = itemView.findViewById(R.id.tvReview);
+            ivUserPic = itemView.findViewById(R.id.ivUserPic);
+            ivContent = itemView.findViewById(R.id.ivContent);
+
+            itemView.setOnLongClickListener(v -> {
+                com.example.fludde.utils.Haptics.longPress(v);
+                return false;
+            });
+        }
+
+        void bind(PostUi post) {
+            tvContentCategory.setText(post.getCategory());
+            tvContentDescription.setText(post.getDescription());
+            tvContentTitle.setText(post.getTitle());
+            tvReview.setText(post.getReview());
+            tvUsername.setText(post.getUserName());
+
+            GlideExtensions.loadPoster(ivContent, post.getContentImageUrl());
+            GlideExtensions.loadAvatar(ivUserPic, post.getUserImageUrl());
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/fragments/PostFragment.java">
+package com.example.fludde.fragments;
+
+import android.annotation.SuppressLint;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fludde.R;
-import com.example.fludde.adapters.MusicChildAdapter;
-import com.example.fludde.model.MusicContent;
-import com.example.fludde.utils.ApiUtils;
-import com.example.fludde.utils.SpacesItemDecoration;
-import com.loopj.android.http.JsonHttpResponseHandler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.example.fludde.BuildConfig;
+import com.example.fludde.Post;
+import com.example.fludde.R;
+import com.example.fludde.adapters.PostAdapter;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.MockData;
+import com.facebook.shimmer.ShimmerFrameLayout;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
+/**
+ * Timeline / feed fragment with very defensive view lookups and detailed logging.
+ * We scope child lookups under the included error card to avoid nulls from <include>.
+ */
+public class PostFragment extends Fragment {
 
-public class MusicChildFragment extends Fragment {
+    private static final String TAG = "PostFragment";
 
-    private static final String ITUNES_URL =
-            "https://itunes.apple.com/search?term=pop&entity=song&limit=20";
+    private RecyclerView rvPost;
+    protected PostAdapter adapter;
+    protected final List<PostUi> allPosts = new ArrayList<>();
 
-    private RecyclerView rv;
-    private MusicChildAdapter adapter;
-    private final List<MusicContent> items = new ArrayList<>();
+    private ShimmerFrameLayout shimmer;
+    private View errorCard;          // root of the included error layout
+    private TextView tvErrorMessage; // found under errorCard
+    private Button btnRetry;         // found under errorCard
 
-    @Nullable
+    public PostFragment() {}
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_child_music, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView() inflating fragment_post");
+        View v = inflater.inflate(R.layout.fragment_post, container, false);
+        Log.d(TAG, "onCreateView() inflate OK, view=" + v);
+        return v;
     }
 
     @Override
-    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(v, savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated() start");
+        super.onViewCreated(view, savedInstanceState);
 
-        rv = v.findViewById(R.id.rvMusicHorizontalView);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        adapter = new MusicChildAdapter(requireContext(), items, new MusicChildAdapter.OnMusicContentListener() {
-            @Override public void onMusicContentClick(int position) {}
-            @Override public void onMusicContentLongClick(int position) {}
-        });
-        rv.setAdapter(adapter);
+        // --- find views ---
+        rvPost = view.findViewById(R.id.rvPost);
+        shimmer = view.findViewById(R.id.shimmerContainer);
 
-        // Carousel affordance: peeking edges + per-item snap
-        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
-        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
-        rv.setClipToPadding(false);
-        rv.setPadding(edgePeek, 0, edgePeek, 0);
-        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
-        new LinearSnapHelper().attachToRecyclerView(rv);
+        // Included error card root (android:id set on <include> tag)
+        errorCard = view.findViewById(R.id.inlineError);
+        if (errorCard == null) {
+            Log.e(TAG, "onViewCreated(): errorCard is NULL (inlineError not found). " +
+                    "Check fragment_post.xml <include> has android:id='@id/inlineError'.");
+        } else {
+            // Scope lookups to the included root to avoid accidental nulls
+            tvErrorMessage = errorCard.findViewById(R.id.tvErrorMessage);
+            btnRetry = errorCard.findViewById(R.id.btnRetry);
+            Log.d(TAG, "onViewCreated(): errorCard=" + idName(errorCard) +
+                    " tvErrorMessage=" + idName(tvErrorMessage) +
+                    " btnRetry=" + idName(btnRetry));
+        }
 
-        fetchMusic();
+        // --- recycler setup ---
+        adapter = new PostAdapter(requireContext(), allPosts);
+        rvPost.setAdapter(adapter);
+        rvPost.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvPost.setHasFixedSize(true);
+        Log.d(TAG, "onViewCreated(): RecyclerView + adapter wired, items=" + allPosts.size());
+
+        if (btnRetry != null) {
+            btnRetry.setOnClickListener(v -> {
+                Log.d(TAG, "Retry tapped");
+                queryPosts();
+            });
+        } else {
+            Log.w(TAG, "onViewCreated(): btnRetry null; retry won’t work");
+        }
+
+        // Initial state
+        showError(false, null);
+        showLoading(true);
+        queryPosts();
+        Log.d(TAG, "onViewCreated() end (query issued)");
     }
 
-    private void fetchMusic() {
-        ApiUtils.get(ITUNES_URL, new JsonHttpResponseHandler() {
+    private void showLoading(boolean show) {
+        Log.d(TAG, "showLoading(" + show + ")");
+        if (shimmer == null || rvPost == null) {
+            Log.w(TAG, "showLoading(): shimmer or rvPost null; shimmer=" + (shimmer != null) + " rv=" + (rvPost != null));
+            return;
+        }
+        try {
+            if (show) {
+                shimmer.setVisibility(View.VISIBLE);
+                shimmer.startShimmer();
+                rvPost.setAlpha(0f);
+                Log.d(TAG, "showLoading(): shimmer started");
+            } else {
+                shimmer.stopShimmer();
+                shimmer.setVisibility(View.GONE);
+                rvPost.setAlpha(1f);
+                Log.d(TAG, "showLoading(): shimmer stopped and hidden");
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "showLoading(): error toggling shimmer", t);
+        }
+    }
+
+    private void showError(boolean show, @Nullable String message) {
+        Log.d(TAG, "showError(show=" + show + ", msg=" + (message == null ? "<null>" : message) + ")");
+        try {
+            if (errorCard != null) {
+                errorCard.setVisibility(show ? View.VISIBLE : View.GONE);
+                Log.d(TAG, "showError(): errorCard visibility set to " + (show ? "VISIBLE" : "GONE"));
+            } else {
+                Log.w(TAG, "showError(): errorCard null (cannot change visibility)");
+            }
+
+            if (show) {
+                if (tvErrorMessage != null) {
+                    tvErrorMessage.setText(message != null ? message : getString(R.string.error_load_feed));
+                    Log.d(TAG, "showError(): tvErrorMessage updated");
+                } else {
+                    Log.e(TAG, "showError(): tvErrorMessage is NULL — cannot set text");
+                }
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "showError(): unexpected error", t);
+        }
+    }
+
+    protected void queryPosts() {
+        Log.d(TAG, "queryPosts(): begin; MOCK_MODE=" + BuildConfig.MOCK_MODE);
+        showError(false, null);
+        showLoading(true);
+
+        if (BuildConfig.MOCK_MODE) {
+            Log.d(TAG, "queryPosts(): using MockData");
+            allPosts.clear();
+            allPosts.addAll(MockData.mockPosts());
+            Log.d(TAG, "queryPosts(): mock items loaded count=" + allPosts.size());
+            adapter.notifyDataSetChanged();
+            showLoading(false);
+            return;
+        }
+
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.include(Post.KEY_USER);
+        query.setLimit(20);
+        query.addAscendingOrder(Post.KEY_CREATED_AT);
+        Log.d(TAG, "queryPosts(): dispatching Parse query; limit=20 sort=createdAt ASC");
+
+        query.findInBackground(new FindCallback<Post>() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    JSONArray results = response.optJSONArray("results");
-                    if (results != null) {
-                        items.clear();
-                        items.addAll(MusicContent.fromJsonArray(results));
-                        adapter.notifyDataSetChanged();
+            public void done(List<Post> posts, ParseException e) {
+                Log.d(TAG, "queryPosts(): callback; e=" + e + " postsCount=" + (posts == null ? -1 : posts.size()));
+                showLoading(false);
+                if (e != null) {
+                    Log.e(TAG, "queryPosts(): Parse error", e);
+                    showError(true, getString(R.string.error_load_feed));
+                    return;
+                }
+                allPosts.clear();
+                if (posts != null) {
+                    for (Post p : posts) {
+                        PostUi ui = mapToUi(p);
+                        allPosts.add(ui);
                     }
-                } catch (Exception ignore) {}
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                ApiUtils.handleFailure(statusCode, throwable);
+                }
+                Log.d(TAG, "queryPosts(): mapped UI items=" + allPosts.size());
+                adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    private PostUi mapToUi(Post p) {
+        if (p == null) {
+            Log.w(TAG, "mapToUi(): post null; returning empty");
+            return new PostUi("", "", "", "", "", "", "");
+        }
+        String cat = safe(p.getCategory());
+        String desc = safe(p.getDescription());
+        String title = safe(p.getContentTitle());
+        String rev = safe(p.getReview());
+
+        String contentUrl = "";
+        try {
+            ParseFile f = p.getContentImage();
+            if (f != null && f.getUrl() != null) contentUrl = f.getUrl();
+        } catch (Exception ex) {
+            Log.w(TAG, "mapToUi(): content image error", ex);
+        }
+
+        String username = "";
+        String userUrl = "";
+        try {
+            ParseUser u = p.getUser();
+            if (u != null) {
+                if (u.getUsername() != null) username = u.getUsername();
+                ParseFile avatar = u.getParseFile("image");
+                if (avatar != null && avatar.getUrl() != null) userUrl = avatar.getUrl();
+            }
+        } catch (Exception ex) {
+            Log.w(TAG, "mapToUi(): user/avatar error", ex);
+        }
+
+        Log.d(TAG, "mapToUi(): title=\"" + title + "\" user=\"" + username + "\" img?=" + (!contentUrl.isEmpty()));
+        return new PostUi(cat, desc, title, rev, contentUrl, username, userUrl);
+    }
+
+    private static String safe(String s) { return s == null ? "" : s; }
+
+    /** Pretty id name for logging (null-safe). */
+    private String idName(View v) {
+        if (v == null) return "null";
+        try {
+            int id = v.getId();
+            if (id == View.NO_ID) return v.getClass().getSimpleName() + "(no-id)";
+            return v.getClass().getSimpleName() + "(@" + getResources().getResourceEntryName(id) + ")";
+        } catch (Exception ignore) {
+            return v.getClass().getSimpleName() + "(id?)";
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
+package com.example.fludde;
+
+import android.app.Application;
+import android.text.TextUtils;
+import android.util.Log;
+
+import com.parse.Parse;
+import com.parse.ParseInstallation;
+import com.parse.ParseObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+/**
+ * Parse bootstrapping with defensive URL validation and MOCK_MODE support.
+ */
+public class ParseApplication extends Application {
+
+    private static final String TAG = "ParseApplication";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        if (BuildConfig.MOCK_MODE) {
+            Log.i(TAG, "MOCK_MODE=true → Skipping Parse.initialize() entirely.");
+            // Still register subclasses so code referencing them compiles/loads fine (not required in mock though)
+            try {
+                ParseObject.registerSubclass(Post.class);
+                ParseObject.registerSubclass(User.class);
+            } catch (Throwable ignored) {}
+            return;
+        }
+
+        final String appId = getString(R.string.back4app_app_id);
+        final String clientKey = getString(R.string.back4app_client_key);
+        final String serverUrl = getString(R.string.back4app_server_url);
+
+        try {
+            URL url = new URL(serverUrl);
+            if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
+                throw new MalformedURLException("Server URL must start with http or https");
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(
+                    "Invalid PARSE server URL: \"" + serverUrl + "\". " +
+                            "It must be a full URL like https://parseapi.back4app.com/ .", e);
+        }
+
+        ParseObject.registerSubclass(Post.class);
+        ParseObject.registerSubclass(User.class);
+
+        Parse.setLogLevel(Parse.LOG_LEVEL_DEBUG);
+
+        try {
+            Parse.initialize(new Parse.Configuration.Builder(this)
+                    .applicationId(appId)
+                    .clientKey(clientKey)
+                    .server(serverUrl)
+                    .build());
+            Log.i(TAG, "Parse.initialize ✓ server=" + serverUrl);
+
+            boolean hasTmdbKey = !TextUtils.isEmpty(BuildConfig.TMDB_API_KEY);
+            Log.i(TAG, "BuildConfig.TMDB_API_KEY present=" + hasTmdbKey +
+                       (hasTmdbKey ? " (len=" + BuildConfig.TMDB_API_KEY.length() + ")" : ""));
+        } catch (Throwable t) {
+            Log.e(TAG, "Parse.initialize ✗", t);
+            throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
+        }
+
+        try {
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+        } catch (Throwable t) {
+            Log.w(TAG, "ParseInstallation save failed (non-fatal): " + t.getMessage());
+        }
     }
 }
 </file>
@@ -4088,6 +4355,73 @@ public class MusicChildFragment extends Fragment {
             tools:text="Bad Boys II" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
+</file>
+
+<file path="app/src/main/res/layout/fragment_home.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Your feed list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHomeFeed"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/inlineError"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Simple progress indicator (optional; keep if your code uses it) -->
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Inline error card expected by HomeFragment.showError(...) -->
+    <LinearLayout
+        android:id="@+id/inlineError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/colorErrorContainer"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/rvHomeFeed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvErrorMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/generic_error_message"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:paddingBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/retry"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 </file>
 
 <file path="app/src/main/res/layout/fragment_profile.xml">
@@ -4669,26 +5003,144 @@ plugins {
 </file>
 
 <file path="gradle.properties">
-# Gradle JVM / Daemon
+# JVM args for the Gradle Daemon (3 GB heap + consistent encoding)
+# Also enables native access to silence JDK 24 restricted-method warnings during Gradle runs.
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
 
-# AndroidX & resource flags
+# AndroidX / Jetifier / non-transitive R flags
 android.useAndroidX=true
 android.enableJetifier=true
 android.nonTransitiveRClass=true
+</file>
 
-# ⛔ Removed deprecated flag:
-# android.defaults.buildfeatures.buildconfig=true
-# Use module-level: android.buildFeatures.buildConfig = true  (see app/build.gradle)
+<file path="app/src/main/java/com/example/fludde/fragments/child/MusicChildFragment.java">
+package com.example.fludde.fragments.child;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fludde.R;
+import com.example.fludde.adapters.MusicChildAdapter;
+import com.example.fludde.model.MusicContent;
+import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.SpacesItemDecoration;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
+
+public class MusicChildFragment extends Fragment {
+
+    private static final String TAG = "MusicChildFragment";
+
+    private static final String ITUNES_URL =
+            "https://itunes.apple.com/search?term=pop&entity=song&limit=20";
+
+    private RecyclerView rv;
+    private ProgressBar progress;
+    private MusicChildAdapter adapter;
+    private final List<MusicContent> items = new ArrayList<>();
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_child_music, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+
+        rv = v.findViewById(R.id.rvMusicHorizontalView);
+        progress = v.findViewById(R.id.progressBar);
+
+        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        adapter = new MusicChildAdapter(requireContext(), items, new MusicChildAdapter.OnMusicContentListener() {
+            @Override public void onMusicContentClick(int position) {}
+            @Override public void onMusicContentLongClick(int position) {}
+        });
+        rv.setAdapter(adapter);
+
+        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
+        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
+        rv.setClipToPadding(false);
+        rv.setPadding(edgePeek, 0, edgePeek, 0);
+        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
+        new LinearSnapHelper().attachToRecyclerView(rv);
+
+        fetchMusic();
+    }
+
+    private void setLoading(boolean show) {
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
+    }
+
+    private void fetchMusic() {
+        setLoading(true);
+        Log.d(TAG, "Fetching music: " + ITUNES_URL);
+
+        ApiUtils.get(ITUNES_URL, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONArray results = response.optJSONArray("results");
+                    items.clear();
+                    if (results != null) {
+                        items.addAll(MusicContent.fromJsonArray(results));
+                    }
+                    adapter.notifyDataSetChanged();
+
+                    Log.d(TAG, "Music loaded ✓ count=" + items.size());
+                    if (items.isEmpty()) {
+                        Toast.makeText(requireContext(), getString(R.string.empty_music_message), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Parse error (music)", e);
+                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                setLoading(false);
+                ApiUtils.handleFailure(statusCode, throwable);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
 </file>
 
 <file path="app/src/main/java/com/example/fludde/fragments/child/MovieChildFragment.java">
 package com.example.fludde.fragments.child;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -4715,7 +5167,10 @@ import cz.msebera.android.httpclient.Header;
 
 public class MovieChildFragment extends Fragment {
 
+    private static final String TAG = "MovieChildFragment";
+
     private RecyclerView rv;
+    private ProgressBar progress;
     private MovieChildAdapter adapter;
     private final List<MovieContent> items = new ArrayList<>();
 
@@ -4730,6 +5185,8 @@ public class MovieChildFragment extends Fragment {
         super.onViewCreated(v, savedInstanceState);
 
         rv = v.findViewById(R.id.rvMovieHorizontalView);
+        progress = v.findViewById(R.id.progressBar);
+
         rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         adapter = new MovieChildAdapter(requireContext(), items, new MovieChildAdapter.OnMovieContentListener() {
             @Override public void onMovieContentClick(int position) {}
@@ -4737,7 +5194,6 @@ public class MovieChildFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        // Carousel affordance: peeking edges + per-item snap
         final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
         final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
         rv.setClipToPadding(false);
@@ -4748,24 +5204,43 @@ public class MovieChildFragment extends Fragment {
         fetchMovies();
     }
 
+    private void setLoading(boolean show) {
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
+    }
+
     private void fetchMovies() {
         String url = "https://api.themoviedb.org/3/trending/movie/day?api_key=" + BuildConfig.TMDB_API_KEY;
+        setLoading(true);
+        Log.d(TAG, "Fetching movies: " + url + " (keyPresent=" + (BuildConfig.TMDB_API_KEY != null && !BuildConfig.TMDB_API_KEY.isEmpty()) + ")");
+
         ApiUtils.get(url, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONArray results = response.optJSONArray("results");
+                    items.clear();
                     if (results != null) {
-                        items.clear();
                         items.addAll(MovieContent.fromJsonArray(results));
-                        adapter.notifyDataSetChanged();
                     }
-                } catch (Exception ignore) {}
+                    adapter.notifyDataSetChanged();
+                    Log.d(TAG, "Movies loaded ✓ count=" + items.size());
+                    if (items.isEmpty()) {
+                        Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Parse error (movies)", e);
+                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                } finally {
+                    setLoading(false);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                setLoading(false);
                 ApiUtils.handleFailure(statusCode, throwable);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -4791,12 +5266,17 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.util.Log;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.MockData;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -4804,12 +5284,9 @@ import java.util.List;
 public class HomeFragment extends Fragment {
     private RecyclerView rvHomeFeed;
     private PostAdapter adapter;
-    private final List<Post> posts = new ArrayList<>();
+    private final List<PostUi> posts = new ArrayList<>();
 
-    // Use the ProgressBar that already exists in fragment_home.xml
     private ProgressBar progress;
-
-    // Inline error
     private View errorCard;
     private TextView tvErrorMessage;
     private Button btnRetry;
@@ -4825,7 +5302,6 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rvHomeFeed = view.findViewById(R.id.rvHomeFeed);
         progress = view.findViewById(R.id.progress);
-
         errorCard = view.findViewById(R.id.inlineError);
         tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
         btnRetry = view.findViewById(R.id.btnRetry);
@@ -4833,7 +5309,7 @@ public class HomeFragment extends Fragment {
         adapter = new PostAdapter(requireContext(), posts);
         rvHomeFeed.setAdapter(adapter);
         rvHomeFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rvHomeFeed.setHasFixedSize(true); // stable item height prevents relayout jank
+        rvHomeFeed.setHasFixedSize(true);
 
         btnRetry.setOnClickListener(v -> loadFeed());
 
@@ -4843,13 +5319,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
-        if (progress != null) {
-            progress.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-        // Fade list a touch while loading (optional)
-        if (rvHomeFeed != null) {
-            rvHomeFeed.setAlpha(show ? 0.3f : 1f);
-        }
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rvHomeFeed != null) rvHomeFeed.setAlpha(show ? 0.3f : 1f);
     }
 
     private void showError(boolean show, @Nullable String message) {
@@ -4862,6 +5333,14 @@ public class HomeFragment extends Fragment {
     private void loadFeed() {
         showError(false, null);
         showLoading(true);
+
+        if (BuildConfig.MOCK_MODE) {
+            posts.clear();
+            posts.addAll(MockData.mockPosts());
+            adapter.notifyDataSetChanged();
+            showLoading(false);
+            return;
+        }
 
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
@@ -4877,11 +5356,43 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 posts.clear();
-                if (result != null) posts.addAll(result);
+                if (result != null) {
+                    for (Post p : result) {
+                        posts.add(mapToUi(p));
+                    }
+                }
                 adapter.notifyDataSetChanged();
             }
         });
     }
+
+    private PostUi mapToUi(Post p) {
+        String cat = safe(p.getCategory());
+        String desc = safe(p.getDescription());
+        String title = safe(p.getContentTitle());
+        String rev = safe(p.getReview());
+
+        String contentUrl = "";
+        try {
+            ParseFile f = p.getContentImage();
+            if (f != null && f.getUrl() != null) contentUrl = f.getUrl();
+        } catch (Exception ignore) {}
+
+        String username = "";
+        String userUrl = "";
+        try {
+            ParseUser u = p.getUser();
+            if (u != null) {
+                if (u.getUsername() != null) username = u.getUsername();
+                ParseFile avatar = u.getParseFile("image");
+                if (avatar != null && avatar.getUrl() != null) userUrl = avatar.getUrl();
+            }
+        } catch (Exception ignore) {}
+
+        return new PostUi(cat, desc, title, rev, contentUrl, username, userUrl);
+    }
+
+    private static String safe(String s) { return s == null ? "" : s; }
 }
 </file>
 
@@ -5035,243 +5546,6 @@ public class HomeFragment extends Fragment {
 </manifest>
 </file>
 
-<file path="app/build.gradle">
-plugins {
-    id 'com.android.application'
-}
-
-android {
-    namespace 'com.example.fludde'
-    compileSdk 35
-
-    defaultConfig {
-        applicationId "com.example.fludde"
-        minSdk 24
-        // You can keep targetSdk as-is; updating compileSdk is enough for RecyclerView 1.4.0.
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        // ---- BuildConfig: TMDB key from apikey.properties (kept optional) ----
-        def tmdbKey = ""
-        def propsFile = rootProject.file("apikey.properties")
-        if (propsFile.exists()) {
-            def p = new Properties()
-            propsFile.withInputStream { p.load(it) }
-            tmdbKey = p.getProperty("TMDB_API_KEY", "")
-        }
-        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
-    }
-
-    buildTypes {
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
-        }
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    buildFeatures {
-        buildConfig true
-    }
-
-    compileOptions {
-        // AGP 8.x uses JDK 17 toolchain; set source/target for your Java code.
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    packaging {
-        resources {
-            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
-        }
-    }
-}
-
-dependencies {
-    // AndroidX UI
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    // Explicitly use RecyclerView 1.4.0 (requires compileSdk 35)
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.core:core:1.13.1'
-
-    // Glide (image loading)
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-
-    // Parse Android SDK (via JitPack; your settings.gradle already includes JitPack)
-    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.3.0'
-
-    // Networking helpers
-    implementation 'com.loopj.android:android-async-http:1.4.11'
-    implementation 'com.facebook.shimmer:shimmer:0.5.0'
-
-    // Tests
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/fragments/child/BookChildFragment.java">
-package com.example.fludde.fragments.child;
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.fludde.R;
-import com.example.fludde.adapters.BookChildAdapter;
-import com.example.fludde.model.BooksContent;
-import com.example.fludde.utils.ApiUtils;
-import com.example.fludde.utils.SpacesItemDecoration;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import cz.msebera.android.httpclient.Header;
-
-/**
- * Books tab for Compose:
- * - Horizontal carousel list with stable item sizing from dimens.
- * - Only data fetching + adapter hookup; card look from layout/styles XML.
- */
-public class BookChildFragment extends Fragment {
-
-    // Public Google Books query with friendly defaults (no key required).
-    private static final String BOOKS_URL =
-            "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
-
-    private RecyclerView rv;
-    private BookChildAdapter adapter;
-    private final List<BooksContent> items = new ArrayList<>();
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_child_book, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(v, savedInstanceState);
-
-        rv = v.findViewById(R.id.rvBookHorizontalView);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-
-        adapter = new BookChildAdapter(requireContext(), items, new BookChildAdapter.OnBookContentListener() {
-            @Override public void onBookContentClick(int position) { /* no-op for now */ }
-            @Override public void onBookContentLongClick(int position) { /* no-op for now */ }
-        });
-        rv.setAdapter(adapter);
-
-        // Carousel affordance: peeking edges + per-item snap
-        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
-        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
-        rv.setClipToPadding(false);
-        rv.setPadding(edgePeek, 0, edgePeek, 0);
-        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
-        new LinearSnapHelper().attachToRecyclerView(rv);
-
-        fetchBooks();
-    }
-
-    private void fetchBooks() {
-        ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    JSONArray results = response.optJSONArray("items");
-                    if (results != null) {
-                        items.clear();
-                        items.addAll(BooksContent.fromJsonArray(results));
-                        adapter.notifyDataSetChanged();
-                    }
-                } catch (Exception ignore) {}
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                ApiUtils.handleFailure(statusCode, throwable);
-            }
-        });
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/model/BooksContent.java">
-package com.example.fludde.model;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/** Minimal model for the Books tab (title + cover). */
-public class BooksContent {
-    private final String title;
-    private final String imageURL;
-
-    public BooksContent(String title, String imageURL) {
-        this.title = title;
-        this.imageURL = imageURL;
-    }
-
-    public static List<BooksContent> fromJsonArray(JSONArray items) throws JSONException {
-        List<BooksContent> out = new ArrayList<>();
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.optJSONObject(i);
-            if (item == null) continue;
-
-            JSONObject info = item.optJSONObject("volumeInfo");
-            if (info == null) continue;
-
-            String title = info.optString("title", "");
-            String img = null;
-
-            JSONObject images = info.optJSONObject("imageLinks");
-            if (images != null) {
-                // Prefer 'thumbnail'; fallback to 'smallThumbnail'
-                img = images.optString("thumbnail", null);
-                if (img == null) img = images.optString("smallThumbnail", null);
-                // Ensure https urls for Glide
-                if (img != null && img.startsWith("http://")) {
-                    img = img.replace("http://", "https://");
-                }
-            }
-
-            out.add(new BooksContent(title, img));
-        }
-        return out;
-    }
-
-    public String getTitle() { return title; }
-    public String getImageURL() { return imageURL; }
-}
-</file>
-
 <file path="app/src/main/java/com/example/fludde/MainActivity.java">
 package com.example.fludde;
 
@@ -5413,6 +5687,271 @@ public class MainActivity extends AppCompatActivity {
         if (itemId == R.id.action_profile) return new ProfileFragment();
         // Fallback
         return new HomeFragment();
+    }
+}
+</file>
+
+<file path="app/build.gradle">
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.example.fludde'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.example.fludde"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        // If you already had custom BuildConfig fields, keep them here.
+        // These are examples that match usages in the codebase:
+        //   - BuildConfig.MOCK_MODE
+        //   - BuildConfig.TMDB_API_KEY
+        def props = new Properties()
+        def propsFile = rootProject.file("apikey.properties")
+        if (propsFile.exists()) {
+            props.load(new FileInputStream(propsFile))
+        }
+
+        boolean mockMode = (props.getProperty("MOCK_MODE", "true")).toBoolean()
+        String tmdbKey = props.getProperty("TMDB_API_KEY", "")
+
+        buildConfigField "boolean", "MOCK_MODE", String.valueOf(mockMode)
+        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
+    }
+
+    // ✅ Fix for the AGP error: explicitly enable BuildConfig generation
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources {
+            excludes += [ "META-INF/DEPENDENCIES", "META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/*.kotlin_module" ]
+        }
+    }
+}
+
+dependencies {
+    // AndroidX
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'com.google.android.material:material:1.12.0'
+
+    // Glide (image loading)
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
+    // Async HTTP client used by ApiUtils
+    implementation 'com.loopj.android:android-async-http:1.4.11'
+
+    // Facebook Shimmer used by PostFragment skeletons
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    // Parse Android SDK (JitPack repo is already in settings.gradle)
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.2.1'
+
+    // Unit tests
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/fragments/child/BookChildFragment.java">
+package com.example.fludde.fragments.child;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fludde.R;
+import com.example.fludde.adapters.BookChildAdapter;
+import com.example.fludde.model.BooksContent;
+import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.SpacesItemDecoration;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
+
+/**
+ * Books tab carousel with defensive parsing + noisy logs.
+ */
+public class BookChildFragment extends Fragment {
+
+    private static final String TAG = "BookChildFragment";
+
+    // Public Google Books query with friendly defaults (no key required).
+    private static final String BOOKS_URL =
+            "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
+
+    private RecyclerView rv;
+    private ProgressBar progress;
+    private BookChildAdapter adapter;
+    private final List<BooksContent> items = new ArrayList<>();
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_child_book, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+
+        rv = v.findViewById(R.id.rvBookHorizontalView);
+        progress = v.findViewById(R.id.progressBar);
+
+        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        adapter = new BookChildAdapter(requireContext(), items, new BookChildAdapter.OnBookContentListener() {
+            @Override public void onBookContentClick(int position) {}
+            @Override public void onBookContentLongClick(int position) {}
+        });
+        rv.setAdapter(adapter);
+
+        // Carousel affordance: peeking edges + per-item snap
+        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
+        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
+        rv.setClipToPadding(false);
+        rv.setPadding(edgePeek, 0, edgePeek, 0);
+        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
+        new LinearSnapHelper().attachToRecyclerView(rv);
+
+        fetchBooks();
+    }
+
+    private void setLoading(boolean show) {
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
+    }
+
+    private void fetchBooks() {
+        setLoading(true);
+        Log.d(TAG, "Fetching books: " + BOOKS_URL);
+
+        ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONArray arr = response.optJSONArray("items");
+                    items.clear();
+                    items.addAll(BooksContent.fromGoogleBooks(arr));
+                    adapter.notifyDataSetChanged();
+
+                    Log.d(TAG, "Books loaded ✓ count=" + items.size());
+                    if (items.isEmpty()) {
+                        Toast.makeText(requireContext(), getString(R.string.empty_books_message), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Parse error (books)", e);
+                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                setLoading(false);
+                ApiUtils.handleFailure(statusCode, throwable);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/model/BooksContent.java">
+package com.example.fludde.model;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Minimal model for Google Books "volumes" response used by the carousel.
+ */
+public class BooksContent {
+    private final String title;
+    private final String imageURL;
+
+    public BooksContent(String title, String imageURL) {
+        this.title = title != null ? title : "";
+        this.imageURL = imageURL;
+    }
+
+    public String getTitle() { return title; }
+    public String getImageURL() { return imageURL; }
+
+    /**
+     * Parse a Google Books "items" array.
+     */
+    public static List<BooksContent> fromGoogleBooks(JSONArray items) {
+        List<BooksContent> out = new ArrayList<>();
+        if (items == null) return out;
+
+        for (int i = 0; i < items.length(); i++) {
+            try {
+                JSONObject item = items.optJSONObject(i);
+                if (item == null) continue;
+                JSONObject vol = item.optJSONObject("volumeInfo");
+                if (vol == null) continue;
+
+                String title = vol.optString("title", "");
+                String thumb = null;
+                JSONObject imgs = vol.optJSONObject("imageLinks");
+                if (imgs != null) {
+                    // Prefer medium/thumbnail if available
+                    thumb = coalesce(
+                            imgs.optString("medium", null),
+                            imgs.optString("thumbnail", null),
+                            imgs.optString("smallThumbnail", null)
+                    );
+                    // Normalize http → https for mixed content issues
+                    if (thumb != null && thumb.startsWith("http://")) {
+                        thumb = "https://" + thumb.substring("http://".length());
+                    }
+                }
+                out.add(new BooksContent(title, thumb));
+            } catch (Exception ignore) { }
+        }
+        return out;
+    }
+
+    private static String coalesce(String a, String b, String c) {
+        return a != null ? a : (b != null ? b : c);
     }
 }
 </file>

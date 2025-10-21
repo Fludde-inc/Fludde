@@ -10,41 +10,33 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fludde.Post;
 import com.example.fludde.R;
+import com.example.fludde.model.PostUi;
 import com.example.fludde.utils.GlideExtensions;
-import com.parse.ParseFile;
-import com.parse.ParseUser;
 
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     private final Context context;
-    private final List<Post> posts;
+    private final List<PostUi> posts;
 
-    public PostAdapter(Context context, List<Post> posts) {
+    public PostAdapter(Context context, List<PostUi> posts) {
         this.context = context;
         this.posts = posts;
-        setHasStableIds(true); // stable for jank-free animations
+        setHasStableIds(true);
     }
 
     @Override
     public long getItemId(int position) {
-        // Best effort stable id from Parse objectId if available
-        try {
-            String id = posts.get(position).getObjectId();
-            return id != null ? id.hashCode() : position;
-        } catch (Exception e) {
-            return position;
-        }
+        String key = posts.get(position).getTitle() + "|" + posts.get(position).getUserName() + "|" + position;
+        return key.hashCode();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view= LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
-        // Press/ ripple background on the whole row
         view.setBackgroundResource(R.drawable.list_item_bg);
         return new ViewHolder(view);
     }
@@ -55,9 +47,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     @Override
-    public int getItemCount() {
-        return posts.size();
-    }
+    public int getItemCount() { return posts.size(); }
 
     class ViewHolder extends RecyclerView.ViewHolder{
         private final TextView tvContentCategory;
@@ -78,39 +68,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             ivUserPic = itemView.findViewById(R.id.ivUserPic);
             ivContent = itemView.findViewById(R.id.ivContent);
 
-            // Long-press haptic (discoverability)
             itemView.setOnLongClickListener(v -> {
                 com.example.fludde.utils.Haptics.longPress(v);
-                return false; // still let context/action propagate
+                return false;
             });
         }
 
-        void bind(Post post) {
-            // Defensive null-safety — prevents NPEs if a Post is partially filled.
-            String category = safeString(post.getCategory());
-            String description = safeString(post.getDescription());
-            String title = safeString(post.getContentTitle());
-            String review = safeString(post.getReview());
+        void bind(PostUi post) {
+            tvContentCategory.setText(post.getCategory());
+            tvContentDescription.setText(post.getDescription());
+            tvContentTitle.setText(post.getTitle());
+            tvReview.setText(post.getReview());
+            tvUsername.setText(post.getUserName());
 
-            tvContentCategory.setText(category);
-            tvContentDescription.setText(description);
-            tvContentTitle.setText(title);
-            tvReview.setText(review);
-
-            ParseUser user = null;
-            try { user = post.getUser(); } catch (Exception ignore) {}
-            String username = user != null && user.getUsername() != null ? user.getUsername() : "";
-            tvUsername.setText(username);
-
-            ParseFile contentImage = null;
-            try { contentImage = post.getContentImage(); } catch (Exception ignore) {}
-            ParseFile userImage = null;
-            try { userImage = (user != null) ? user.getParseFile("image") : null; } catch (Exception ignore) {}
-
-            GlideExtensions.loadPoster(ivContent, contentImage != null ? contentImage.getUrl() : null);
-            GlideExtensions.loadAvatar(ivUserPic, userImage != null ? userImage.getUrl() : null);
+            GlideExtensions.loadPoster(ivContent, post.getContentImageUrl());
+            GlideExtensions.loadAvatar(ivUserPic, post.getUserImageUrl());
         }
-
-        private String safeString(String s) { return s != null ? s : ""; }
     }
 }

@@ -12,8 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Parse bootstrapping with defensive URL validation + noisy logging so
- * misconfiguration shows clearly in Logcat.
+ * Parse bootstrapping with defensive URL validation and MOCK_MODE support.
  */
 public class ParseApplication extends Application {
 
@@ -23,11 +22,20 @@ public class ParseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        if (BuildConfig.MOCK_MODE) {
+            Log.i(TAG, "MOCK_MODE=true → Skipping Parse.initialize() entirely.");
+            // Still register subclasses so code referencing them compiles/loads fine (not required in mock though)
+            try {
+                ParseObject.registerSubclass(Post.class);
+                ParseObject.registerSubclass(User.class);
+            } catch (Throwable ignored) {}
+            return;
+        }
+
         final String appId = getString(R.string.back4app_app_id);
         final String clientKey = getString(R.string.back4app_client_key);
         final String serverUrl = getString(R.string.back4app_server_url);
 
-        // Validation: crash early with a clear message if server URL is bad.
         try {
             URL url = new URL(serverUrl);
             if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
@@ -39,11 +47,9 @@ public class ParseApplication extends Application {
                             "It must be a full URL like https://parseapi.back4app.com/ .", e);
         }
 
-        // Register subclasses BEFORE using typed queries.
         ParseObject.registerSubclass(Post.class);
         ParseObject.registerSubclass(User.class);
 
-        // Make Parse noisy in Logcat (helpful during bring-up).
         Parse.setLogLevel(Parse.LOG_LEVEL_DEBUG);
 
         try {

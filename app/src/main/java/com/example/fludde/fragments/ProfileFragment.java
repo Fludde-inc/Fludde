@@ -13,13 +13,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-// (Posts list is a future enhancement; keeping imports minimal)
-// import androidx.recyclerview.widget.LinearLayoutManager;
-// import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.fludde.BuildConfig;
 import com.example.fludde.LoginActivity;
 import com.example.fludde.R;
 import com.google.android.material.button.MaterialButton;
@@ -30,11 +28,7 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 /**
- * Profile screen:
- * - Large header (avatar, username, email)
- * - Secondary actions: Edit Profile (tonal), Logout (outlined)
- * - Empty state prompting the first post
- * - Posts list placeholder (future enhancement; no logic changes now)
+ * Profile screen with mock-mode support.
  */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
@@ -45,12 +39,8 @@ public class ProfileFragment extends Fragment {
     private MaterialButton btnEditProfile;
     private MaterialButton btnLogout;
 
-    // Empty state
     private LinearLayout emptyState;
     private MaterialButton btnCreateFirstPost;
-
-    // Future list
-    // private RecyclerView rvProfilePosts;
 
     @Nullable
     @Override
@@ -71,16 +61,26 @@ public class ProfileFragment extends Fragment {
         btnLogout = v.findViewById(R.id.btnLogout);
         emptyState = v.findViewById(R.id.emptyState);
         btnCreateFirstPost = v.findViewById(R.id.btnCreateFirstPost);
-        // rvProfilePosts = v.findViewById(R.id.rvProfilePosts);
-
-        // Future: set up the posts list
-        // rvProfilePosts.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         bindUser();
         wireActions();
     }
 
     private void bindUser() {
+        if (BuildConfig.MOCK_MODE) {
+            tvUsername.setText("johndoe2016");
+            tvEmail.setText("johndoe@youknow.com");
+
+            Glide.with(this)
+                    .load("https://i.pravatar.cc/150?img=12")
+                    .apply(new RequestOptions().transform(new CenterCrop()))
+                    .placeholder(R.drawable.placeholder_avatar)
+                    .error(R.drawable.placeholder_avatar)
+                    .into(ivAvatar);
+            Log.d(TAG, "Mock profile bound");
+            return;
+        }
+
         try {
             ParseUser current = ParseUser.getCurrentUser();
             String username = current != null && current.getUsername() != null ? current.getUsername() : "";
@@ -106,11 +106,18 @@ public class ProfileFragment extends Fragment {
 
     private void wireActions() {
         btnEditProfile.setOnClickListener(v -> {
-            // Placeholder: future edit UI
             Toast.makeText(requireContext(), getString(R.string.action_edit_profile), Toast.LENGTH_SHORT).show();
         });
 
         btnLogout.setOnClickListener(v -> {
+            if (BuildConfig.MOCK_MODE) {
+                // In mock mode, just go to login.
+                Intent i = new Intent(requireContext(), LoginActivity.class);
+                startActivity(i);
+                requireActivity().finish();
+                return;
+            }
+
             try {
                 ParseUser.logOutInBackground(new LogOutCallback() {
                     @Override public void done(ParseException e) {
@@ -119,7 +126,6 @@ public class ProfileFragment extends Fragment {
                             Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        // Navigate to login
                         Intent i = new Intent(requireContext(), LoginActivity.class);
                         startActivity(i);
                         requireActivity().finish();
@@ -132,7 +138,6 @@ public class ProfileFragment extends Fragment {
         });
 
         btnCreateFirstPost.setOnClickListener(v -> {
-            // For now, just switch to the Compose tab if your MainActivity honors bottom nav IDs.
             Toast.makeText(requireContext(), getString(R.string.nav_compose), Toast.LENGTH_SHORT).show();
         });
     }

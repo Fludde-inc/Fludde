@@ -1,6 +1,5 @@
 package com.example.fludde.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -21,34 +20,29 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.R;
 import com.example.fludde.adapters.SearchFragmentAdapter;
+import com.example.fludde.model.UserUi;
+import com.example.fludde.utils.MockData;
 import com.google.android.material.textfield.TextInputEditText;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Search screen:
- * - Prominent search field + primary button (consistent placement)
- * - Empty state guidance when no results
- * - Keyboard action (IME_ACTION_SEARCH / Enter) equals tapping the button
- */
 public class SearchFragment extends Fragment {
 
     private static final String TAG = "SearchFragment";
 
     private RecyclerView rvUserQuery;
     private SearchFragmentAdapter searchFragmentAdapter;
-    private final List<ParseUser> allUsers = new ArrayList<>();
+    private final List<UserUi> allUsers = new ArrayList<>();
 
     private TextInputEditText etSearchFieldUser;
     private Button btSearch;
 
-    // Empty state views
     private View emptyState;
 
     public SearchFragment() { }
@@ -81,10 +75,8 @@ public class SearchFragment extends Fragment {
         rvUserQuery.setAdapter(searchFragmentAdapter);
         rvUserQuery.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Primary button tap
         btSearch.setOnClickListener(v -> performSearch(getQueryText()));
 
-        // Keyboard action (Search / Enter) == button tap
         etSearchFieldUser.setOnEditorActionListener((tv, actionId, event) -> {
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -99,7 +91,6 @@ public class SearchFragment extends Fragment {
             return handled;
         });
 
-        // Show initial guidance
         showEmptyState(true);
     }
 
@@ -135,13 +126,16 @@ public class SearchFragment extends Fragment {
     }
 
     private void lookForUser(String userName) {
-        // Make the same action work for button and keyboard
+        if (BuildConfig.MOCK_MODE) {
+            allUsers.clear();
+            allUsers.addAll(MockData.mockUsers(userName));
+            searchFragmentAdapter.notifyDataSetChanged();
+            showEmptyState(allUsers.isEmpty());
+            return;
+        }
+
         ParseQuery<ParseUser> query = ParseUser.getQuery();
-
-        // Use a contains match for a friendlier search experience
         query.whereContains("username", userName);
-
-        // Optional: small limit to keep UI snappy; adjust as needed
         query.setLimit(50);
 
         query.findInBackground((users, e) -> {
@@ -156,11 +150,18 @@ public class SearchFragment extends Fragment {
 
             allUsers.clear();
             if (users != null) {
-                allUsers.addAll(users);
+                for (ParseUser pu : users) {
+                    String username = pu.getUsername() != null ? pu.getUsername() : "";
+                    String imageUrl = "";
+                    try {
+                        if (pu.getParseFile("image") != null && pu.getParseFile("image").getUrl() != null) {
+                            imageUrl = pu.getParseFile("image").getUrl();
+                        }
+                    } catch (Exception ignore) {}
+                    allUsers.add(new UserUi(username, imageUrl));
+                }
             }
             searchFragmentAdapter.notifyDataSetChanged();
-
-            // Empty state guidance if nothing found
             showEmptyState(allUsers.isEmpty());
         });
     }

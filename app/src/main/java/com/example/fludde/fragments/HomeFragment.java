@@ -16,12 +16,17 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.util.Log;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.Post;
 import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
+import com.example.fludde.model.PostUi;
+import com.example.fludde.utils.MockData;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +34,9 @@ import java.util.List;
 public class HomeFragment extends Fragment {
     private RecyclerView rvHomeFeed;
     private PostAdapter adapter;
-    private final List<Post> posts = new ArrayList<>();
+    private final List<PostUi> posts = new ArrayList<>();
 
-    // Use the ProgressBar that already exists in fragment_home.xml
     private ProgressBar progress;
-
-    // Inline error
     private View errorCard;
     private TextView tvErrorMessage;
     private Button btnRetry;
@@ -50,7 +52,6 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rvHomeFeed = view.findViewById(R.id.rvHomeFeed);
         progress = view.findViewById(R.id.progress);
-
         errorCard = view.findViewById(R.id.inlineError);
         tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
         btnRetry = view.findViewById(R.id.btnRetry);
@@ -58,7 +59,7 @@ public class HomeFragment extends Fragment {
         adapter = new PostAdapter(requireContext(), posts);
         rvHomeFeed.setAdapter(adapter);
         rvHomeFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rvHomeFeed.setHasFixedSize(true); // stable item height prevents relayout jank
+        rvHomeFeed.setHasFixedSize(true);
 
         btnRetry.setOnClickListener(v -> loadFeed());
 
@@ -68,13 +69,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
-        if (progress != null) {
-            progress.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-        // Fade list a touch while loading (optional)
-        if (rvHomeFeed != null) {
-            rvHomeFeed.setAlpha(show ? 0.3f : 1f);
-        }
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rvHomeFeed != null) rvHomeFeed.setAlpha(show ? 0.3f : 1f);
     }
 
     private void showError(boolean show, @Nullable String message) {
@@ -87,6 +83,14 @@ public class HomeFragment extends Fragment {
     private void loadFeed() {
         showError(false, null);
         showLoading(true);
+
+        if (BuildConfig.MOCK_MODE) {
+            posts.clear();
+            posts.addAll(MockData.mockPosts());
+            adapter.notifyDataSetChanged();
+            showLoading(false);
+            return;
+        }
 
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
@@ -102,9 +106,41 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 posts.clear();
-                if (result != null) posts.addAll(result);
+                if (result != null) {
+                    for (Post p : result) {
+                        posts.add(mapToUi(p));
+                    }
+                }
                 adapter.notifyDataSetChanged();
             }
         });
     }
+
+    private PostUi mapToUi(Post p) {
+        String cat = safe(p.getCategory());
+        String desc = safe(p.getDescription());
+        String title = safe(p.getContentTitle());
+        String rev = safe(p.getReview());
+
+        String contentUrl = "";
+        try {
+            ParseFile f = p.getContentImage();
+            if (f != null && f.getUrl() != null) contentUrl = f.getUrl();
+        } catch (Exception ignore) {}
+
+        String username = "";
+        String userUrl = "";
+        try {
+            ParseUser u = p.getUser();
+            if (u != null) {
+                if (u.getUsername() != null) username = u.getUsername();
+                ParseFile avatar = u.getParseFile("image");
+                if (avatar != null && avatar.getUrl() != null) userUrl = avatar.getUrl();
+            }
+        } catch (Exception ignore) {}
+
+        return new PostUi(cat, desc, title, rev, contentUrl, username, userUrl);
+    }
+
+    private static String safe(String s) { return s == null ? "" : s; }
 }
