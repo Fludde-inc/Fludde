@@ -75,16 +75,37 @@
 
     <!-- Errors -->
     <string name="error_generic">Something went wrong.</string>
-    <string name="error_network">You’re offline.</string>
+    <string name="error_network">You're offline.</string>
     <string name="error_timeout">This is taking too long.</string>
     <string name="error_api_limit">Service is busy. Try again later.</string>
-    <string name="error_load_profile">Couldn’t load profile.</string>
-    <string name="error_load_feed">Couldn’t load posts.</string>
-    <string name="error_load_content">Couldn’t load content.</string>
-    <string name="error_search">Couldn’t search right now.</string>
+    <string name="error_load_profile">Couldn't load profile.</string>
+    <string name="error_load_feed">Couldn't load posts.</string>
+    <string name="error_load_content">Couldn't load content.</string>
+    <string name="error_search">Couldn't search right now.</string>
     <string name="error_required_fields">Please fill in all fields.</string>
     <string name="error_incorrect_login">Incorrect username or password.</string>
     <string name="error_auth_required">Sign in to continue.</string>
+
+    <!-- NEW: Authentication errors (for Login/Signup) -->
+    <string name="error_login_empty_fields">Please enter both username and password</string>
+    <string name="error_login_failed">Login failed. Incorrect username or password.</string>
+    <string name="error_signup_empty_fields">Please fill in all fields</string>
+    <string name="error_signup_failed">Signup failed. Username already taken.</string>
+    <string name="error_signup_generic">An error occurred during signup. Please try again.</string>
+    <string name="error_login_generic">An error occurred during login. Please try again.</string>
+    <string name="error_navigation">An error occurred while navigating to the main screen.</string>
+
+    <!-- NEW: Content selection messages -->
+    <string name="content_selected_movies">You selected Movies</string>
+    <string name="content_selected_books">You selected Books</string>
+    <string name="content_selected_music">You selected Music</string>
+
+    <!-- NEW: API error messages -->
+    <string name="api_error_status_code">API request failed with status code: %d</string>
+    <string name="api_error_no_throwable">API request failed with status code: %d (no throwable provided)</string>
+    <string name="api_error_message">Error message: %s</string>
+    <string name="api_request_failed">HTTP %d %s</string>
+    <string name="api_request_build_error">Request build error</string>
 
     <!-- Plurals -->
     <plurals name="search_results_count">
@@ -95,7 +116,8 @@
     <!-- Samples -->
     <string name="johndoe2016" translatable="false">johndoe2016</string>
     <string name="johndoe_youknow_com" translatable="false">johndoe@youknow.com</string>
-        <!-- Back4App / Parse credentials -->
+    
+    <!-- Back4App / Parse credentials -->
     <string name="back4app_app_id">PASTE_YOUR_APP_ID_HERE</string>
     <string name="back4app_client_key">PASTE_YOUR_CLIENT_KEY_HERE</string>
     <!-- IMPORTANT: must be a full URL with protocol -->
@@ -103,6 +125,12 @@
 
     <!-- UI text used by the inline error block (fragment_home.xml) -->
     <string name="generic_error_title">Something went wrong</string>
-    <string name="generic_error_message">We couldn’t load the feed. Please try again.</string>
+    <string name="generic_error_message">We couldn't load the feed. Please try again.</string>
     <string name="retry">Retry</string>
+
+    <!-- Log tags (for consistency) -->
+    <string name="log_tag_api_utils" translatable="false">ApiUtils</string>
+    <string name="log_tag_login" translatable="false">LoginActivity</string>
+    <string name="log_tag_signup" translatable="false">SignupActivity</string>
+    <string name="log_tag_error_handler" translatable="false">ErrorHandler</string>
 </resources>

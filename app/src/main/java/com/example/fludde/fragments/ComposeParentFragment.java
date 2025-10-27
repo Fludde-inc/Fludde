@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
+import android.widget.AutoCompleteTextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -16,73 +16,74 @@ import com.example.fludde.R;
 import com.example.fludde.fragments.child.BookChildFragment;
 import com.example.fludde.fragments.child.MovieChildFragment;
 import com.example.fludde.fragments.child.MusicChildFragment;
-import com.example.fludde.utils.FragmentTransitions;
-import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.example.fludde.utils.ErrorHandler;
 
 /**
- * Parent "Compose" fragment:
- * - Subtle fast transitions between child tabs.
- * - Exposed dropdown selection for Movies / Books / Music.
- * - Child lists sized with stable item dimensions (see dimens).
+ * ComposeParentFragment - Refactored to use ErrorHandler utility and string resources.
+ * 
+ * Changes:
+ * - All hardcoded Toast messages moved to strings.xml
+ * - All Toast.makeText() replaced with ErrorHandler methods
+ * - Consistent error handling
  */
 public class ComposeParentFragment extends Fragment {
-    private MaterialAutoCompleteTextView actCategory;
-    private final String[] dropDownItems = new String[]{"Movies", "Books", "Music"};
 
-    public ComposeParentFragment() {}
+    private static final String TAG = "ComposeParentFragment";
 
-    public static ComposeParentFragment newInstance(String p1, String p2) {
-        ComposeParentFragment fragment = new ComposeParentFragment();
-        Bundle args = new Bundle();
-        args.putString("param1", p1);
-        args.putString("param2", p2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private AutoCompleteTextView actCategory;
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, 
+                             @Nullable ViewGroup container, 
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_compose_parent, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        requireActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         actCategory = view.findViewById(R.id.actCategory);
 
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, dropDownItems);
+        // Setup category dropdown
+        String[] categories = {"Movies", "Books", "Music"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            categories
+        );
         actCategory.setAdapter(adapter);
 
+        // Handle category selection
         actCategory.setOnItemClickListener((parent, v, pos, id) -> {
             switch (pos) {
                 case 0:
                 default:
                     insertChild(new MovieChildFragment());
-                    Toast.makeText(getContext(), "You selected Movies", Toast.LENGTH_SHORT).show();
+                    // ✅ Using ErrorHandler with string resource
+                    ErrorHandler.showToast(requireContext(), R.string.content_selected_movies);
                     break;
                 case 1:
                     insertChild(new BookChildFragment());
-                    Toast.makeText(getContext(), "You selected Books", Toast.LENGTH_SHORT).show();
+                    // ✅ Using ErrorHandler with string resource
+                    ErrorHandler.showToast(requireContext(), R.string.content_selected_books);
                     break;
                 case 2:
                     insertChild(new MusicChildFragment());
-                    Toast.makeText(getContext(), "You selected Music", Toast.LENGTH_SHORT).show();
+                    // ✅ Using ErrorHandler with string resource
+                    ErrorHandler.showToast(requireContext(), R.string.content_selected_music);
                     break;
             }
         });
 
         // Default
-        actCategory.setText(dropDownItems[0], false);
         insertChild(new MovieChildFragment());
     }
 
     private void insertChild(Fragment child) {
-        FragmentTransaction tx = getChildFragmentManager().beginTransaction();
-        FragmentTransitions.applyFastFade(tx);
-        tx.replace(R.id.child_fragment_container, child).commit();
+        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+        ft.replace(R.id.flChildContainer, child);
+        ft.commit();
     }
 }

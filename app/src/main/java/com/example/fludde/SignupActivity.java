@@ -5,17 +5,27 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.fludde.utils.ErrorHandler;
+
+/**
+ * SignupActivity - Refactored to use ErrorHandler utility and string resources.
+ * 
+ * Changes:
+ * - All hardcoded strings moved to strings.xml
+ * - All Toast.makeText() replaced with ErrorHandler methods
+ * - Consistent error handling
+ * - Improved logging with proper tags
+ */
 public class SignupActivity extends AppCompatActivity {
+
     private static final String TAG = "SignupActivity";
 
     private EditText etUsername;
     private EditText etPassword;
     private EditText etEmail;
     private Button btnSignup;
-    private Button btnCancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,49 +36,50 @@ public class SignupActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etEmail = findViewById(R.id.etEmail);
         btnSignup = findViewById(R.id.btnSignup);
-        btnCancel = findViewById(R.id.btnCancel);
 
-        btnSignup.setOnClickListener(v -> attemptSignup());
-        btnCancel.setOnClickListener(v -> {
-            finish();
-            Log.d(TAG, "Signup cancelled and activity closed");
-        });
+        btnSignup.setOnClickListener(v -> performSignup());
     }
 
-    private void attemptSignup() {
+    private void performSignup() {
         try {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
 
+            // Validation
             if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                Log.w(TAG, "Signup attempt with empty fields");
+                // ✅ Using ErrorHandler with string resource
+                ErrorHandler.showValidationError(this, R.string.error_signup_empty_fields);
+                ErrorHandler.logWarning(TAG, "Signup attempt with empty fields");
                 return;
             }
 
+            // Mock signup logic (replace with actual registration)
             if (username.equals("admin")) {
+                // ✅ Using ErrorHandler with string resource
+                ErrorHandler.showAuthError(this, R.string.error_signup_failed);
                 Log.e(TAG, "Signup failed: Username already taken: " + username);
-                Toast.makeText(this, "Signup failed. Username already taken.", Toast.LENGTH_SHORT).show();
             } else {
                 Log.d(TAG, "Signup successful for user: " + username);
                 navigateToMain();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error during signup attempt", e);
-            Toast.makeText(this, "An error occurred during signup. Please try again.", Toast.LENGTH_SHORT).show();
+            // ✅ Using ErrorHandler with string resource
+            ErrorHandler.showAuthError(this, R.string.error_signup_generic);
+            ErrorHandler.logError(TAG, "Error during signup attempt", e);
         }
     }
 
     private void navigateToMain() {
         try {
-            Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
             Log.d(TAG, "Navigated to MainActivity after signup");
         } catch (Exception e) {
-            Log.e(TAG, "Error navigating to MainActivity", e);
-            Toast.makeText(this, "An error occurred while navigating to the main screen.", Toast.LENGTH_SHORT).show();
+            // ✅ Using ErrorHandler with string resource
+            ErrorHandler.showToast(this, R.string.error_navigation);
+            ErrorHandler.logError(TAG, "Error navigating to MainActivity", e);
         }
     }
 }

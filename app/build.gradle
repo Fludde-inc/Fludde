@@ -1,88 +1,101 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
+
+// Load secrets from local.properties (not checked into version control)
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.canRead()) {
+    localProps.load(new FileInputStream(localPropsFile))
+}
+
+// TMDB API credentials
+def TMDB_API_KEY = localProps.getProperty("TMDB_API_KEY", "")
+def TMDB_BEARER  = localProps.getProperty("TMDB_BEARER", "")
+
+// Back4App/Parse credentials
+def BACK4APP_APP_ID = localProps.getProperty("BACK4APP_APP_ID", "")
+def BACK4APP_CLIENT_KEY = localProps.getProperty("BACK4APP_CLIENT_KEY", "")
+def BACK4APP_SERVER_URL = localProps.getProperty("BACK4APP_SERVER_URL", "https://parseapi.back4app.com/")
 
 android {
     namespace 'com.example.fludde'
-    compileSdk 35
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.fludde"
         minSdk 24
-        targetSdk 35
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Your code reads BuildConfig.MOCK_MODE in many places.
-        // Set this to true to run fully offline with mock data,
-        // or to false if you’ve wired a Parse backend.
-        buildConfigField "boolean", "MOCK_MODE", "true"
+        // Expose secrets safely to code via BuildConfig fields
+        buildConfigField "String",  "TMDB_API_KEY", "\"${TMDB_API_KEY}\""
+        buildConfigField "String",  "TMDB_BEARER",  "\"${TMDB_BEARER}\""
+        buildConfigField "String",  "BACK4APP_APP_ID", "\"${BACK4APP_APP_ID}\""
+        buildConfigField "String",  "BACK4APP_CLIENT_KEY", "\"${BACK4APP_CLIENT_KEY}\""
+        buildConfigField "String",  "BACK4APP_SERVER_URL", "\"${BACK4APP_SERVER_URL}\""
+        buildConfigField "boolean", "MOCK_MODE",    "false"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
         debug {
-            // Keep debug friendly
+            // Set to true if you want to force mock data in debug
+            buildConfigField "boolean", "MOCK_MODE", "false"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "MOCK_MODE", "false"
+        }
+        // Optional flavor for explicit mocking
+        create("mock") {
+            initWith debug
+            matchingFallbacks = ['debug']
+            applicationIdSuffix ".mock"
+            versionNameSuffix "-mock"
+            buildConfigField "boolean", "MOCK_MODE", "true"
         }
     }
 
-    // Java 17 is required by modern AGP
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-
-    // If you later add Kotlin sources, also set kotlinOptions.jvmTarget = '17'
-    buildFeatures {
-        viewBinding false
-        buildConfig true
-    }
-
-    packaging {
-        // Avoid duplicate license files from some deps
-        resources {
-            excludes += [
-                    'META-INF/DEPENDENCIES',
-                    'META-INF/LICENSE',
-                    'META-INF/LICENSE.txt',
-                    'META-INF/license.txt',
-                    'META-INF/NOTICE',
-                    'META-INF/NOTICE.txt',
-                    'META-INF/notice.txt',
-                    'META-INF/ASL2.0'
-            ]
-        }
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 
 dependencies {
-    // --- AndroidX + Material (used throughout layouts and fragments) ---
+    implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.annotation:annotation:1.9.1'
 
-    // --- Glide (image loading) ---
+    // Networking (used by ApiUtils)
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Parse (remove if you're not using Parse)
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:3.0.0'
+
+    // ✅ ADDED - Android Async HTTP (used in fragments)
+    implementation 'com.loopj.android:android-async-http:1.4.11'
+
+    // ✅ ADDED - Shimmer effect (used in PostFragment)
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    // ✅ ADDED - Glide for image loading
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    // --- Parse Android SDK (fix: use a real published version) ---
-    // Your error was requesting 4.4.1 which does not exist. 4.3.0 is latest.
-    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.3.0'
-
-    // --- Async HTTP (ApiUtils) ---
-    implementation 'com.loopj.android:android-async-http:1.4.11'
-
-    // --- Facebook Shimmer (skeleton in fragment_post) ---
-    implementation 'com.facebook.shimmer:shimmer:0.5.0'
-
-    // --- Unit / Instrumentation tests ---
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

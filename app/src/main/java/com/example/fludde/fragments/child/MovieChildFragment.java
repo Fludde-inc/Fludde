@@ -20,20 +20,25 @@ import com.example.fludde.R;
 import com.example.fludde.adapters.MovieChildAdapter;
 import com.example.fludde.model.MovieContent;
 import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.MockData;
 import com.example.fludde.utils.SpacesItemDecoration;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
-
+/**
+ * Movies tab carousel with TMDB trending content.
+ */
 public class MovieChildFragment extends Fragment {
 
     private static final String TAG = "MovieChildFragment";
+
+    private static final String TMDB_URL = 
+            "https://api.themoviedb.org/3/trending/movie/day?language=en-US";
 
     private RecyclerView rv;
     private ProgressBar progress;
@@ -42,7 +47,9 @@ public class MovieChildFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_child_movie, container, false);
     }
 
@@ -60,6 +67,7 @@ public class MovieChildFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
+        // Carousel affordance: peeking edges + per-item snap
         final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
         final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
         rv.setClipToPadding(false);
@@ -76,37 +84,78 @@ public class MovieChildFragment extends Fragment {
     }
 
     private void fetchMovies() {
-        String url = "https://api.themoviedb.org/3/trending/movie/day?api_key=" + BuildConfig.TMDB_API_KEY;
         setLoading(true);
-        Log.d(TAG, "Fetching movies: " + url + " (keyPresent=" + (BuildConfig.TMDB_API_KEY != null && !BuildConfig.TMDB_API_KEY.isEmpty()) + ")");
 
-        ApiUtils.get(url, new JsonHttpResponseHandler() {
+        // Mock mode: use canned data
+        if (BuildConfig.MOCK_MODE) {
+            try {
+                JSONObject mockData = MockData.tmdbTrendingJson();
+                JSONArray results = mockData.optJSONArray("results");
+                items.clear();
+                if (results != null) {
+                    items.addAll(MovieContent.fromJsonArray(results));
+                }
+                adapter.notifyDataSetChanged();
+                
+                Log.d(TAG, "Mock movies loaded ✓ count=" + items.size());
+                if (items.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock data error", e);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        // Real API call
+        Log.d(TAG, "Fetching movies: " + TMDB_URL);
+
+        ApiUtils.get(TMDB_URL, new ApiUtils.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(String body) {
                 try {
-                    JSONArray results = response.optJSONArray("results");
+                    JSONObject json = new JSONObject(body);
+                    JSONArray results = json.optJSONArray("results");
                     items.clear();
                     if (results != null) {
                         items.addAll(MovieContent.fromJsonArray(results));
                     }
-                    adapter.notifyDataSetChanged();
-                    Log.d(TAG, "Movies loaded ✓ count=" + items.size());
-                    if (items.isEmpty()) {
-                        Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
+                    
+                    // Update UI on main thread
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            adapter.notifyDataSetChanged();
+                            Log.d(TAG, "Movies loaded ✓ count=" + items.size());
+                            
+                            if (items.isEmpty()) {
+                                Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
+                            }
+                            setLoading(false);
+                        });
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Parse error (movies)", e);
-                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-                } finally {
-                    setLoading(false);
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                            setLoading(false);
+                        });
+                    }
                 }
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                setLoading(false);
-                ApiUtils.handleFailure(statusCode, throwable);
-                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            public void onError(IOException e) {
+                Log.e(TAG, "Network error (movies)", e);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        setLoading(false);
+                        Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                    });
+                }
             }
         });
     }

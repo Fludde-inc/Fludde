@@ -5,16 +5,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.fludde.utils.ErrorHandler;
+
+/**
+ * LoginActivity - Refactored to use ErrorHandler utility and string resources.
+ * 
+ * Changes:
+ * - All hardcoded strings moved to strings.xml
+ * - All Toast.makeText() replaced with ErrorHandler methods
+ * - Consistent error handling
+ * - Improved logging with proper tags
+ */
 public class LoginActivity extends AppCompatActivity {
+
     private static final String TAG = "LoginActivity";
 
     private EditText etUsername;
     private EditText etPassword;
     private Button btnLogin;
-    private Button btnSignup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,49 +34,49 @@ public class LoginActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        btnSignup = findViewById(R.id.btnSignup);
 
-        btnLogin.setOnClickListener(v -> attemptLogin());
-        btnSignup.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
-            startActivity(intent);
-            Log.d(TAG, "Navigated to SignupActivity");
-        });
+        btnLogin.setOnClickListener(v -> performLogin());
     }
 
-    private void attemptLogin() {
+    private void performLogin() {
         try {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
+            // Validation
             if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
-                Log.w(TAG, "Login attempt with empty fields");
+                // ✅ Using ErrorHandler with string resource
+                ErrorHandler.showValidationError(this, R.string.error_login_empty_fields);
+                ErrorHandler.logWarning(TAG, "Login attempt with empty fields");
                 return;
             }
 
+            // Mock login logic (replace with actual authentication)
             if (username.equals("admin") && password.equals("admin")) {
                 Log.d(TAG, "Login successful for user: " + username);
                 navigateToMain();
             } else {
+                // ✅ Using ErrorHandler with string resource
+                ErrorHandler.showAuthError(this, R.string.error_login_failed);
                 Log.e(TAG, "Login failed for user: " + username);
-                Toast.makeText(this, "Login failed. Incorrect username or password.", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error during login attempt", e);
-            Toast.makeText(this, "An error occurred during login. Please try again.", Toast.LENGTH_SHORT).show();
+            // ✅ Using ErrorHandler with string resource
+            ErrorHandler.showAuthError(this, R.string.error_login_generic);
+            ErrorHandler.logError(TAG, "Error during login attempt", e);
         }
     }
 
     private void navigateToMain() {
         try {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
             Log.d(TAG, "Navigated to MainActivity");
         } catch (Exception e) {
-            Log.e(TAG, "Error navigating to MainActivity", e);
-            Toast.makeText(this, "An error occurred while navigating to the main screen.", Toast.LENGTH_SHORT).show();
+            // ✅ Using ErrorHandler with string resource
+            ErrorHandler.showToast(this, R.string.error_navigation);
+            ErrorHandler.logError(TAG, "Error navigating to MainActivity", e);
         }
     }
 }

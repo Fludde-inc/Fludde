@@ -1,19 +1,11 @@
 package com.example.fludde;
 
 import android.app.Application;
-import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.fludde.utils.ApiUtils;
 import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-/**
- * Parse bootstrapping with defensive URL validation and MOCK_MODE support.
- */
 public class ParseApplication extends Application {
 
     private static final String TAG = "ParseApplication";
@@ -22,56 +14,34 @@ public class ParseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        if (BuildConfig.MOCK_MODE) {
-            Log.i(TAG, "MOCK_MODE=true → Skipping Parse.initialize() entirely.");
-            // Still register subclasses so code referencing them compiles/loads fine (not required in mock though)
-            try {
-                ParseObject.registerSubclass(Post.class);
-                ParseObject.registerSubclass(User.class);
-            } catch (Throwable ignored) {}
-            return;
+        // Prefer v4 Bearer token; fall back to legacy v3 api_key only if needed.
+        if (BuildConfig.TMDB_BEARER != null && !BuildConfig.TMDB_BEARER.isEmpty()) {
+            ApiUtils.setApiKey(null);
+            ApiUtils.setBearer(BuildConfig.TMDB_BEARER);
+            Log.d(TAG, "TMDB auth configured with Bearer token.");
+        } else if (BuildConfig.TMDB_API_KEY != null && !BuildConfig.TMDB_API_KEY.isEmpty()) {
+            ApiUtils.setBearer(null);
+            ApiUtils.setApiKey(BuildConfig.TMDB_API_KEY);
+            Log.w(TAG, "Using legacy TMDB api_key. Consider switching to a v4 Bearer token.");
+        } else {
+            Log.e(TAG, "No TMDB credentials found. Set TMDB_BEARER (preferred) or TMDB_API_KEY.");
         }
 
-        final String appId = getString(R.string.back4app_app_id);
-        final String clientKey = getString(R.string.back4app_client_key);
-        final String serverUrl = getString(R.string.back4app_server_url);
-
-        try {
-            URL url = new URL(serverUrl);
-            if (!("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))) {
-                throw new MalformedURLException("Server URL must start with http or https");
-            }
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(
-                    "Invalid PARSE server URL: \"" + serverUrl + "\". " +
-                            "It must be a full URL like https://parseapi.back4app.com/ .", e);
-        }
-
-        ParseObject.registerSubclass(Post.class);
-        ParseObject.registerSubclass(User.class);
-
-        Parse.setLogLevel(Parse.LOG_LEVEL_DEBUG);
-
-        try {
+        // --- Parse/Back4App initialization ---
+        // Only initialize if credentials are provided in local.properties
+        if (BuildConfig.BACK4APP_APP_ID != null && !BuildConfig.BACK4APP_APP_ID.isEmpty() &&
+            BuildConfig.BACK4APP_CLIENT_KEY != null && !BuildConfig.BACK4APP_CLIENT_KEY.isEmpty()) {
+            
             Parse.initialize(new Parse.Configuration.Builder(this)
-                    .applicationId(appId)
-                    .clientKey(clientKey)
-                    .server(serverUrl)
-                    .build());
-            Log.i(TAG, "Parse.initialize ✓ server=" + serverUrl);
-
-            boolean hasTmdbKey = !TextUtils.isEmpty(BuildConfig.TMDB_API_KEY);
-            Log.i(TAG, "BuildConfig.TMDB_API_KEY present=" + hasTmdbKey +
-                       (hasTmdbKey ? " (len=" + BuildConfig.TMDB_API_KEY.length() + ")" : ""));
-        } catch (Throwable t) {
-            Log.e(TAG, "Parse.initialize ✗", t);
-            throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
-        }
-
-        try {
-            ParseInstallation.getCurrentInstallation().saveInBackground();
-        } catch (Throwable t) {
-            Log.w(TAG, "ParseInstallation save failed (non-fatal): " + t.getMessage());
+                    .applicationId(BuildConfig.BACK4APP_APP_ID)
+                    .clientKey(BuildConfig.BACK4APP_CLIENT_KEY)
+                    .server(BuildConfig.BACK4APP_SERVER_URL)
+                    .build()
+            );
+            Log.d(TAG, "Parse/Back4App initialized successfully.");
+        } else {
+            Log.w(TAG, "Parse/Back4App credentials not found. Parse functionality will be disabled.");
+            Log.w(TAG, "Add BACK4APP_APP_ID, BACK4APP_CLIENT_KEY, and BACK4APP_SERVER_URL to local.properties");
         }
     }
 }
