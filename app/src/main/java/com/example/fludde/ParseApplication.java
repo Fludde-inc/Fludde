@@ -27,21 +27,31 @@ public class ParseApplication extends Application {
             Log.e(TAG, "No TMDB credentials found. Set TMDB_BEARER (preferred) or TMDB_API_KEY.");
         }
 
+        // --- NEW: Log MOCK_MODE status ---
+        Log.d(TAG, "MOCK_MODE = " + BuildConfig.MOCK_MODE);
+
         // --- Parse/Back4App initialization ---
-        // Only initialize if credentials are provided in local.properties
-        if (BuildConfig.BACK4APP_APP_ID != null && !BuildConfig.BACK4APP_APP_ID.isEmpty() &&
-            BuildConfig.BACK4APP_CLIENT_KEY != null && !BuildConfig.BACK4APP_CLIENT_KEY.isEmpty()) {
-            
-            Parse.initialize(new Parse.Configuration.Builder(this)
-                    .applicationId(BuildConfig.BACK4APP_APP_ID)
-                    .clientKey(BuildConfig.BACK4APP_CLIENT_KEY)
-                    .server(BuildConfig.BACK4APP_SERVER_URL)
-                    .build()
-            );
-            Log.d(TAG, "Parse/Back4App initialized successfully.");
+        // Only initialize if NOT in mock mode
+        if (!BuildConfig.MOCK_MODE) {
+            // Only initialize if credentials are provided in local.properties
+            if (BuildConfig.BACK4APP_APP_ID != null && !BuildConfig.BACK4APP_APP_ID.isEmpty() &&
+                BuildConfig.BACK4APP_CLIENT_KEY != null && !BuildConfig.BACK4APP_CLIENT_KEY.isEmpty()) {
+                
+                Parse.initialize(new Parse.Configuration.Builder(this)
+                        .applicationId(BuildConfig.BACK4APP_APP_ID)
+                        .clientKey(BuildConfig.BACK4APP_CLIENT_KEY)
+                        .server(BuildConfig.BACK4APP_SERVER_URL)
+                        .build()
+                );
+                Log.d(TAG, "Parse/Back4App initialized successfully.");
+            } else {
+                Log.w(TAG, "Parse/Back4App credentials not found. Parse functionality will be disabled.");
+                Log.w(TAG, "Add BACK4APP_APP_ID, BACK4APP_CLIENT_KEY, and BACK4APP_SERVER_URL to local.properties");
+            }
         } else {
-            Log.w(TAG, "Parse/Back4App credentials not found. Parse functionality will be disabled.");
-            Log.w(TAG, "Add BACK4APP_APP_ID, BACK4APP_CLIENT_KEY, and BACK4APP_SERVER_URL to local.properties");
+            // --- NEW: Mock mode else block ---
+            Log.d(TAG, "🎭 MOCK_MODE enabled - skipping Parse initialization");
+            Log.d(TAG, "🎭 App will run with mock data only");
         }
     }
 }

@@ -83,7 +83,7 @@ public class ComposeParentFragment extends Fragment {
 
     private void insertChild(Fragment child) {
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.replace(R.id.flChildContainer, child);
+        ft.replace(R.id.child_fragment_container, child);
         ft.commit();
     }
 }

@@ -24,6 +24,7 @@ import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
 import com.example.fludde.model.PostUi;
 import com.example.fludde.utils.MockData;
+import com.example.fludde.utils.MockSessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.parse.LogOutCallback;
@@ -36,7 +37,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Profile with mock-mode support; shows a small list of your posts in mock. */
+/** 
+ * Profile with enhanced mock-mode support.
+ * Shows user profile data and their posts.
+ */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
 
@@ -78,26 +82,70 @@ public class ProfileFragment extends Fragment {
         rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
         rvPosts.setAdapter(adapter);
 
-        bindUser();
+        loadUserProfile();
         wireActions();
-        bindPosts();
     }
 
-    private void bindUser() {
+    /**
+     * Load user profile - checks mock mode first.
+     */
+    private void loadUserProfile() {
+        // ✅ NEW: Enhanced mock mode with MockSessionManager
         if (BuildConfig.MOCK_MODE) {
-            tvUsername.setText("johndoe2016");
-            tvEmail.setText("johndoe@youknow.com");
-
-            Glide.with(this)
-                    .load("https://i.pravatar.cc/150?img=12")
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_avatar)
-                    .error(R.drawable.placeholder_avatar)
-                    .into(ivAvatar);
-            Log.d(TAG, "Mock profile bound");
+            displayMockProfile();
             return;
         }
+        
+        // EXISTING: Real Parse query (unchanged)
+        bindRealUserProfile();
+    }
 
+    /**
+     * ✅ NEW METHOD: Display mock profile from session.
+     */
+    private void displayMockProfile() {
+        MockData.MockProfile profile = MockSessionManager.getCurrentUserProfile(requireContext());
+        
+        if (profile == null) {
+            Log.w(TAG, "No mock profile found - user may not be logged in");
+            // Show generic fallback
+            tvUsername.setText("demo");
+            tvEmail.setText("demo@example.com");
+            loadDefaultAvatar();
+            return;
+        }
+        
+        // Display profile data
+        tvUsername.setText(profile.username);
+        tvEmail.setText(profile.email);
+        
+        // Load profile picture
+        Glide.with(this)
+                .load(profile.profilePictureUrl)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_avatar)
+                .error(R.drawable.placeholder_avatar)
+                .into(ivAvatar);
+        
+        // Display user's posts
+        posts.clear();
+        if (profile.userPosts != null && !profile.userPosts.isEmpty()) {
+            posts.addAll(profile.userPosts);
+            rvPosts.setVisibility(View.VISIBLE);
+            emptyState.setVisibility(View.GONE);
+        } else {
+            rvPosts.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+        }
+        adapter.notifyDataSetChanged();
+        
+        Log.d(TAG, "Mock profile displayed for: " + profile.username + " with " + posts.size() + " posts");
+    }
+
+    /**
+     * Bind real user profile from Parse.
+     */
+    private void bindRealUserProfile() {
         try {
             ParseUser current = ParseUser.getCurrentUser();
             String username = current != null && current.getUsername() != null ? current.getUsername() : "";
@@ -114,40 +162,45 @@ public class ProfileFragment extends Fragment {
                     .error(R.drawable.placeholder_avatar)
                     .into(ivAvatar);
 
-            Log.d(TAG, "User profile bound");
+            Log.d(TAG, "Real user profile bound");
+            
+            // In real mode, show empty state until posts are implemented
+            rvPosts.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+            
         } catch (Exception e) {
             Log.e(TAG, "Failed to bind user profile", e);
             Toast.makeText(getContext(), getString(R.string.error_load_profile), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void bindPosts() {
-        if (BuildConfig.MOCK_MODE) {
-            posts.clear();
-            posts.addAll(MockData.mockPosts());
-            adapter.notifyDataSetChanged();
-
-            // Show list; hide empty state
-            rvPosts.setVisibility(View.VISIBLE);
-            emptyState.setVisibility(View.GONE);
-            return;
-        }
-
-        // Non-mock path: until wired, keep empty state visible
-        rvPosts.setVisibility(View.GONE);
-        emptyState.setVisibility(View.VISIBLE);
+    /**
+     * Load default avatar when no profile found.
+     */
+    private void loadDefaultAvatar() {
+        Glide.with(this)
+                .load(R.drawable.placeholder_avatar)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .into(ivAvatar);
     }
 
+    /**
+     * Wire up button actions.
+     */
     private void wireActions() {
         btnEditProfile.setOnClickListener(v ->
                 Toast.makeText(requireContext(), getString(R.string.action_edit_profile), Toast.LENGTH_SHORT).show());
 
         btnLogout.setOnClickListener(v -> {
+            // ✅ UPDATED: Handle mock mode logout with MockSessionManager
             if (BuildConfig.MOCK_MODE) {
-                startActivity(new Intent(requireContext(), LoginActivity.class));
-                requireActivity().finish();
+                MockSessionManager.logout(requireContext());
+                Log.d(TAG, "Mock user logged out");
+                navigateToLogin();
                 return;
             }
+            
+            // EXISTING: Real Parse logout
             try {
                 ParseUser.logOutInBackground(new LogOutCallback() {
                     @Override public void done(ParseException e) {
@@ -156,8 +209,7 @@ public class ProfileFragment extends Fragment {
                             Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        startActivity(new Intent(requireContext(), LoginActivity.class));
-                        requireActivity().finish();
+                        navigateToLogin();
                     }
                 });
             } catch (Exception ex) {
@@ -168,5 +220,13 @@ public class ProfileFragment extends Fragment {
 
         btnCreateFirstPost.setOnClickListener(v ->
                 Toast.makeText(requireContext(), getString(R.string.nav_compose), Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Navigate to login screen.
+     */
+    private void navigateToLogin() {
+        startActivity(new Intent(requireContext(), LoginActivity.class));
+        requireActivity().finish();
     }
 }

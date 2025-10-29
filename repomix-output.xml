@@ -79,12 +79,13 @@ app/
                 UserUi.java
               utils/
                 ApiUtils.java
-                Errorhandler.java
+                ErrorHandler.java
                 FragmentTransitions.java
                 GlideExtensions.java
                 Haptics.java
                 InsetsUtils.java
                 MockData.java
+                MockSessionManager.java
                 SpacesItemDecoration.java
               LoginActivity.java
               MainActivity.java
@@ -171,6 +172,7 @@ scripts/
   android-run.sh
 .gitignore
 .repomixignore
+auto_fix.sh
 build.gradle
 gradle.properties
 gradlew
@@ -183,7 +185,7 @@ settings.gradle
 <files>
 This section contains the contents of the repository's files.
 
-<file path="app/src/main/java/com/example/fludde/utils/Errorhandler.java">
+<file path="app/src/main/java/com/example/fludde/utils/ErrorHandler.java">
 package com.example.fludde.utils;
 
 import android.content.Context;
@@ -198,270 +200,104 @@ import androidx.annotation.StringRes;
 
 import com.example.fludde.R;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-
 /**
- * Centralized error handling utility for consistent error messages and logging.
- * 
- * Features:
- * - Toast error messages
- * - Inline error views
- * - Automatic error type detection
- * - Consistent logging
- * - String resource usage
- * 
- * Usage:
- * - ErrorHandler.showToast(context, R.string.error_network);
- * - ErrorHandler.handleApiError(context, exception);
- * - ErrorHandler.showInlineError(errorView, R.string.error_load_feed);
+ * Centralized error handling utility for the Fludde app.
+ * Provides methods for displaying toasts, inline errors, and logging.
  */
 public final class ErrorHandler {
-
     private static final String TAG = "ErrorHandler";
 
-    private ErrorHandler() {
-        // Prevent instantiation
+    private ErrorHandler() {}
+
+    /* ---------------------- Toast helpers ---------------------- */
+
+    public static void showToast(@NonNull Context context, @StringRes int resId) {
+        Toast.makeText(context, resId, Toast.LENGTH_SHORT).show();
     }
 
-    // ========== TOAST METHODS ==========
-
-    /**
-     * Show a short toast with an error message from string resources.
-     * 
-     * @param context Context for showing toast
-     * @param messageResId String resource ID for the error message
-     */
-    public static void showToast(@NonNull Context context, @StringRes int messageResId) {
-        showToast(context, context.getString(messageResId), Toast.LENGTH_SHORT);
+    public static void showToast(@NonNull Context context, @NonNull String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Show a toast with custom message and duration.
-     * 
-     * @param context Context for showing toast
-     * @param message Error message to display
-     * @param duration Toast.LENGTH_SHORT or Toast.LENGTH_LONG
-     */
-    public static void showToast(@NonNull Context context, @NonNull String message, int duration) {
-        Toast.makeText(context, message, duration).show();
+    public static void showToast(@NonNull Context context, @NonNull String message, int length) {
+        Toast.makeText(context, message, length).show();
     }
 
-    /**
-     * Show a long toast with an error message from string resources.
-     * 
-     * @param context Context for showing toast
-     * @param messageResId String resource ID for the error message
-     */
-    public static void showToastLong(@NonNull Context context, @StringRes int messageResId) {
-        showToast(context, context.getString(messageResId), Toast.LENGTH_LONG);
+    public static void showToastLong(@NonNull Context context, @StringRes int resId) {
+        Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
     }
 
-    // ========== INLINE ERROR METHODS ==========
-
-    /**
-     * Show an inline error view with a message from string resources.
-     * 
-     * @param errorView The error container view (usually includes error message TextView)
-     * @param messageResId String resource ID for the error message
-     */
-    public static void showInlineError(@NonNull View errorView, @StringRes int messageResId) {
-        showInlineError(errorView, errorView.getContext().getString(messageResId));
+    public static void showToastLong(@NonNull Context context, @NonNull String message) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
-    /**
-     * Show an inline error view with a custom message.
-     * 
-     * @param errorView The error container view
-     * @param message Error message to display
-     */
-    public static void showInlineError(@NonNull View errorView, @NonNull String message) {
-        errorView.setVisibility(View.VISIBLE);
-        
-        // Try to find TextView for error message (common pattern)
-        TextView tvError = errorView.findViewById(R.id.tvErrorMessage);
-        if (tvError != null) {
-            tvError.setText(message);
+    /* -------------------- Inline error helpers -------------------- */
+
+    public static void showInlineError(@Nullable View cardView, @StringRes int messageResId) {
+        if (cardView == null) return;
+        TextView tv = cardView.findViewById(R.id.tvErrorMessage);
+        if (tv != null) tv.setText(messageResId);
+        cardView.setVisibility(View.VISIBLE);
+    }
+
+    public static void hideInlineError(@Nullable View cardView) {
+        if (cardView != null) cardView.setVisibility(View.GONE);
+    }
+
+    /* -------------------- Domain-specific helpers -------------------- */
+
+    public static void showAuthError(@NonNull Context context, @StringRes int resId) {
+        showToast(context, resId);
+    }
+
+    public static void showAuthError(@NonNull Context context, @NonNull String message) {
+        showToast(context, message);
+    }
+
+    public static void showValidationError(@NonNull Context context, @StringRes int resId) {
+        showToast(context, resId);
+    }
+
+    public static void showValidationError(@NonNull Context context, @NonNull String message) {
+        showToast(context, message);
+    }
+
+    public static void showNetworkError(@NonNull Context context, @StringRes int resId) {
+        showToast(context, resId);
+    }
+
+    public static void showNetworkError(@NonNull Context context, @NonNull String message) {
+        showToast(context, message);
+    }
+
+    /* -------------------- API error logging -------------------- */
+
+    public static void handleApiError(int statusCode, @Nullable Throwable t) {
+        if (t != null) {
+            Log.e(TAG, "HTTP " + statusCode, t);
+        } else {
+            Log.e(TAG, "HTTP " + statusCode + " (no throwable)");
         }
     }
 
+    /* -------------------- NEW: Logging helpers -------------------- */
+
     /**
-     * Hide an inline error view.
-     * 
-     * @param errorView The error container view to hide
+     * Log a warning message
+     * @param tag The log tag
+     * @param message The warning message
      */
-    public static void hideInlineError(@NonNull View errorView) {
-        errorView.setVisibility(View.GONE);
+    public static void logWarning(@NonNull String tag, @NonNull String message) {
+        Log.w(tag, message);
     }
 
-    // ========== API ERROR HANDLING ==========
-
     /**
-     * Handle API errors intelligently by detecting error type and showing appropriate message.
-     * Combines logging and user-facing error display.
-     * 
-     * @param context Context for showing error
+     * Log an error with exception
+     * @param tag The log tag
+     * @param message The error message
      * @param throwable The exception that occurred
      */
-    public static void handleApiError(@NonNull Context context, @Nullable Throwable throwable) {
-        handleApiError(context, throwable, null);
-    }
-
-    /**
-     * Handle API errors with optional inline error view.
-     * 
-     * @param context Context for showing error
-     * @param throwable The exception that occurred
-     * @param inlineErrorView Optional inline error view (null to show toast instead)
-     */
-    public static void handleApiError(@NonNull Context context, @Nullable Throwable throwable, 
-                                      @Nullable View inlineErrorView) {
-        int errorMessageId = determineErrorMessage(throwable);
-        String errorMessage = context.getString(errorMessageId);
-        
-        // Log the error
-        if (throwable != null) {
-            Log.e(TAG, "API Error: " + errorMessage, throwable);
-        } else {
-            Log.e(TAG, "API Error: " + errorMessage);
-        }
-
-        // Show error to user
-        if (inlineErrorView != null) {
-            showInlineError(inlineErrorView, errorMessageId);
-        } else {
-            showToast(context, errorMessageId);
-        }
-    }
-
-    /**
-     * Handle API errors with HTTP status code information.
-     * 
-     * @param context Context for showing error
-     * @param statusCode HTTP status code
-     * @param throwable The exception that occurred
-     */
-    public static void handleApiError(@NonNull Context context, int statusCode, 
-                                      @Nullable Throwable throwable) {
-        handleApiError(context, statusCode, throwable, null);
-    }
-
-    /**
-     * Handle API errors with HTTP status code and optional inline error view.
-     * 
-     * @param context Context for showing error
-     * @param statusCode HTTP status code
-     * @param throwable The exception that occurred
-     * @param inlineErrorView Optional inline error view
-     */
-    public static void handleApiError(@NonNull Context context, int statusCode, 
-                                      @Nullable Throwable throwable, @Nullable View inlineErrorView) {
-        // Log with status code
-        ApiUtils.handleFailure(statusCode, throwable);
-        
-        // Determine appropriate error message based on status code
-        int errorMessageId;
-        if (statusCode == 401 || statusCode == 403) {
-            errorMessageId = R.string.error_auth_required;
-        } else if (statusCode == 404) {
-            errorMessageId = R.string.error_load_content;
-        } else if (statusCode == 429) {
-            errorMessageId = R.string.error_api_limit;
-        } else if (statusCode >= 500) {
-            errorMessageId = R.string.error_generic;
-        } else {
-            errorMessageId = determineErrorMessage(throwable);
-        }
-
-        // Show error to user
-        if (inlineErrorView != null) {
-            showInlineError(inlineErrorView, errorMessageId);
-        } else {
-            showToast(context, errorMessageId);
-        }
-    }
-
-    // ========== AUTHENTICATION ERRORS ==========
-
-    /**
-     * Show authentication-related error (login/signup).
-     * 
-     * @param context Context for showing error
-     * @param messageResId String resource ID for the auth error
-     */
-    public static void showAuthError(@NonNull Context context, @StringRes int messageResId) {
-        showToast(context, messageResId);
-        Log.w(TAG, "Authentication error: " + context.getString(messageResId));
-    }
-
-    // ========== VALIDATION ERRORS ==========
-
-    /**
-     * Show validation error (e.g., empty fields).
-     * 
-     * @param context Context for showing error
-     * @param messageResId String resource ID for the validation error
-     */
-    public static void showValidationError(@NonNull Context context, @StringRes int messageResId) {
-        showToast(context, messageResId);
-        Log.w(TAG, "Validation error: " + context.getString(messageResId));
-    }
-
-    // ========== HELPER METHODS ==========
-
-    /**
-     * Determine the appropriate error message based on exception type.
-     * 
-     * @param throwable The exception to analyze
-     * @return String resource ID for the error message
-     */
-    @StringRes
-    private static int determineErrorMessage(@Nullable Throwable throwable) {
-        if (throwable == null) {
-            return R.string.error_generic;
-        }
-
-        // Network connectivity issues
-        if (throwable instanceof UnknownHostException) {
-            return R.string.error_network;
-        }
-
-        // Timeout issues
-        if (throwable instanceof SocketTimeoutException) {
-            return R.string.error_timeout;
-        }
-
-        // Generic IOException (could be various network issues)
-        if (throwable instanceof IOException) {
-            String message = throwable.getMessage();
-            if (message != null) {
-                if (message.contains("401") || message.contains("403")) {
-                    return R.string.error_auth_required;
-                }
-                if (message.contains("429")) {
-                    return R.string.error_api_limit;
-                }
-                if (message.contains("timeout")) {
-                    return R.string.error_timeout;
-                }
-            }
-            return R.string.error_network;
-        }
-
-        // Default to generic error
-        return R.string.error_generic;
-    }
-
-    /**
-     * Log error for debugging purposes.
-     * 
-     * @param tag Log tag (usually class name)
-     * @param message Error message
-     * @param throwable Optional exception
-     */
-    public static void logError(@NonNull String tag, @NonNull String message, 
-                                @Nullable Throwable throwable) {
+    public static void logError(@NonNull String tag, @NonNull String message, @Nullable Throwable throwable) {
         if (throwable != null) {
             Log.e(tag, message, throwable);
         } else {
@@ -470,178 +306,163 @@ public final class ErrorHandler {
     }
 
     /**
-     * Log warning for debugging purposes.
-     * 
-     * @param tag Log tag (usually class name)
-     * @param message Warning message
+     * Log an error without exception
+     * @param tag The log tag
+     * @param message The error message
      */
-    public static void logWarning(@NonNull String tag, @NonNull String message) {
-        Log.w(tag, message);
+    public static void logError(@NonNull String tag, @NonNull String message) {
+        Log.e(tag, message);
     }
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
-package com.example.fludde.model;
+<file path="app/src/main/java/com/example/fludde/utils/MockSessionManager.java">
+package com.example.fludde.utils;
 
-import java.util.ArrayList;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 /**
- * Model class representing detailed information about a book.
- * This class contains only data fields (no UI components).
+ * Manages mock authentication sessions using SharedPreferences.
+ * Only used when BuildConfig.MOCK_MODE is true.
  */
-public class BookDetails {
-
-    // Book information fields
-    private String title;
-    private String subtitle;
-    private String publisher;
-    private String publishedDate;
-    private String description;
-    private String thumbnail;
-    private String previewLink;
-    private String infoLink;
-    private String buyLink;
-    private int pageCount;
-    private ArrayList<String> authors;
-
-    // Default constructor
-    public BookDetails() {
-        this.authors = new ArrayList<>();
+public final class MockSessionManager {
+    
+    private static final String PREFS_NAME = "FluddeMock";
+    private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_USERNAME = "currentUser";
+    
+    private MockSessionManager() {
+        // Prevent instantiation
     }
-
-    // Constructor with all fields
-    public BookDetails(String title, String subtitle, String publisher, String publishedDate,
-                       String description, String thumbnail, String previewLink, 
-                       String infoLink, String buyLink, int pageCount, ArrayList<String> authors) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.publisher = publisher;
-        this.publishedDate = publishedDate;
-        this.description = description;
-        this.thumbnail = thumbnail;
-        this.previewLink = previewLink;
-        this.infoLink = infoLink;
-        this.buyLink = buyLink;
-        this.pageCount = pageCount;
-        this.authors = authors != null ? authors : new ArrayList<>();
+    
+    /**
+     * Check if user is logged in (mock mode).
+     */
+    public static boolean isLoggedIn(Context context) {
+        return getPrefs(context).getBoolean(KEY_IS_LOGGED_IN, false);
     }
-
-    // Getters
-    public String getTitle() {
-        return title;
+    
+    /**
+     * Save login session for mock user.
+     */
+    public static void login(Context context, String username) {
+        getPrefs(context).edit()
+            .putBoolean(KEY_IS_LOGGED_IN, true)
+            .putString(KEY_USERNAME, username)
+            .apply();
     }
-
-    public String getSubtitle() {
-        return subtitle;
+    
+    /**
+     * Get current logged in username.
+     */
+    public static String getCurrentUsername(Context context) {
+        return getPrefs(context).getString(KEY_USERNAME, "");
     }
-
-    public String getPublisher() {
-        return publisher;
+    
+    /**
+     * Logout user.
+     */
+    public static void logout(Context context) {
+        getPrefs(context).edit().clear().apply();
     }
-
-    public String getPublishedDate() {
-        return publishedDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public String getPreviewLink() {
-        return previewLink;
-    }
-
-    public String getInfoLink() {
-        return infoLink;
-    }
-
-    public String getBuyLink() {
-        return buyLink;
-    }
-
-    public int getPageCount() {
-        return pageCount;
-    }
-
-    public ArrayList<String> getAuthors() {
-        return authors;
-    }
-
-    // Setters
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
-
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
-    }
-
-    public void setPublishedDate(String publishedDate) {
-        this.publishedDate = publishedDate;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
-    }
-
-    public void setPreviewLink(String previewLink) {
-        this.previewLink = previewLink;
-    }
-
-    public void setInfoLink(String infoLink) {
-        this.infoLink = infoLink;
-    }
-
-    public void setBuyLink(String buyLink) {
-        this.buyLink = buyLink;
-    }
-
-    public void setPageCount(int pageCount) {
-        this.pageCount = pageCount;
-    }
-
-    public void setAuthors(ArrayList<String> authors) {
-        this.authors = authors != null ? authors : new ArrayList<>();
-    }
-
-    // Helper method to get formatted author names
-    public String getAuthorsAsString() {
-        if (authors == null || authors.isEmpty()) {
-            return "Unknown Author";
+    
+    /**
+     * Get current user's full profile.
+     */
+    public static MockData.MockProfile getCurrentUserProfile(Context context) {
+        String username = getCurrentUsername(context);
+        if (username.isEmpty()) {
+            return null;
         }
-        return String.join(", ", authors);
+        return MockData.mockUserProfile(username);
     }
-
-    // Helper method to check if book has valid data
-    public boolean isValid() {
-        return title != null && !title.trim().isEmpty();
-    }
-
-    @Override
-    public String toString() {
-        return "BookDetails{" +
-                "title='" + title + '\'' +
-                ", subtitle='" + subtitle + '\'' +
-                ", publisher='" + publisher + '\'' +
-                ", publishedDate='" + publishedDate + '\'' +
-                ", pageCount=" + pageCount +
-                ", authors=" + authors +
-                '}';
+    
+    private static SharedPreferences getPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 }
+</file>
+
+<file path="auto_fix.sh">
+#!/bin/bash
+
+# Automated Fix Script for Fludde Android Project Compilation Errors
+# Run this from the project root directory
+
+echo "=========================================="
+echo "Fludde Build Fixes - Automated Script"
+echo "=========================================="
+echo ""
+
+# Check if we're in the right directory
+if [ ! -d "app/src/main/java/com/example/fludde" ]; then
+    echo "❌ Error: Not in the correct directory!"
+    echo "Please run this script from the project root (fludde/)"
+    exit 1
+fi
+
+echo "✓ Found project structure"
+echo ""
+
+# Fix 1: Rename Errorhandler.java to ErrorHandler.java
+echo "[1/3] Renaming Errorhandler.java to ErrorHandler.java..."
+if [ -f "app/src/main/java/com/example/fludde/utils/Errorhandler.java" ]; then
+    mv app/src/main/java/com/example/fludde/utils/Errorhandler.java app/src/main/java/com/example/fludde/utils/ErrorHandler.java
+    echo "  ✓ File renamed successfully"
+else
+    echo "  ⚠ Errorhandler.java not found or already renamed"
+fi
+echo ""
+
+# Fix 2: Add package declaration to User.java
+echo "[2/3] Fixing User.java package declaration..."
+USER_FILE="app/src/main/java/com/example/fludde/User.java"
+if [ -f "$USER_FILE" ]; then
+    # Check if package declaration is missing
+    if ! grep -q "^package com.example.fludde;" "$USER_FILE"; then
+        # Add package declaration at the beginning
+        echo "package com.example.fludde;" | cat - "$USER_FILE" > temp && mv temp "$USER_FILE"
+        echo "  ✓ Package declaration added"
+    else
+        echo "  ⚠ Package declaration already exists"
+    fi
+else
+    echo "  ⚠ User.java not found"
+fi
+echo ""
+
+# Fix 3: Fix ComposeParentFragment container ID
+echo "[3/3] Fixing ComposeParentFragment.java container ID..."
+COMPOSE_FILE="app/src/main/java/com/example/fludde/fragments/ComposeParentFragment.java"
+if [ -f "$COMPOSE_FILE" ]; then
+    sed -i.bak 's/R\.id\.flChildContainer/R.id.child_fragment_container/g' "$COMPOSE_FILE"
+    rm -f "${COMPOSE_FILE}.bak"
+    echo "  ✓ Container ID fixed"
+else
+    echo "  ⚠ ComposeParentFragment.java not found"
+fi
+echo ""
+
+echo "=========================================="
+echo "Automated fixes complete!"
+echo "=========================================="
+echo ""
+echo "⚠️  MANUAL FIXES STILL REQUIRED:"
+echo ""
+echo "1. Replace MockData.java with the provided fixed version"
+echo "2. Fix adapter files (3 files):"
+echo "   - Change getBindingAdapterPosition() to getAdapterPosition()"
+echo "3. Fix LoginActivity.java ErrorHandler calls"
+echo "4. Fix SignupActivity.java ErrorHandler calls"
+echo "5. Fix SearchFragment.java mockUsers() call"
+echo ""
+echo "See JAVA_COMPILATION_FIXES.md for detailed instructions."
+echo ""
+echo "After fixing, run:"
+echo "  ./gradlew clean"
+echo "  ./gradlew build"
+echo ""
 </file>
 
 <file path="app/src/main/java/com/example/fludde/model/ContentsClick.java">
@@ -885,282 +706,6 @@ public final class InsetsUtils {
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/utils/MockData.java">
-package com.example.fludde.utils;
-
-import com.example.fludde.model.PostUi;
-import com.example.fludde.model.UserUi;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/** Tiny factory of offline mock data for UI rendering. */
-public final class MockData {
-    private MockData() {}
-
-    public static JSONObject tmdbTrendingJson() throws Exception {
-        JSONArray results = new JSONArray();
-
-        results.put(new JSONObject()
-                .put("poster_path", "kqjL17yufvn9OVLyXYpvtyrFfak.jpg")
-                .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
-                .put("title", "Mock: The Lost City")
-                .put("overview", "Two brilliant adventurers embark on a mock journey."));
-
-        results.put(new JSONObject()
-                .put("poster_path", "6DrHO1jr3qVrViUO6s6kFiAGM7.jpg")
-                .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
-                .put("title", "Mock: Night Patrol")
-                .put("overview", "A stylish mystery that totally doesn't require an API key."));
-
-        results.put(new JSONObject()
-                .put("poster_path", "t6HIqrRAclMCA60NsSmeqe9RmNV.jpg")
-                .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
-                .put("title", "Mock: Ocean Deep")
-                .put("overview", "An epic dive into mock data excellence."));
-
-        JSONObject payload = new JSONObject();
-        payload.put("results", results);
-        return payload;
-    }
-
-    public static JSONObject itunesSearchJson() throws Exception {
-        JSONArray results = new JSONArray();
-
-        results.put(new JSONObject()
-                .put("name", "Mock Song One")
-                .put("artistName", "The Mockers")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1069"));
-
-        results.put(new JSONObject()
-                .put("name", "Dreams in JSON")
-                .put("artistName", "Null & Void")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1027"));
-
-        results.put(new JSONObject()
-                .put("name", "Offline Anthem")
-                .put("artistName", "Airplane Mode")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1003"));
-
-        JSONObject payload = new JSONObject();
-        payload.put("results", results);
-        return payload;
-    }
-
-    public static List<PostUi> mockPosts() {
-        List<PostUi> list = new ArrayList<>();
-
-        list.add(new PostUi(
-                "Movie",
-                "Buddy cops wreak havoc while being lovable.",
-                "Bad Boys II",
-                "A classic turn-your-brain-off action flick.",
-                "demo",
-                "https://i.pravatar.cc/150?img=1"
-        ));
-
-        list.add(new PostUi(
-                "Book",
-                "Wizards, prophecies, and teenage angst—the whole package.",
-                "Harry Potter and the Order of the Phoenix",
-                "JK Rowling really keeps you guessing!",
-                "alice",
-                "https://i.pravatar.cc/150?img=4"
-        ));
-
-        list.add(new PostUi(
-                "Music",
-                "This song speaks to my soul. Pure emotion.",
-                "Someone Like You",
-                "Adele never disappoints.",
-                "bob",
-                "https://i.pravatar.cc/150?img=6"
-        ));
-
-        return list;
-    }
-
-    public static List<UserUi> mockUsers() {
-        List<UserUi> list = new ArrayList<>();
-        list.add(new UserUi("demo", "https://i.pravatar.cc/150?img=1"));
-        list.add(new UserUi("testuser", "https://i.pravatar.cc/150?img=2"));
-        list.add(new UserUi("alice", "https://i.pravatar.cc/150?img=4"));
-        list.add(new UserUi("bob", "https://i.pravatar.cc/150?img=6"));
-        list.add(new UserUi("charlie", "https://i.pravatar.cc/150?img=7"));
-        return list;
-    }
-
-    // ========== BOOKS MOCK DATA ==========
-
-    public static JSONObject googleBooksJson() throws Exception {
-        JSONArray items = new JSONArray();
-        
-        items.put(createBookItem(
-            "Mock: The Great Gatsby",
-            new String[]{"F. Scott Fitzgerald"},
-            "https://picsum.photos/200/300?image=1011",
-            "A classic American novel set in the Jazz Age."
-        ));
-        
-        items.put(createBookItem(
-            "Mock: 1984",
-            new String[]{"George Orwell"},
-            "https://picsum.photos/200/300?image=1015",
-            "A dystopian social science fiction novel."
-        ));
-        
-        items.put(createBookItem(
-            "Mock: To Kill a Mockingbird",
-            new String[]{"Harper Lee"},
-            "https://picsum.photos/200/300?image=1020",
-            "A novel about racial injustice in the Deep South."
-        ));
-        
-        items.put(createBookItem(
-            "Mock: Pride and Prejudice",
-            new String[]{"Jane Austen"},
-            "https://picsum.photos/200/300?image=1025",
-            "A romantic novel of manners."
-        ));
-        
-        items.put(createBookItem(
-            "Mock: The Catcher in the Rye",
-            new String[]{"J.D. Salinger"},
-            "https://picsum.photos/200/300?image=1030",
-            "A story about teenage rebellion and angst."
-        ));
-        
-        JSONObject payload = new JSONObject();
-        payload.put("items", items);
-        return payload;
-    }
-
-    private static JSONObject createBookItem(String title, String[] authors, 
-                                             String imageUrl, String description) 
-                                             throws Exception {
-        JSONArray authorsArray = new JSONArray();
-        for (String author : authors) {
-            authorsArray.put(author);
-        }
-        
-        JSONObject imageLinks = new JSONObject();
-        imageLinks.put("thumbnail", imageUrl);
-        
-        JSONObject volumeInfo = new JSONObject();
-        volumeInfo.put("title", title);
-        volumeInfo.put("authors", authorsArray);
-        volumeInfo.put("imageLinks", imageLinks);
-        volumeInfo.put("description", description);
-        volumeInfo.put("publishedDate", "2024");
-        
-        JSONObject item = new JSONObject();
-        item.put("volumeInfo", volumeInfo);
-        return item;
-    }
-
-    // ========== AUTHENTICATION MOCK DATA ==========
-
-    public static class MockUser {
-        public final String username;
-        public final String password;
-        public final String email;
-        public final String profilePictureUrl;
-        
-        public MockUser(String username, String password, String email, String profilePictureUrl) {
-            this.username = username;
-            this.password = password;
-            this.email = email;
-            this.profilePictureUrl = profilePictureUrl;
-        }
-    }
-
-    private static final List<MockUser> MOCK_AUTH_USERS = Arrays.asList(
-        new MockUser("demo", "demo123", "demo@example.com", "https://i.pravatar.cc/150?img=1"),
-        new MockUser("testuser", "test123", "test@example.com", "https://i.pravatar.cc/150?img=2"),
-        new MockUser("alice", "alice123", "alice@example.com", "https://i.pravatar.cc/150?img=4"),
-        new MockUser("bob", "bob123", "bob@example.com", "https://i.pravatar.cc/150?img=6"),
-        new MockUser("charlie", "charlie123", "charlie@example.com", "https://i.pravatar.cc/150?img=7")
-    );
-
-    public static boolean isValidLogin(String username, String password) {
-        if (username == null || password == null) return false;
-        for (MockUser user : MOCK_AUTH_USERS) {
-            if (user.username.equals(username) && user.password.equals(password)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static MockUser getMockUser(String username) {
-        if (username == null) return null;
-        for (MockUser user : MOCK_AUTH_USERS) {
-            if (user.username.equals(username)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    public static boolean canRegisterUser(String username, String email) {
-        if (username == null || email == null) return false;
-        for (MockUser user : MOCK_AUTH_USERS) {
-            if (user.username.equals(username) || user.email.equals(email)) {
-                return false; // Already exists
-            }
-        }
-        return true; // Can register
-    }
-
-    // ========== PROFILE MOCK DATA ==========
-
-    public static class MockProfile {
-        public final String username;
-        public final String email;
-        public final String profilePictureUrl;
-        public final String bio;
-        public final List<PostUi> userPosts;
-        
-        public MockProfile(String username, String email, String profilePictureUrl, 
-                          String bio, List<PostUi> userPosts) {
-            this.username = username;
-            this.email = email;
-            this.profilePictureUrl = profilePictureUrl;
-            this.bio = bio;
-            this.userPosts = userPosts;
-        }
-    }
-
-    public static MockProfile mockUserProfile(String username) {
-        // Get user info
-        MockUser user = getMockUser(username);
-        if (user == null) {
-            // Default for unknown users
-            user = new MockUser(username, "", username + "@example.com", 
-                               "https://i.pravatar.cc/150?img=10");
-        }
-        
-        // Get user's posts (filter mockPosts by username)
-        List<PostUi> allPosts = mockPosts();
-        List<PostUi> userPosts = new ArrayList<>();
-        for (PostUi post : allPosts) {
-            if (post.getUserName().equals(username)) {
-                userPosts.add(post);
-            }
-        }
-        
-        String bio = "Mock bio for " + username + ". Loves movies, books, and music!";
-        
-        return new MockProfile(user.username, user.email, user.profilePictureUrl, 
-                              bio, userPosts);
-    }
-}
-</file>
-
 <file path="app/src/main/java/com/example/fludde/utils/SpacesItemDecoration.java">
 package com.example.fludde.utils;
 
@@ -1186,88 +731,6 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
         if (pos == RecyclerView.NO_POSITION) return;
         // Add space to the end of each item; edge padding on the RecyclerView handles left/right peeks.
         outRect.right = space;
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/User.java">
-import com.parse.ParseUser;
-import com.parse.ParseException;
-
-/**
- * User class extending ParseUser
- * No @ParseClassName annotation needed - ParseUser already maps to "_User" table
- */
-public class User extends ParseUser {
-    
-    // Constructor
-    public User() {
-        super();
-    }
-    
-    // Custom getter and setter methods for additional fields
-    
-    /**
-     * Get user's full name
-     */
-    public String getFullName() {
-        return getString("fullName");
-    }
-    
-    /**
-     * Set user's full name
-     */
-    public void setFullName(String fullName) {
-        put("fullName", fullName);
-    }
-    
-    /**
-     * Get user's phone number
-     */
-    public String getPhoneNumber() {
-        return getString("phoneNumber");
-    }
-    
-    /**
-     * Set user's phone number
-     */
-    public void setPhoneNumber(String phoneNumber) {
-        put("phoneNumber", phoneNumber);
-    }
-    
-    /**
-     * Get user's profile picture URL
-     */
-    public String getProfilePictureUrl() {
-        return getString("profilePictureUrl");
-    }
-    
-    /**
-     * Set user's profile picture URL
-     */
-    public void setProfilePictureUrl(String url) {
-        put("profilePictureUrl", url);
-    }
-    
-    /**
-     * Check if user has completed profile setup
-     */
-    public boolean isProfileComplete() {
-        return getBoolean("profileComplete");
-    }
-    
-    /**
-     * Set profile completion status
-     */
-    public void setProfileComplete(boolean complete) {
-        put("profileComplete", complete);
-    }
-    
-    /**
-     * Get the current logged-in user as a User object
-     */
-    public static User getCurrentUser() {
-        return (User) ParseUser.getCurrentUser();
     }
 }
 </file>
@@ -1668,7 +1131,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -1677,31 +1139,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fludde.R;
 import com.example.fludde.model.BooksContent;
 import com.example.fludde.utils.GlideExtensions;
-import com.example.fludde.utils.Haptics;
-import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.List;
 
 public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.BookViewHolder> {
 
+    public interface OnBookContentListener {
+        void onBookContentClick(int position);
+        void onBookContentLongClick(int position);
+    }
+
     private final Context context;
-    private final List<BooksContent> items;
+    private final List<BooksContent> contents;
     private final OnBookContentListener listener;
 
-    private int selectedPos = RecyclerView.NO_POSITION;
-
-    public BookChildAdapter(@NonNull Context context,
-                            @NonNull List<BooksContent> items,
-                            @NonNull OnBookContentListener listener) {
+    public BookChildAdapter(Context context, List<BooksContent> contents, OnBookContentListener listener) {
         this.context = context;
-        this.items = items;
+        this.contents = contents;
         this.listener = listener;
         setHasStableIds(true);
     }
 
-    @Override
-    public long getItemId(int position) {
-        String key = items.get(position).getTitle() + position;
+    @Override public long getItemId(int position) {
+        String key = contents.get(position).getTitle() + "|" + position;
         return key.hashCode();
     }
 
@@ -1715,61 +1176,41 @@ public class BookChildAdapter extends RecyclerView.Adapter<BookChildAdapter.Book
 
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
-        holder.bind(items.get(position), position == selectedPos);
+        holder.bind(contents.get(position));
     }
 
     @Override
-    public int getItemCount() { return items.size(); }
+    public int getItemCount() { return contents.size(); }
 
-    class BookViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        ImageView ivContentImage;
-        TextView tvImageContentTitle;
+    class BookViewHolder extends RecyclerView.ViewHolder {
+        private final ShapeableImageView ivPoster;
+        private final TextView tvTitle;
 
         BookViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivContentImage = itemView.findViewById(R.id.ivContentImage);
-            tvImageContentTitle = itemView.findViewById(R.id.tvImageContentTitle);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-        }
+            ivPoster = itemView.findViewById(R.id.ivContentImage);
+            tvTitle = itemView.findViewById(R.id.tvImageContentTitle);
 
-        void bind(BooksContent data, boolean selected) {
-            tvImageContentTitle.setText(data.getTitle());
-            GlideExtensions.loadPoster(ivContentImage, data.getImageURL());
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition(); // <-- fix
+                if (pos != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onBookContentClick(pos);
+                }
+            });
 
-            MaterialCardView card = (MaterialCardView) itemView;
-            card.setChecked(selected);
-            itemView.setSelected(selected);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int pos = getBindingAdapterPosition();
-            if (pos == RecyclerView.NO_POSITION) return;
-            int old = selectedPos;
-            selectedPos = pos;
-            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
-            notifyItemChanged(selectedPos);
-
-            Haptics.tick(v);
-            if (listener != null) listener.onBookContentClick(pos);
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            int pos = getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION && listener != null) {
-                Haptics.longPress(v);
-                listener.onBookContentLongClick(pos);
+            itemView.setOnLongClickListener(v -> {
+                int pos = getAdapterPosition(); // <-- fix
+                if (pos != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onBookContentLongClick(pos);
+                }
                 return true;
-            }
-            return false;
+            });
         }
-    }
 
-    public interface OnBookContentListener {
-        void onBookContentClick(int position);
-        void onBookContentLongClick(int position);
+        void bind(BooksContent c) {
+            tvTitle.setText(c.getTitle());
+            GlideExtensions.loadPoster(ivPoster, c.getImageURL());
+        }
     }
 }
 </file>
@@ -1781,7 +1222,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -1790,32 +1230,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fludde.R;
 import com.example.fludde.model.MovieContent;
 import com.example.fludde.utils.GlideExtensions;
-import com.example.fludde.utils.Haptics;
-import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.List;
 
 public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.MovieViewHolder> {
 
+    public interface OnMovieContentListener {
+        void onMovieContentClick(int position);
+        void onMovieContentLongClick(int position);
+    }
+
     private final Context context;
-    private final List<MovieContent> items;
+    private final List<MovieContent> contents;
     private final OnMovieContentListener listener;
 
-    // single selection support
-    private int selectedPos = RecyclerView.NO_POSITION;
-
-    public MovieChildAdapter(@NonNull Context context,
-                             @NonNull List<MovieContent> items,
-                             @NonNull OnMovieContentListener listener) {
+    public MovieChildAdapter(Context context, List<MovieContent> contents, OnMovieContentListener listener) {
         this.context = context;
-        this.items = items;
+        this.contents = contents;
         this.listener = listener;
         setHasStableIds(true);
     }
 
-    @Override
-    public long getItemId(int position) {
-        String key = items.get(position).getTitle() + position;
+    @Override public long getItemId(int position) {
+        String key = contents.get(position).getTitle() + "|" + position;
         return key.hashCode();
     }
 
@@ -1829,155 +1267,205 @@ public class MovieChildAdapter extends RecyclerView.Adapter<MovieChildAdapter.Mo
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        holder.bind(items.get(position), position == selectedPos);
+        holder.bind(contents.get(position));
     }
 
     @Override
-    public int getItemCount() { return items.size(); }
+    public int getItemCount() { return contents.size(); }
 
-    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        ImageView ivContentImage;
-        TextView tvImageContentTitle;
+    class MovieViewHolder extends RecyclerView.ViewHolder {
+        private final ShapeableImageView ivPoster;
+        private final TextView tvTitle;
 
         MovieViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivContentImage = itemView.findViewById(R.id.ivContentImage);
-            tvImageContentTitle = itemView.findViewById(R.id.tvImageContentTitle);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-        }
+            ivPoster = itemView.findViewById(R.id.ivContentImage);
+            tvTitle = itemView.findViewById(R.id.tvImageContentTitle);
 
-        void bind(MovieContent data, boolean selected) {
-            tvImageContentTitle.setText(data.getTitle());
-            GlideExtensions.loadPoster(ivContentImage, data.getImagePath());
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onMovieContentClick(pos);
+                }
+            });
 
-            MaterialCardView card = (MaterialCardView) itemView;
-            card.setChecked(selected);
-            itemView.setSelected(selected);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int pos = getBindingAdapterPosition();
-            if (pos == RecyclerView.NO_POSITION) return;
-
-            int old = selectedPos;
-            selectedPos = pos;
-
-            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
-            notifyItemChanged(selectedPos);
-
-            Haptics.tick(v); // subtle feedback on selection
-            if (listener != null) listener.onMovieContentClick(pos);
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            int pos = getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION && listener != null) {
-                Haptics.longPress(v); // discoverable haptic
-                listener.onMovieContentLongClick(pos);
+            itemView.setOnLongClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onMovieContentLongClick(pos);
+                }
                 return true;
-            }
-            return false;
+            });
         }
-    }
 
-    public interface OnMovieContentListener {
-        void onMovieContentClick(int position);
-        void onMovieContentLongClick(int position);
+        void bind(MovieContent c) {
+            tvTitle.setText(c.getTitle());
+            // FIXED: Changed getImageURL() to getImagePath()
+            GlideExtensions.loadPoster(ivPoster, c.getImagePath());
+        }
     }
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/fragments/ComposeParentFragment.java">
-package com.example.fludde.fragments;
+<file path="app/src/main/java/com/example/fludde/model/BookDetails.java">
+package com.example.fludde.model;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
-import com.example.fludde.R;
-import com.example.fludde.fragments.child.BookChildFragment;
-import com.example.fludde.fragments.child.MovieChildFragment;
-import com.example.fludde.fragments.child.MusicChildFragment;
-import com.example.fludde.utils.ErrorHandler;
+import java.util.ArrayList;
 
 /**
- * ComposeParentFragment - Refactored to use ErrorHandler utility and string resources.
- * 
- * Changes:
- * - All hardcoded Toast messages moved to strings.xml
- * - All Toast.makeText() replaced with ErrorHandler methods
- * - Consistent error handling
+ * Model class representing detailed information about a book.
+ * This class contains only data fields (no UI components).
  */
-public class ComposeParentFragment extends Fragment {
+public class BookDetails {
 
-    private static final String TAG = "ComposeParentFragment";
+    // Book information fields
+    private String title;
+    private String subtitle;
+    private String publisher;
+    private String publishedDate;
+    private String description;
+    private String thumbnail;
+    private String previewLink;
+    private String infoLink;
+    private String buyLink;
+    private int pageCount;
+    private ArrayList<String> authors;
 
-    private AutoCompleteTextView actCategory;
+    // Default constructor
+    public BookDetails() {
+        this.authors = new ArrayList<>();
+    }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, 
-                             @Nullable ViewGroup container, 
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_compose_parent, container, false);
+    // Constructor with all fields
+    public BookDetails(String title, String subtitle, String publisher, String publishedDate,
+                       String description, String thumbnail, String previewLink, 
+                       String infoLink, String buyLink, int pageCount, ArrayList<String> authors) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.publisher = publisher;
+        this.publishedDate = publishedDate;
+        this.description = description;
+        this.thumbnail = thumbnail;
+        this.previewLink = previewLink;
+        this.infoLink = infoLink;
+        this.buyLink = buyLink;
+        this.pageCount = pageCount;
+        this.authors = authors != null ? authors : new ArrayList<>();
+    }
+
+    // Getters
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public String getPublishedDate() {
+        return publishedDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public String getPreviewLink() {
+        return previewLink;
+    }
+
+    public String getInfoLink() {
+        return infoLink;
+    }
+
+    public String getBuyLink() {
+        return buyLink;
+    }
+
+    public int getPageCount() {
+        return pageCount;
+    }
+
+    public ArrayList<String> getAuthors() {
+        return authors;
+    }
+
+    // Setters
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public void setPublishedDate(String publishedDate) {
+        this.publishedDate = publishedDate;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public void setPreviewLink(String previewLink) {
+        this.previewLink = previewLink;
+    }
+
+    public void setInfoLink(String infoLink) {
+        this.infoLink = infoLink;
+    }
+
+    public void setBuyLink(String buyLink) {
+        this.buyLink = buyLink;
+    }
+
+    public void setPageCount(int pageCount) {
+        this.pageCount = pageCount;
+    }
+
+    public void setAuthors(ArrayList<String> authors) {
+        this.authors = authors != null ? authors : new ArrayList<>();
+    }
+
+    // Helper method to get formatted author names
+    public String getAuthorsAsString() {
+        if (authors == null || authors.isEmpty()) {
+            return "Unknown Author";
+        }
+        return String.join(", ", authors);
+    }
+
+    // Helper method to check if book has valid data
+    public boolean isValid() {
+        return title != null && !title.trim().isEmpty();
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        actCategory = view.findViewById(R.id.actCategory);
-
-        // Setup category dropdown
-        String[] categories = {"Movies", "Books", "Music"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            categories
-        );
-        actCategory.setAdapter(adapter);
-
-        // Handle category selection
-        actCategory.setOnItemClickListener((parent, v, pos, id) -> {
-            switch (pos) {
-                case 0:
-                default:
-                    insertChild(new MovieChildFragment());
-                    // ✅ Using ErrorHandler with string resource
-                    ErrorHandler.showToast(requireContext(), R.string.content_selected_movies);
-                    break;
-                case 1:
-                    insertChild(new BookChildFragment());
-                    // ✅ Using ErrorHandler with string resource
-                    ErrorHandler.showToast(requireContext(), R.string.content_selected_books);
-                    break;
-                case 2:
-                    insertChild(new MusicChildFragment());
-                    // ✅ Using ErrorHandler with string resource
-                    ErrorHandler.showToast(requireContext(), R.string.content_selected_music);
-                    break;
-            }
-        });
-
-        // Default
-        insertChild(new MovieChildFragment());
-    }
-
-    private void insertChild(Fragment child) {
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.replace(R.id.flChildContainer, child);
-        ft.commit();
+    public String toString() {
+        return "BookDetails{" +
+                "title='" + title + '\'' +
+                ", subtitle='" + subtitle + '\'' +
+                ", publisher='" + publisher + '\'' +
+                ", publishedDate='" + publishedDate + '\'' +
+                ", pageCount=" + pageCount +
+                ", authors=" + authors +
+                '}';
     }
 }
 </file>
@@ -2137,6 +1625,292 @@ public class MusicContent {
 }
 </file>
 
+<file path="app/src/main/java/com/example/fludde/utils/MockData.java">
+package com.example.fludde.utils;
+
+import com.example.fludde.model.PostUi;
+import com.example.fludde.model.UserUi;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/** Tiny factory of offline mock data for UI rendering. */
+public final class MockData {
+    private MockData() {}
+
+    public static JSONObject tmdbTrendingJson() throws Exception {
+        JSONArray results = new JSONArray();
+
+        results.put(new JSONObject()
+                .put("poster_path", "kqjL17yufvn9OVLyXYpvtyrFfak.jpg")
+                .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
+                .put("title", "Mock: The Lost City")
+                .put("overview", "Two brilliant adventurers embark on a mock journey."));
+
+        results.put(new JSONObject()
+                .put("poster_path", "6DrHO1jr3qVrViUO6s6kFiAGM7.jpg")
+                .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
+                .put("title", "Mock: Night Patrol")
+                .put("overview", "A stylish mystery that totally doesn't require an API key."));
+
+        results.put(new JSONObject()
+                .put("poster_path", "t6HIqrRAclMCA60NsSmeqe9RmNV.jpg")
+                .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
+                .put("title", "Mock: Ocean Deep")
+                .put("overview", "An epic dive into mock data excellence."));
+
+        JSONObject payload = new JSONObject();
+        payload.put("results", results);
+        return payload;
+    }
+
+    public static JSONObject itunesSearchJson() throws Exception {
+        JSONArray results = new JSONArray();
+
+        results.put(new JSONObject()
+                .put("name", "Mock Song One")
+                .put("artistName", "The Mockers")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1069"));
+
+        results.put(new JSONObject()
+                .put("name", "Dreams in JSON")
+                .put("artistName", "Null & Void")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1027"));
+
+        results.put(new JSONObject()
+                .put("name", "Offline Anthem")
+                .put("artistName", "Airplane Mode")
+                .put("artworkUrl100", "https://picsum.photos/200?image=1003"));
+
+        JSONObject payload = new JSONObject();
+        payload.put("results", results);
+        return payload;
+    }
+
+    public static List<PostUi> mockPosts() {
+        List<PostUi> list = new ArrayList<>();
+
+        // Fixed: Added contentImageUrl parameter (7 parameters total)
+        list.add(new PostUi(
+                "Movie",
+                "Buddy cops wreak havoc while being lovable.",
+                "Bad Boys II",
+                "A classic turn-your-brain-off action flick.",
+                "https://image.tmdb.org/t/p/w500/kqjL17yufvn9OVLyXYpvtyrFfak.jpg", // contentImageUrl
+                "demo",
+                "https://i.pravatar.cc/150?img=1"
+        ));
+
+        list.add(new PostUi(
+                "Book",
+                "Wizards, prophecies, and teenage angst—the whole package.",
+                "Harry Potter and the Order of the Phoenix",
+                "JK Rowling really keeps you guessing!",
+                "https://picsum.photos/200/300?image=1020", // contentImageUrl
+                "alice",
+                "https://i.pravatar.cc/150?img=4"
+        ));
+
+        list.add(new PostUi(
+                "Music",
+                "This song speaks to my soul. Pure emotion.",
+                "Someone Like You",
+                "Adele never disappoints.",
+                "https://picsum.photos/200?image=1069", // contentImageUrl
+                "bob",
+                "https://i.pravatar.cc/150?img=6"
+        ));
+
+        return list;
+    }
+
+    public static List<UserUi> mockUsers() {
+        List<UserUi> list = new ArrayList<>();
+        list.add(new UserUi("demo", "https://i.pravatar.cc/150?img=1"));
+        list.add(new UserUi("testuser", "https://i.pravatar.cc/150?img=2"));
+        list.add(new UserUi("alice", "https://i.pravatar.cc/150?img=4"));
+        list.add(new UserUi("bob", "https://i.pravatar.cc/150?img=6"));
+        list.add(new UserUi("charlie", "https://i.pravatar.cc/150?img=7"));
+        return list;
+    }
+
+    // ========== BOOKS MOCK DATA ==========
+
+    public static JSONObject googleBooksJson() throws Exception {
+        JSONArray items = new JSONArray();
+        
+        items.put(createBookItem(
+            "Mock: The Great Gatsby",
+            new String[]{"F. Scott Fitzgerald"},
+            "https://picsum.photos/200/300?image=1011",
+            "A classic American novel set in the Jazz Age."
+        ));
+        
+        items.put(createBookItem(
+            "Mock: 1984",
+            new String[]{"George Orwell"},
+            "https://picsum.photos/200/300?image=1015",
+            "A dystopian social science fiction novel."
+        ));
+        
+        items.put(createBookItem(
+            "Mock: To Kill a Mockingbird",
+            new String[]{"Harper Lee"},
+            "https://picsum.photos/200/300?image=1020",
+            "A novel about racial injustice in the Deep South."
+        ));
+        
+        items.put(createBookItem(
+            "Mock: Pride and Prejudice",
+            new String[]{"Jane Austen"},
+            "https://picsum.photos/200/300?image=1025",
+            "A romantic novel of manners."
+        ));
+        
+        items.put(createBookItem(
+            "Mock: The Catcher in the Rye",
+            new String[]{"J.D. Salinger"},
+            "https://picsum.photos/200/300?image=1030",
+            "A story about teenage rebellion and angst."
+        ));
+        
+        JSONObject payload = new JSONObject();
+        payload.put("items", items);
+        return payload;
+    }
+
+    private static JSONObject createBookItem(String title, String[] authors, 
+                                             String imageUrl, String description) 
+                                             throws Exception {
+        JSONArray authorsArray = new JSONArray();
+        for (String author : authors) {
+            authorsArray.put(author);
+        }
+        
+        JSONObject imageLinks = new JSONObject();
+        imageLinks.put("thumbnail", imageUrl);
+        
+        JSONObject volumeInfo = new JSONObject();
+        volumeInfo.put("title", title);
+        volumeInfo.put("authors", authorsArray);
+        volumeInfo.put("imageLinks", imageLinks);
+        volumeInfo.put("description", description);
+        volumeInfo.put("publishedDate", "2024");
+        
+        JSONObject item = new JSONObject();
+        item.put("volumeInfo", volumeInfo);
+        return item;
+    }
+
+    // ========== AUTHENTICATION MOCK DATA ==========
+
+    public static class MockUser {
+        public final String username;
+        public final String password;
+        public final String email;
+        public final String profilePictureUrl;
+        
+        public MockUser(String username, String password, String email, String profilePictureUrl) {
+            this.username = username;
+            this.password = password;
+            this.email = email;
+            this.profilePictureUrl = profilePictureUrl;
+        }
+    }
+
+    private static final List<MockUser> MOCK_AUTH_USERS = new ArrayList<>(Arrays.asList(
+        new MockUser("demo", "demo123", "demo@example.com", "https://i.pravatar.cc/150?img=1"),
+        new MockUser("testuser", "test123", "test@example.com", "https://i.pravatar.cc/150?img=2"),
+        new MockUser("alice", "alice123", "alice@example.com", "https://i.pravatar.cc/150?img=4"),
+        new MockUser("bob", "bob123", "bob@example.com", "https://i.pravatar.cc/150?img=6"),
+        new MockUser("charlie", "charlie123", "charlie@example.com", "https://i.pravatar.cc/150?img=7")
+    ));
+
+    public static boolean isValidLogin(String username, String password) {
+        if (username == null || password == null) return false;
+        for (MockUser user : MOCK_AUTH_USERS) {
+            if (user.username.equals(username) && user.password.equals(password)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static MockUser getMockUser(String username) {
+        if (username == null) return null;
+        for (MockUser user : MOCK_AUTH_USERS) {
+            if (user.username.equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public static boolean canRegisterUser(String username, String email) {
+        if (username == null || email == null) return false;
+        for (MockUser user : MOCK_AUTH_USERS) {
+            if (user.username.equals(username) || user.email.equals(email)) {
+                return false; // Already exists
+            }
+        }
+        return true; // Can register
+    }
+
+    // NEW: Method to register a new mock user
+    public static void registerMockUser(String username, String password, String email) {
+        String profilePictureUrl = "https://i.pravatar.cc/150?img=" + (MOCK_AUTH_USERS.size() + 10);
+        MOCK_AUTH_USERS.add(new MockUser(username, password, email, profilePictureUrl));
+    }
+
+    // ========== PROFILE MOCK DATA ==========
+
+    public static class MockProfile {
+        public final String username;
+        public final String email;
+        public final String profilePictureUrl;
+        public final String bio;
+        public final List<PostUi> userPosts;
+        
+        public MockProfile(String username, String email, String profilePictureUrl, 
+                          String bio, List<PostUi> userPosts) {
+            this.username = username;
+            this.email = email;
+            this.profilePictureUrl = profilePictureUrl;
+            this.bio = bio;
+            this.userPosts = userPosts;
+        }
+    }
+
+    public static MockProfile mockUserProfile(String username) {
+        // Get user info
+        MockUser user = getMockUser(username);
+        if (user == null) {
+            // Default for unknown users
+            user = new MockUser(username, "", username + "@example.com", 
+                               "https://i.pravatar.cc/150?img=10");
+        }
+        
+        // Get user's posts (filter mockPosts by username)
+        List<PostUi> allPosts = mockPosts();
+        List<PostUi> userPosts = new ArrayList<>();
+        for (PostUi post : allPosts) {
+            if (post.getUserName().equals(username)) {
+                userPosts.add(post);
+            }
+        }
+        
+        String bio = "Mock bio for " + username + ". Loves movies, books, and music!";
+        
+        return new MockProfile(user.username, user.email, user.profilePictureUrl, 
+                              bio, userPosts);
+    }
+}
+</file>
+
 <file path="app/src/main/java/com/example/fludde/Post.java">
 package com.example.fludde;
 
@@ -2199,90 +1973,86 @@ public class Post extends ParseObject {
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/SignupActivity.java">
+<file path="app/src/main/java/com/example/fludde/User.java">
 package com.example.fludde;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.fludde.utils.ErrorHandler;
+import com.parse.ParseUser;
+import com.parse.ParseException;
 
 /**
- * SignupActivity - Refactored to use ErrorHandler utility and string resources.
- * 
- * Changes:
- * - All hardcoded strings moved to strings.xml
- * - All Toast.makeText() replaced with ErrorHandler methods
- * - Consistent error handling
- * - Improved logging with proper tags
+ * User class extending ParseUser
+ * No @ParseClassName annotation needed - ParseUser already maps to "_User" table
  */
-public class SignupActivity extends AppCompatActivity {
-
-    private static final String TAG = "SignupActivity";
-
-    private EditText etUsername;
-    private EditText etPassword;
-    private EditText etEmail;
-    private Button btnSignup;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
-
-        etUsername = findViewById(R.id.etUsername);
-        etPassword = findViewById(R.id.etPassword);
-        etEmail = findViewById(R.id.etEmail);
-        btnSignup = findViewById(R.id.btnSignup);
-
-        btnSignup.setOnClickListener(v -> performSignup());
+public class User extends ParseUser {
+    
+    // Constructor
+    public User() {
+        super();
     }
-
-    private void performSignup() {
-        try {
-            String username = etUsername.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-
-            // Validation
-            if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
-                // ✅ Using ErrorHandler with string resource
-                ErrorHandler.showValidationError(this, R.string.error_signup_empty_fields);
-                ErrorHandler.logWarning(TAG, "Signup attempt with empty fields");
-                return;
-            }
-
-            // Mock signup logic (replace with actual registration)
-            if (username.equals("admin")) {
-                // ✅ Using ErrorHandler with string resource
-                ErrorHandler.showAuthError(this, R.string.error_signup_failed);
-                Log.e(TAG, "Signup failed: Username already taken: " + username);
-            } else {
-                Log.d(TAG, "Signup successful for user: " + username);
-                navigateToMain();
-            }
-        } catch (Exception e) {
-            // ✅ Using ErrorHandler with string resource
-            ErrorHandler.showAuthError(this, R.string.error_signup_generic);
-            ErrorHandler.logError(TAG, "Error during signup attempt", e);
-        }
+    
+    // Custom getter and setter methods for additional fields
+    
+    /**
+     * Get user's full name
+     */
+    public String getFullName() {
+        return getString("fullName");
     }
-
-    private void navigateToMain() {
-        try {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-            Log.d(TAG, "Navigated to MainActivity after signup");
-        } catch (Exception e) {
-            // ✅ Using ErrorHandler with string resource
-            ErrorHandler.showToast(this, R.string.error_navigation);
-            ErrorHandler.logError(TAG, "Error navigating to MainActivity", e);
-        }
+    
+    /**
+     * Set user's full name
+     */
+    public void setFullName(String fullName) {
+        put("fullName", fullName);
+    }
+    
+    /**
+     * Get user's phone number
+     */
+    public String getPhoneNumber() {
+        return getString("phoneNumber");
+    }
+    
+    /**
+     * Set user's phone number
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        put("phoneNumber", phoneNumber);
+    }
+    
+    /**
+     * Get user's profile picture URL
+     */
+    public String getProfilePictureUrl() {
+        return getString("profilePictureUrl");
+    }
+    
+    /**
+     * Set user's profile picture URL
+     */
+    public void setProfilePictureUrl(String url) {
+        put("profilePictureUrl", url);
+    }
+    
+    /**
+     * Check if user has completed profile setup
+     */
+    public boolean isProfileComplete() {
+        return getBoolean("profileComplete");
+    }
+    
+    /**
+     * Set profile completion status
+     */
+    public void setProfileComplete(boolean complete) {
+        put("profileComplete", complete);
+    }
+    
+    /**
+     * Get the current logged-in user as a User object
+     */
+    public static User getCurrentUser() {
+        return (User) ParseUser.getCurrentUser();
     }
 }
 </file>
@@ -2581,267 +2351,6 @@ public class SignupActivity extends AppCompatActivity {
 </resources>
 </file>
 
-<file path="app/src/test/java/com/example/fludde/utils/ApiUtilsTest.java">
-package com.example.fludde.utils;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-/**
- * Unit tests for ApiUtils class.
- * Tests API key management, bearer token handling, and request building.
- */
-@RunWith(RobolectricTestRunner.class)
-public class ApiUtilsTest {
-
-    @Mock
-    private ApiUtils.Callback mockCallback;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        // Clear any previously set keys/tokens
-        ApiUtils.setApiKey(null);
-        ApiUtils.setBearer(null);
-    }
-
-    @Test
-    public void testSetApiKey_withValidKey() {
-        // Given
-        String apiKey = "test-api-key-12345";
-        
-        // When
-        ApiUtils.setApiKey(apiKey);
-        
-        // Then - verify by making a request and checking URL contains api_key parameter
-        // Note: This is an indirect test since apiKey is private
-        // In a real scenario, you might make the field package-private for testing
-        // or use reflection, but for now we verify behavior
-        assertNotNull("API key should be settable", apiKey);
-    }
-
-    @Test
-    public void testSetApiKey_withNullKey() {
-        // Given
-        String apiKey = null;
-        
-        // When
-        ApiUtils.setApiKey(apiKey);
-        
-        // Then - should not throw exception
-        // Verify by checking that subsequent operations don't fail
-        assertNull("Null API key should be accepted", apiKey);
-    }
-
-    @Test
-    public void testSetBearer_withValidToken() {
-        // Given
-        String bearerToken = "test-bearer-token-xyz";
-        
-        // When
-        ApiUtils.setBearer(bearerToken);
-        
-        // Then - verify token is set (indirect test)
-        assertNotNull("Bearer token should be settable", bearerToken);
-    }
-
-    @Test
-    public void testSetBearer_withNullToken() {
-        // Given
-        String bearerToken = null;
-        
-        // When
-        ApiUtils.setBearer(bearerToken);
-        
-        // Then - should not throw exception
-        assertNull("Null bearer token should be accepted", bearerToken);
-    }
-
-    @Test
-    public void testHandleFailure_withThrowable() {
-        // Given
-        int statusCode = 404;
-        Throwable throwable = new Throwable("Not Found");
-        
-        // When
-        ApiUtils.handleFailure(statusCode, throwable);
-        
-        // Then - verify no exception is thrown
-        // In a real test, you might want to verify logging output
-        assertTrue("handleFailure should process throwable without error", true);
-    }
-
-    @Test
-    public void testHandleFailure_withNullThrowable() {
-        // Given
-        int statusCode = 500;
-        Throwable throwable = null;
-        
-        // When
-        ApiUtils.handleFailure(statusCode, throwable);
-        
-        // Then - verify no exception is thrown when throwable is null
-        assertTrue("handleFailure should handle null throwable gracefully", true);
-    }
-
-    @Test
-    public void testHandleFailure_withVariousStatusCodes() {
-        // Test common HTTP status codes
-        int[] statusCodes = {400, 401, 403, 404, 500, 502, 503};
-        
-        for (int statusCode : statusCodes) {
-            // When
-            ApiUtils.handleFailure(statusCode, new Exception("Test error"));
-            
-            // Then - should handle all status codes without throwing
-            assertTrue("Should handle status code " + statusCode, true);
-        }
-    }
-
-    @Test
-    public void testGet_withEmptyUrl() {
-        // Given
-        String url = "";
-        
-        // When/Then - should handle empty URL gracefully
-        ApiUtils.get(url, mockCallback);
-        
-        // Verify callback is eventually called (with error or success)
-        // Note: This is asynchronous, so in a real test you'd use CountDownLatch
-        // or a testing framework that handles async operations
-        verify(mockCallback, timeout(5000).atLeastOnce()).onError(any(IOException.class));
-    }
-
-    @Test
-    public void testGet_withNullCallback() {
-        // Given
-        String url = "https://api.example.com/test";
-        
-        // When/Then - should not throw exception with null callback
-        try {
-            ApiUtils.get(url, null);
-            assertTrue("Should handle null callback without exception", true);
-        } catch (Exception e) {
-            fail("Should not throw exception with null callback");
-        }
-    }
-
-    @Test
-    public void testGet_withValidUrl() {
-        // Given
-        String url = "https://api.example.com/test";
-        ApiUtils.setApiKey("test-key");
-        
-        // When
-        ApiUtils.get(url, mockCallback);
-        
-        // Then - request should be made (callback will be invoked eventually)
-        // In a real test with network mocking, you'd verify the request details
-        assertNotNull("URL should not be null", url);
-    }
-
-    @Test
-    public void testGet_withBearerToken() {
-        // Given
-        String url = "https://api.example.com/test";
-        String bearerToken = "test-bearer-token";
-        ApiUtils.setBearer(bearerToken);
-        
-        // When
-        ApiUtils.get(url, mockCallback);
-        
-        // Then - bearer token should be used in Authorization header
-        // In a real test, you'd mock OkHttpClient and verify header
-        assertNotNull("Bearer token should be set", bearerToken);
-    }
-
-    @Test
-    public void testGet_prefersBearer_overApiKey() {
-        // Given
-        String url = "https://api.example.com/test";
-        ApiUtils.setApiKey("test-api-key");
-        ApiUtils.setBearer("test-bearer-token");
-        
-        // When
-        ApiUtils.get(url, mockCallback);
-        
-        // Then - should use bearer token instead of api_key parameter
-        // In a real implementation, you'd verify the request doesn't have api_key param
-        assertTrue("Should prefer bearer token over API key", true);
-    }
-
-    @Test
-    public void testGet_fallsBackToApiKey_whenNoBearerToken() {
-        // Given
-        String url = "https://api.example.com/test";
-        ApiUtils.setApiKey("test-api-key");
-        ApiUtils.setBearer(null); // or empty string
-        
-        // When
-        ApiUtils.get(url, mockCallback);
-        
-        // Then - should append api_key as query parameter
-        assertTrue("Should fall back to API key when no bearer token", true);
-    }
-
-    @Test
-    public void testCallback_onSuccess() {
-        // Given
-        ApiUtils.Callback callback = new ApiUtils.Callback() {
-            @Override
-            public void onSuccess(String body) {
-                assertNotNull("Response body should not be null", body);
-                assertTrue("Success callback should be called", true);
-            }
-
-            @Override
-            public void onError(IOException e) {
-                fail("Should not call error callback on success");
-            }
-        };
-        
-        // Test callback interface is properly defined
-        assertNotNull("Callback interface should be defined", callback);
-    }
-
-    @Test
-    public void testCallback_onError() {
-        // Given
-        ApiUtils.Callback callback = new ApiUtils.Callback() {
-            @Override
-            public void onSuccess(String body) {
-                fail("Should not call success callback on error");
-            }
-
-            @Override
-            public void onError(IOException e) {
-                assertNotNull("Error should not be null", e);
-                assertTrue("Error callback should be called", true);
-            }
-        };
-        
-        // Test callback interface is properly defined
-        assertNotNull("Callback interface should be defined", callback);
-    }
-}
-</file>
-
 <file path="app/src/test/java/com/example/fludde/ExampleUnitTest.java">
 package com.example.fludde;
 
@@ -2913,7 +2422,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -2922,102 +2430,79 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fludde.R;
 import com.example.fludde.model.MusicContent;
 import com.example.fludde.utils.GlideExtensions;
-import com.example.fludde.utils.Haptics;
-import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.List;
 
 public class MusicChildAdapter extends RecyclerView.Adapter<MusicChildAdapter.MusicViewHolder> {
 
+    public interface OnMusicContentListener {
+        void onMusicContentClick(int position);
+        void onMusicContentLongClick(int position);
+    }
+
     private final Context context;
-    private final List<MusicContent> items;
+    private final List<MusicContent> contents;
     private final OnMusicContentListener listener;
 
-    private int selectedPos = RecyclerView.NO_POSITION;
-
-    public MusicChildAdapter(@NonNull Context context,
-                             @NonNull List<MusicContent> items,
-                             @NonNull OnMusicContentListener listener) {
+    public MusicChildAdapter(Context context, List<MusicContent> contents, OnMusicContentListener listener) {
         this.context = context;
-        this.items = items;
+        this.contents = contents;
         this.listener = listener;
         setHasStableIds(true);
     }
 
-    @Override
-    public long getItemId(int position) {
-        String key = items.get(position).getTitle() + items.get(position).getArtist() + position;
+    @Override public long getItemId(int position) {
+        String key = contents.get(position).getTitle() + "|" + position;
         return key.hashCode();
     }
 
     @NonNull
     @Override
     public MusicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.music_content_post, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.content_post_img, parent, false);
         v.setBackgroundResource(R.drawable.list_item_bg);
         return new MusicViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MusicViewHolder holder, int position) {
-        holder.bind(items.get(position), position == selectedPos);
+        holder.bind(contents.get(position));
     }
 
     @Override
-    public int getItemCount() { return items.size(); }
+    public int getItemCount() { return contents.size(); }
 
-    class MusicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        ImageView ivAlbumCoverImage;
-        TextView tvSongTitle;
-        TextView tvArtistName;
+    class MusicViewHolder extends RecyclerView.ViewHolder {
+        private final ShapeableImageView ivPoster;
+        private final TextView tvTitle;
 
         MusicViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivAlbumCoverImage = itemView.findViewById(R.id.ivAlbumCoverImage);
-            tvSongTitle = itemView.findViewById(R.id.tvSongTitle);
-            tvArtistName = itemView.findViewById(R.id.tvArtistName);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-        }
+            ivPoster = itemView.findViewById(R.id.ivContentImage);
+            tvTitle = itemView.findViewById(R.id.tvImageContentTitle);
 
-        void bind(MusicContent data, boolean selected) {
-            tvSongTitle.setText(data.getTitle());
-            tvArtistName.setText(data.getArtist());
-            GlideExtensions.loadSquare(ivAlbumCoverImage, data.getCoverIMGUrl());
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onMusicContentClick(pos);
+                }
+            });
 
-            MaterialCardView card = (MaterialCardView) itemView;
-            card.setChecked(selected);
-            itemView.setSelected(selected);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int pos = getBindingAdapterPosition();
-            if (pos == RecyclerView.NO_POSITION) return;
-            int old = selectedPos;
-            selectedPos = pos;
-            if (old != RecyclerView.NO_POSITION) notifyItemChanged(old);
-            notifyItemChanged(selectedPos);
-
-            Haptics.tick(v);
-            if (listener != null) listener.onMusicContentClick(pos);
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            int pos = getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION && listener != null) {
-                Haptics.longPress(v);
-                listener.onMusicContentLongClick(pos);
+            itemView.setOnLongClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onMusicContentLongClick(pos);
+                }
                 return true;
-            }
-            return false;
+            });
         }
-    }
 
-    public interface OnMusicContentListener {
-        void onMusicContentClick(int position);
-        void onMusicContentLongClick(int position);
+        void bind(MusicContent c) {
+            tvTitle.setText(c.getTitle());
+            // FIXED: Changed getImageURL() to getCoverIMGUrl()
+            GlideExtensions.loadPoster(ivPoster, c.getCoverIMGUrl());
+        }
     }
 }
 </file>
@@ -3101,110 +2586,99 @@ public class SearchFragmentAdapter extends RecyclerView.Adapter<SearchFragmentAd
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
-package com.example.fludde.utils;
+<file path="app/src/main/java/com/example/fludde/fragments/ComposeParentFragment.java">
+package com.example.fludde.fragments;
 
-import android.net.Uri;
-import android.util.Log;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-import java.io.IOException;
+import com.example.fludde.R;
+import com.example.fludde.fragments.child.BookChildFragment;
+import com.example.fludde.fragments.child.MovieChildFragment;
+import com.example.fludde.fragments.child.MusicChildFragment;
+import com.example.fludde.utils.ErrorHandler;
 
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+/**
+ * ComposeParentFragment - Refactored to use ErrorHandler utility and string resources.
+ * 
+ * Changes:
+ * - All hardcoded Toast messages moved to strings.xml
+ * - All Toast.makeText() replaced with ErrorHandler methods
+ * - Consistent error handling
+ */
+public class ComposeParentFragment extends Fragment {
 
-public final class ApiUtils {
+    private static final String TAG = "ComposeParentFragment";
 
-    private static final String TAG = "ApiUtils";
+    private AutoCompleteTextView actCategory;
 
-    public interface Callback {
-        void onSuccess(String body);
-        void onError(IOException e);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, 
+                             @Nullable ViewGroup container, 
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_compose_parent, container, false);
     }
 
-    private static final OkHttpClient client = new OkHttpClient();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    private static @Nullable String apiKey = null;       // v3
-    private static @Nullable String bearerToken = null;   // v4
+        actCategory = view.findViewById(R.id.actCategory);
 
-    private ApiUtils() { }
+        // Setup category dropdown
+        String[] categories = {"Movies", "Books", "Music"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            categories
+        );
+        actCategory.setAdapter(adapter);
 
-    /** Prefer v4 bearer token; pass null to clear. */
-    public static void setBearer(@Nullable String token) {
-        bearerToken = token;
-    }
-
-    /** Legacy v3 api_key; pass null to clear. */
-    public static void setApiKey(@Nullable String key) {
-        apiKey = key;
-    }
-
-    /**
-     * Handle API request failures by logging the status code and error details.
-     * This method is called from various fragments when API requests fail.
-     *
-     * @param statusCode HTTP status code from the failed request
-     * @param throwable The exception/error that occurred
-     */
-    public static void handleFailure(int statusCode, Throwable throwable) {
-        if (throwable != null) {
-            Log.e(TAG, "API request failed with status code: " + statusCode, throwable);
-            Log.e(TAG, "Error message: " + throwable.getMessage());
-        } else {
-            Log.e(TAG, "API request failed with status code: " + statusCode + " (no throwable provided)");
-        }
-    }
-
-    public static void get(String url, final Callback cb) {
-        try {
-            Request.Builder rb = new Request.Builder();
-
-            // If no bearer, append v3 api_key as query parameter (legacy fallback).
-            if (bearerToken == null || bearerToken.isEmpty()) {
-                if (apiKey != null && !apiKey.isEmpty()) {
-                    Uri uri = Uri.parse(url).buildUpon()
-                            .appendQueryParameter("api_key", apiKey)
-                            .build();
-                    url = uri.toString();
-                }
+        // Handle category selection
+        actCategory.setOnItemClickListener((parent, v, pos, id) -> {
+            switch (pos) {
+                case 0:
+                default:
+                    insertChild(new MovieChildFragment());
+                    // ✅ Using ErrorHandler with string resource
+                    ErrorHandler.showToast(requireContext(), R.string.content_selected_movies);
+                    break;
+                case 1:
+                    insertChild(new BookChildFragment());
+                    // ✅ Using ErrorHandler with string resource
+                    ErrorHandler.showToast(requireContext(), R.string.content_selected_books);
+                    break;
+                case 2:
+                    insertChild(new MusicChildFragment());
+                    // ✅ Using ErrorHandler with string resource
+                    ErrorHandler.showToast(requireContext(), R.string.content_selected_music);
+                    break;
             }
+        });
 
-            rb.url(url);
+        // Default
+        insertChild(new MovieChildFragment());
+    }
 
-            // If bearer available, use Authorization header (preferred).
-            if (bearerToken != null && !bearerToken.isEmpty()) {
-                rb.addHeader("Authorization", "Bearer " + bearerToken);
-            }
-
-            Request request = rb.build();
-
-            client.newCall(request).enqueue(new okhttp3.Callback() {
-                @Override public void onFailure(Call call, IOException e) {
-                    if (cb != null) cb.onError(e);
-                }
-
-                @Override public void onResponse(Call call, Response response) throws IOException {
-                    try (Response res = response) {
-                        if (!res.isSuccessful()) {
-                            if (cb != null) cb.onError(new IOException("HTTP " + res.code() + " " + res.message()));
-                            return;
-                        }
-                        String body = res.body() != null ? res.body().string() : "";
-                        if (cb != null) cb.onSuccess(body);
-                    }
-                }
-            });
-
-        } catch (Exception e) {
-            if (cb != null) cb.onError(new IOException("Request build error", e));
-        }
+    private void insertChild(Fragment child) {
+        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+        ft.replace(R.id.child_fragment_container, child);
+        ft.commit();
     }
 }
 </file>
 
-<file path="app/src/main/java/com/example/fludde/LoginActivity.java">
+<file path="app/src/main/java/com/example/fludde/SignupActivity.java">
 package com.example.fludde;
 
 import android.content.Intent;
@@ -3212,79 +2686,191 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.fludde.utils.ErrorHandler;
+import com.example.fludde.utils.MockData;
+import com.example.fludde.utils.MockSessionManager;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 /**
- * LoginActivity - Refactored to use ErrorHandler utility and string resources.
+ * Signup Activity with full Parse registration and session management.
+ * 
+ * Features:
+ * - Mock mode registration (when BuildConfig.MOCK_MODE is true)
+ * - Real Parse registration (when BuildConfig.MOCK_MODE is false)
+ * - Input validation
+ * - Error handling using ErrorHandler utility
+ * - Session management via MockSessionManager (mock mode only)
  * 
  * Changes:
  * - All hardcoded strings moved to strings.xml
  * - All Toast.makeText() replaced with ErrorHandler methods
  * - Consistent error handling
  * - Improved logging with proper tags
+ * - Added mock signup functionality
+ * - Implemented real Parse signup
  */
-public class LoginActivity extends AppCompatActivity {
+public class SignupActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "SignupActivity";
 
     private EditText etUsername;
     private EditText etPassword;
-    private Button btnLogin;
+    private EditText etEmail;
+    private Button btnSignup;
+    private Button btnCancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_signup);
 
+        // Initialize views
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
+        etEmail = findViewById(R.id.etEmail);
+        btnSignup = findViewById(R.id.btnSignup);
+        btnCancel = findViewById(R.id.btnCancel);
 
-        btnLogin.setOnClickListener(v -> performLogin());
+        // Set up button click listeners
+        btnSignup.setOnClickListener(v -> performSignup());
+        btnCancel.setOnClickListener(v -> finish());
     }
 
-    private void performLogin() {
+    /**
+     * Handles the signup process.
+     * Routes to mock registration if MOCK_MODE is enabled,
+     * otherwise uses real Parse registration.
+     */
+    private void performSignup() {
         try {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
 
             // Validation
-            if (username.isEmpty() || password.isEmpty()) {
-                // ✅ Using ErrorHandler with string resource
-                ErrorHandler.showValidationError(this, R.string.error_login_empty_fields);
-                ErrorHandler.logWarning(TAG, "Login attempt with empty fields");
+            if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+                ErrorHandler.showValidationError(this, R.string.error_signup_empty_fields);
+                ErrorHandler.logWarning(TAG, "Signup attempt with empty fields");
                 return;
             }
 
-            // Mock login logic (replace with actual authentication)
-            if (username.equals("admin") && password.equals("admin")) {
-                Log.d(TAG, "Login successful for user: " + username);
-                navigateToMain();
-            } else {
-                // ✅ Using ErrorHandler with string resource
-                ErrorHandler.showAuthError(this, R.string.error_login_failed);
-                Log.e(TAG, "Login failed for user: " + username);
+            // Additional password validation
+            if (password.length() < 6) {
+                ErrorHandler.showValidationError(this, "Password must be at least 6 characters");
+                return;
             }
+
+            // Basic email validation
+            if (!email.contains("@") || !email.contains(".")) {
+                ErrorHandler.showValidationError(this, "Please enter a valid email address");
+                return;
+            }
+
+            // Route to appropriate signup method
+            if (BuildConfig.MOCK_MODE) {
+                performMockSignup(username, password, email);
+            } else {
+                performParseSignup(username, password, email);
+            }
+
         } catch (Exception e) {
-            // ✅ Using ErrorHandler with string resource
-            ErrorHandler.showAuthError(this, R.string.error_login_generic);
-            ErrorHandler.logError(TAG, "Error during login attempt", e);
+            ErrorHandler.showAuthError(this, R.string.error_signup_generic);
+            ErrorHandler.logError(TAG, "Error during signup attempt", e);
         }
     }
 
+    /**
+     * 🆕 REAL PARSE SIGNUP IMPLEMENTATION
+     * Registers a new user with Parse backend.
+     * 
+     * @param username The desired username
+     * @param password The desired password
+     * @param email The user's email address
+     */
+    private void performParseSignup(String username, String password, String email) {
+        Log.d(TAG, "Attempting Parse signup for user: " + username);
+
+        // Create new ParseUser object
+        ParseUser newUser = new ParseUser();
+        newUser.setUsername(username);
+        newUser.setPassword(password);
+        newUser.setEmail(email);
+
+        // Optional: Set default profile picture URL
+        // newUser.put("profilePicture", "https://i.imgur.com/default.png");
+
+        // Sign up the user asynchronously
+        newUser.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    // Signup successful
+                    Log.d(TAG, "Parse signup successful for user: " + username);
+                    ErrorHandler.showToast(SignupActivity.this, "Account created successfully! Welcome, " + username + "!");
+                    navigateToMain();
+                } else {
+                    // Signup failed
+                    Log.e(TAG, "Parse signup failed", e);
+                    
+                    // Handle specific Parse errors
+                    if (e.getCode() == ParseException.USERNAME_TAKEN) {
+                        ErrorHandler.showAuthError(SignupActivity.this, "Username is already taken");
+                    } else if (e.getCode() == ParseException.EMAIL_TAKEN) {
+                        ErrorHandler.showAuthError(SignupActivity.this, "Email is already registered");
+                    } else if (e.getCode() == ParseException.CONNECTION_FAILED) {
+                        ErrorHandler.showNetworkError(SignupActivity.this, R.string.error_network);
+                    } else {
+                        ErrorHandler.showAuthError(SignupActivity.this, R.string.error_signup_generic);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Mock signup handler.
+     * Simulates user registration and saves session.
+     * 
+     * @param username The desired username
+     * @param password The desired password
+     * @param email The user's email address
+     */
+    private void performMockSignup(String username, String password, String email) {
+        Log.d(TAG, "Attempting mock signup for user: " + username);
+        
+        // Simulate network delay for realistic behavior
+        new android.os.Handler().postDelayed(() -> {
+            if (MockData.canRegisterUser(username, email)) {
+                // Register user in mock data
+                MockData.registerMockUser(username, password, email);
+                
+                // Save mock session
+                MockSessionManager.login(this, username);
+                
+                Log.d(TAG, "Mock signup successful: " + username);
+                ErrorHandler.showToast(this, "Account created successfully! Welcome, " + username + "!");
+                navigateToMain();
+            } else {
+                ErrorHandler.showToast(this, "Username or email already taken");
+                Log.e(TAG, "Mock signup failed: username/email exists");
+            }
+        }, 500); // 500ms simulated delay
+    }
+
+    /**
+     * Navigates to the main activity after successful signup.
+     * Clears the back stack so user cannot return to signup screen.
+     */
     private void navigateToMain() {
-        try {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-            Log.d(TAG, "Navigated to MainActivity");
-        } catch (Exception e) {
-            // ✅ Using ErrorHandler with string resource
-            ErrorHandler.showToast(this, R.string.error_navigation);
-            ErrorHandler.logError(TAG, "Error navigating to MainActivity", e);
-        }
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
 </file>
@@ -4014,6 +3600,267 @@ public class LoginActivity extends AppCompatActivity {
 </resources>
 </file>
 
+<file path="app/src/test/java/com/example/fludde/utils/ApiUtilsTest.java">
+package com.example.fludde.utils;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+/**
+ * Unit tests for ApiUtils class.
+ * Tests API key management, bearer token handling, and request building.
+ */
+@RunWith(RobolectricTestRunner.class)
+public class ApiUtilsTest {
+
+    @Mock
+    private ApiUtils.Callback mockCallback;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        // Clear any previously set keys/tokens
+        ApiUtils.setApiKey(null);
+        ApiUtils.setBearer(null);
+    }
+
+    @Test
+    public void testSetApiKey_withValidKey() {
+        // Given
+        String apiKey = "test-api-key-12345";
+        
+        // When
+        ApiUtils.setApiKey(apiKey);
+        
+        // Then - verify by making a request and checking URL contains api_key parameter
+        // Note: This is an indirect test since apiKey is private
+        // In a real scenario, you might make the field package-private for testing
+        // or use reflection, but for now we verify behavior
+        assertNotNull("API key should be settable", apiKey);
+    }
+
+    @Test
+    public void testSetApiKey_withNullKey() {
+        // Given
+        String apiKey = null;
+        
+        // When
+        ApiUtils.setApiKey(apiKey);
+        
+        // Then - should not throw exception
+        // Verify by checking that subsequent operations don't fail
+        assertNull("Null API key should be accepted", apiKey);
+    }
+
+    @Test
+    public void testSetBearer_withValidToken() {
+        // Given
+        String bearerToken = "test-bearer-token-xyz";
+        
+        // When
+        ApiUtils.setBearer(bearerToken);
+        
+        // Then - verify token is set (indirect test)
+        assertNotNull("Bearer token should be settable", bearerToken);
+    }
+
+    @Test
+    public void testSetBearer_withNullToken() {
+        // Given
+        String bearerToken = null;
+        
+        // When
+        ApiUtils.setBearer(bearerToken);
+        
+        // Then - should not throw exception
+        assertNull("Null bearer token should be accepted", bearerToken);
+    }
+
+    @Test
+    public void testHandleFailure_withThrowable() {
+        // Given
+        int statusCode = 404;
+        Throwable throwable = new Throwable("Not Found");
+        
+        // When
+        ApiUtils.handleFailure(statusCode, throwable);
+        
+        // Then - verify no exception is thrown
+        // In a real test, you might want to verify logging output
+        assertTrue("handleFailure should process throwable without error", true);
+    }
+
+    @Test
+    public void testHandleFailure_withNullThrowable() {
+        // Given
+        int statusCode = 500;
+        Throwable throwable = null;
+        
+        // When
+        ApiUtils.handleFailure(statusCode, throwable);
+        
+        // Then - verify no exception is thrown when throwable is null
+        assertTrue("handleFailure should handle null throwable gracefully", true);
+    }
+
+    @Test
+    public void testHandleFailure_withVariousStatusCodes() {
+        // Test common HTTP status codes
+        int[] statusCodes = {400, 401, 403, 404, 500, 502, 503};
+        
+        for (int statusCode : statusCodes) {
+            // When
+            ApiUtils.handleFailure(statusCode, new Exception("Test error"));
+            
+            // Then - should handle all status codes without throwing
+            assertTrue("Should handle status code " + statusCode, true);
+        }
+    }
+
+    @Test
+    public void testGet_withEmptyUrl() {
+        // Given
+        String url = "";
+        
+        // When/Then - should handle empty URL gracefully
+        ApiUtils.get(url, mockCallback);
+        
+        // Verify callback is eventually called (with error or success)
+        // Note: This is asynchronous, so in a real test you'd use CountDownLatch
+        // or a testing framework that handles async operations
+        verify(mockCallback, timeout(5000).atLeastOnce()).onError(any(IOException.class));
+    }
+
+    @Test
+    public void testGet_withNullCallback() {
+        // Given
+        String url = "https://api.example.com/test";
+        
+        // When/Then - should not throw exception with null callback
+        try {
+            ApiUtils.get(url, null);
+            assertTrue("Should handle null callback without exception", true);
+        } catch (Exception e) {
+            fail("Should not throw exception with null callback");
+        }
+    }
+
+    @Test
+    public void testGet_withValidUrl() {
+        // Given
+        String url = "https://api.example.com/test";
+        ApiUtils.setApiKey("test-key");
+        
+        // When
+        ApiUtils.get(url, mockCallback);
+        
+        // Then - request should be made (callback will be invoked eventually)
+        // In a real test with network mocking, you'd verify the request details
+        assertNotNull("URL should not be null", url);
+    }
+
+    @Test
+    public void testGet_withBearerToken() {
+        // Given
+        String url = "https://api.example.com/test";
+        String bearerToken = "test-bearer-token";
+        ApiUtils.setBearer(bearerToken);
+        
+        // When
+        ApiUtils.get(url, mockCallback);
+        
+        // Then - bearer token should be used in Authorization header
+        // In a real test, you'd mock OkHttpClient and verify header
+        assertNotNull("Bearer token should be set", bearerToken);
+    }
+
+    @Test
+    public void testGet_prefersBearer_overApiKey() {
+        // Given
+        String url = "https://api.example.com/test";
+        ApiUtils.setApiKey("test-api-key");
+        ApiUtils.setBearer("test-bearer-token");
+        
+        // When
+        ApiUtils.get(url, mockCallback);
+        
+        // Then - should use bearer token instead of api_key parameter
+        // In a real implementation, you'd verify the request doesn't have api_key param
+        assertTrue("Should prefer bearer token over API key", true);
+    }
+
+    @Test
+    public void testGet_fallsBackToApiKey_whenNoBearerToken() {
+        // Given
+        String url = "https://api.example.com/test";
+        ApiUtils.setApiKey("test-api-key");
+        ApiUtils.setBearer(null); // or empty string
+        
+        // When
+        ApiUtils.get(url, mockCallback);
+        
+        // Then - should append api_key as query parameter
+        assertTrue("Should fall back to API key when no bearer token", true);
+    }
+
+    @Test
+    public void testCallback_onSuccess() {
+        // Given
+        ApiUtils.Callback callback = new ApiUtils.Callback() {
+            @Override
+            public void onSuccess(String body) {
+                assertNotNull("Response body should not be null", body);
+                assertTrue("Success callback should be called", true);
+            }
+
+            @Override
+            public void onError(IOException e) {
+                fail("Should not call error callback on success");
+            }
+        };
+        
+        // Test callback interface is properly defined
+        assertNotNull("Callback interface should be defined", callback);
+    }
+
+    @Test
+    public void testCallback_onError() {
+        // Given
+        ApiUtils.Callback callback = new ApiUtils.Callback() {
+            @Override
+            public void onSuccess(String body) {
+                fail("Should not call success callback on error");
+            }
+
+            @Override
+            public void onError(IOException e) {
+                assertNotNull("Error should not be null", e);
+                assertTrue("Error callback should be called", true);
+            }
+        };
+        
+        // Test callback interface is properly defined
+        assertNotNull("Callback interface should be defined", callback);
+    }
+}
+</file>
+
 <file path="gradle/wrapper/gradle-wrapper.properties">
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
@@ -4475,7 +4322,8 @@ public class SearchFragment extends Fragment {
     }
 
     private String getQueryText() {
-        String q = etSearchFieldUser.getText() != null ? etSearchFieldUser.getText().toString().trim() : "";
+        String q = etSearchFieldUser.getText() != null ?
+                   etSearchFieldUser.getText().toString().trim() : "";
         return q;
     }
 
@@ -4508,7 +4356,18 @@ public class SearchFragment extends Fragment {
     private void lookForUser(String userName) {
         if (BuildConfig.MOCK_MODE) {
             allUsers.clear();
-            allUsers.addAll(MockData.mockUsers(userName));
+            // FIXED: MockData.mockUsers() takes no parameters
+            List<UserUi> mockUsers = MockData.mockUsers();
+            // Filter by username if a search term was provided
+            if (userName != null && !userName.isEmpty()) {
+                for (UserUi user : mockUsers) {
+                    if (user.getUsername().toLowerCase().contains(userName.toLowerCase())) {
+                        allUsers.add(user);
+                    }
+                }
+            } else {
+                allUsers.addAll(mockUsers);
+            }
             searchFragmentAdapter.notifyDataSetChanged();
             showEmptyState(allUsers.isEmpty());
             return;
@@ -4544,6 +4403,365 @@ public class SearchFragment extends Fragment {
             searchFragmentAdapter.notifyDataSetChanged();
             showEmptyState(allUsers.isEmpty());
         });
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/utils/ApiUtils.java">
+package com.example.fludde.utils;
+
+import android.net.Uri;
+import android.util.Log;
+import androidx.annotation.Nullable;
+
+import com.example.fludde.BuildConfig;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public final class ApiUtils {
+
+    private static final String TAG = "ApiUtils";
+
+    public interface Callback {
+        void onSuccess(String body);
+        void onError(IOException e);
+    }
+
+    private static final OkHttpClient client = new OkHttpClient();
+
+    private static @Nullable String apiKey = null;       // v3
+    private static @Nullable String bearerToken = null;   // v4
+
+    private ApiUtils() { }
+
+    /** Prefer v4 bearer token; pass null to clear. */
+    public static void setBearer(@Nullable String token) {
+        bearerToken = token;
+    }
+
+    /** Legacy v3 api_key; pass null to clear. */
+    public static void setApiKey(@Nullable String key) {
+        apiKey = key;
+    }
+
+    /**
+     * Handle API request failures by logging the status code and error details.
+     * This method is called from various fragments when API requests fail.
+     *
+     * @param statusCode HTTP status code from the failed request
+     * @param throwable The exception/error that occurred
+     */
+    public static void handleFailure(int statusCode, Throwable throwable) {
+        if (throwable != null) {
+            Log.e(TAG, "API request failed with status code: " + statusCode, throwable);
+            Log.e(TAG, "Error message: " + throwable.getMessage());
+        } else {
+            Log.e(TAG, "API request failed with status code: " + statusCode + " (no throwable provided)");
+        }
+    }
+
+    public static void get(String url, final Callback cb) {
+        // ===== NEW: Mock mode check - return mock data without hitting network =====
+        if (BuildConfig.MOCK_MODE) {
+            handleMockRequest(url, cb);
+            return;
+        }
+        // ===== END MOCK MODE CHECK =====
+        
+        // ===== EXISTING: Real API call (unchanged) =====
+        try {
+            Request.Builder rb = new Request.Builder();
+
+            // If no bearer, append v3 api_key as query parameter (legacy fallback).
+            if (bearerToken == null || bearerToken.isEmpty()) {
+                if (apiKey != null && !apiKey.isEmpty()) {
+                    Uri uri = Uri.parse(url).buildUpon()
+                            .appendQueryParameter("api_key", apiKey)
+                            .build();
+                    url = uri.toString();
+                }
+            }
+
+            rb.url(url);
+
+            // If bearer available, use Authorization header (preferred).
+            if (bearerToken != null && !bearerToken.isEmpty()) {
+                rb.addHeader("Authorization", "Bearer " + bearerToken);
+            }
+
+            Request request = rb.build();
+
+            client.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override public void onFailure(Call call, IOException e) {
+                    if (cb != null) cb.onError(e);
+                }
+
+                @Override public void onResponse(Call call, Response response) throws IOException {
+                    try (Response res = response) {
+                        if (!res.isSuccessful()) {
+                            if (cb != null) cb.onError(new IOException("HTTP " + res.code() + " " + res.message()));
+                            return;
+                        }
+                        String body = res.body() != null ? res.body().string() : "";
+                        if (cb != null) cb.onSuccess(body);
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            if (cb != null) cb.onError(new IOException("Request build error", e));
+        }
+    }
+
+    // ===== NEW METHOD: Handle mock requests =====
+    /**
+     * Handle mock requests by routing to appropriate mock data based on URL.
+     * Simulates network delay for realistic behavior.
+     * 
+     * @param url The requested URL
+     * @param cb Callback to return mock data
+     */
+    private static void handleMockRequest(String url, final Callback cb) {
+        // Simulate network delay (100-500ms)
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                String mockResponse = null;
+                
+                // Route based on URL to appropriate mock data
+                if (url.contains("themoviedb.org")) {
+                    mockResponse = MockData.tmdbTrendingJson().toString();
+                    Log.d(TAG, "Mock: Returning TMDB data");
+                } else if (url.contains("itunes.apple.com")) {
+                    mockResponse = MockData.itunesSearchJson().toString();
+                    Log.d(TAG, "Mock: Returning iTunes data");
+                } else if (url.contains("googleapis.com/books")) {
+                    mockResponse = MockData.googleBooksJson().toString();
+                    Log.d(TAG, "Mock: Returning Google Books data");
+                }
+                
+                if (mockResponse != null && cb != null) {
+                    cb.onSuccess(mockResponse);
+                } else {
+                    if (cb != null) {
+                        cb.onError(new IOException("Mock: Unknown endpoint - " + url));
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock error", e);
+                if (cb != null) {
+                    cb.onError(new IOException("Mock error", e));
+                }
+            }
+        }, 100 + (long)(Math.random() * 400)); // Random delay between 100-500ms
+    }
+    // ===== END NEW METHOD =====
+}
+</file>
+
+<file path="app/src/main/java/com/example/fludde/LoginActivity.java">
+package com.example.fludde;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.fludde.utils.ErrorHandler;
+import com.example.fludde.utils.MockData;
+import com.example.fludde.utils.MockSessionManager;
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+
+/**
+ * Login Activity with full Parse authentication and session management.
+ * Updated to support Mock Mode authentication.
+ * 
+ * Changes:
+ * - All hardcoded strings moved to strings.xml
+ * - All Toast.makeText() replaced with ErrorHandler methods
+ * - Consistent error handling
+ * - Improved logging with proper tags
+ * - Added mock mode authentication support
+ * - Added session check on startup
+ * 
+ * Mock Credentials (when MOCK_MODE is true):
+ * - Username: demo, Password: demo123
+ * - Username: testuser, Password: test123
+ * - Username: alice, Password: alice123
+ */
+public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = "LoginActivity";
+
+    private EditText etUsername;
+    private EditText etPassword;
+    private Button btnLogin;
+    private Button btnSignup;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // 🔒 SESSION CHECK: If user is already logged in, skip login screen
+        if (isUserLoggedIn()) {
+            Log.d(TAG, "User already logged in, navigating to MainActivity");
+            navigateToMain();
+            return;
+        }
+        
+        setContentView(R.layout.activity_login);
+
+        // Initialize views
+        etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPassword);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnSignup = findViewById(R.id.btnSignup);
+
+        // Set up button click listeners
+        btnLogin.setOnClickListener(v -> performLogin());
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    /**
+     * 🔒 Check if user is already logged in.
+     * Handles both mock mode and real Parse authentication.
+     * 
+     * @return true if user is logged in, false otherwise
+     */
+    private boolean isUserLoggedIn() {
+        if (BuildConfig.MOCK_MODE) {
+            // Check mock session
+            boolean isLoggedIn = MockSessionManager.isLoggedIn(this);
+            if (isLoggedIn) {
+                Log.d(TAG, "Mock session found for user: " + MockSessionManager.getCurrentUsername(this));
+            }
+            return isLoggedIn;
+        } else {
+            // Check Parse session
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            if (currentUser != null) {
+                Log.d(TAG, "Parse session found for user: " + currentUser.getUsername());
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Performs login authentication.
+     * Routes to mock authentication if MOCK_MODE is enabled,
+     * otherwise uses real Parse authentication.
+     */
+    private void performLogin() {
+        try {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            // Validation
+            if (username.isEmpty() || password.isEmpty()) {
+                ErrorHandler.showValidationError(this, R.string.error_login_empty_fields);
+                ErrorHandler.logWarning(TAG, "Login attempt with empty fields");
+                return;
+            }
+
+            // Route to appropriate authentication method
+            if (BuildConfig.MOCK_MODE) {
+                performMockLogin(username, password);
+            } else {
+                performParseLogin(username, password);
+            }
+            
+        } catch (Exception e) {
+            ErrorHandler.showAuthError(this, R.string.error_login_generic);
+            ErrorHandler.logError(TAG, "Error during login attempt", e);
+        }
+    }
+
+    /**
+     * 🆕 REAL PARSE LOGIN IMPLEMENTATION
+     * Authenticates user with Parse backend.
+     * 
+     * @param username The username to authenticate
+     * @param password The password to authenticate
+     */
+    private void performParseLogin(String username, String password) {
+        Log.d(TAG, "Attempting Parse login for user: " + username);
+        
+        ParseUser.logInInBackground(username, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e == null && user != null) {
+                    // Login successful
+                    Log.d(TAG, "Parse login successful for user: " + user.getUsername());
+                    ErrorHandler.showToast(LoginActivity.this, "Welcome back, " + user.getUsername() + "!");
+                    navigateToMain();
+                } else {
+                    // Login failed
+                    Log.e(TAG, "Parse login failed", e);
+                    
+                    if (e != null) {
+                        // Handle specific Parse errors
+                        if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                            ErrorHandler.showAuthError(LoginActivity.this, "Invalid username or password");
+                        } else if (e.getCode() == ParseException.CONNECTION_FAILED) {
+                            ErrorHandler.showNetworkError(LoginActivity.this, R.string.error_network);
+                        } else {
+                            ErrorHandler.showAuthError(LoginActivity.this, R.string.error_login_failed);
+                        }
+                    } else {
+                        ErrorHandler.showAuthError(LoginActivity.this, R.string.error_login_failed);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Mock authentication handler.
+     * Validates credentials against mock users and saves session.
+     * 
+     * @param username The username to authenticate
+     * @param password The password to authenticate
+     */
+    private void performMockLogin(String username, String password) {
+        Log.d(TAG, "Attempting mock login for user: " + username);
+        
+        // Simulate network delay for realistic behavior
+        new android.os.Handler().postDelayed(() -> {
+            if (MockData.isValidLogin(username, password)) {
+                // Save mock session
+                MockSessionManager.login(this, username);
+                Log.d(TAG, "Mock login successful: " + username);
+                ErrorHandler.showToast(this, "Welcome back, " + username + "!");
+                navigateToMain();
+            } else {
+                ErrorHandler.showAuthError(this, R.string.error_login_failed);
+                Log.e(TAG, "Mock login failed for user: " + username);
+            }
+        }, 500); // 500ms simulated delay
+    }
+
+    /**
+     * Navigates to the main activity after successful login.
+     * Clears the back stack so user cannot return to login screen.
+     */
+    private void navigateToMain() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
 </file>
@@ -5244,6 +5462,7 @@ scripts/gradlew.bat
 <file path="build.gradle">
 plugins {
     id("com.android.application") version "8.7.0" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
 }
 </file>
 
@@ -5356,36 +5575,40 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.R;
 import com.example.fludde.adapters.MusicChildAdapter;
 import com.example.fludde.model.MusicContent;
 import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.ErrorHandler;
+import com.example.fludde.utils.MockData;
 import com.example.fludde.utils.SpacesItemDecoration;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
-
+/** Horizontal music carousel (iTunes). */
 public class MusicChildFragment extends Fragment {
 
     private static final String TAG = "MusicChildFragment";
-
     private static final String ITUNES_URL =
-            "https://itunes.apple.com/search?term=pop&entity=song&limit=20";
+            "https://itunes.apple.com/search?term=miami&entity=song&limit=25";
 
     private RecyclerView rv;
     private ProgressBar progress;
-    private MusicChildAdapter adapter;
+
     private final List<MusicContent> items = new ArrayList<>();
+    private MusicChildAdapter adapter;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_child_music, container, false);
     }
 
@@ -5403,6 +5626,7 @@ public class MusicChildFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
+        // carousel affordance
         final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
         final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
         rv.setClipToPadding(false);
@@ -5420,36 +5644,61 @@ public class MusicChildFragment extends Fragment {
 
     private void fetchMusic() {
         setLoading(true);
+
+        if (BuildConfig.MOCK_MODE) {
+            try {
+                JSONObject mock = MockData.itunesSearchJson();
+                JSONArray results = mock.optJSONArray("results");
+                items.clear();
+                if (results != null) {
+                    items.addAll(MusicContent.fromJsonArray(results));
+                }
+                adapter.notifyDataSetChanged();
+                if (items.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.empty_music_message), Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock music parse error", e);
+                ErrorHandler.showToast(requireContext(), R.string.error_load_content);
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
         Log.d(TAG, "Fetching music: " + ITUNES_URL);
 
-        ApiUtils.get(ITUNES_URL, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        ApiUtils.get(ITUNES_URL, new ApiUtils.Callback() {
+            @Override public void onSuccess(String body) {
                 try {
+                    JSONObject response = new JSONObject(body);
                     JSONArray results = response.optJSONArray("results");
                     items.clear();
                     if (results != null) {
                         items.addAll(MusicContent.fromJsonArray(results));
                     }
-                    adapter.notifyDataSetChanged();
-
-                    Log.d(TAG, "Music loaded ✓ count=" + items.size());
-                    if (items.isEmpty()) {
-                        Toast.makeText(requireContext(), getString(R.string.empty_music_message), Toast.LENGTH_SHORT).show();
-                    }
+                    requireActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                        if (items.isEmpty()) {
+                            ErrorHandler.showToast(requireContext(), R.string.empty_music_message);
+                        }
+                        setLoading(false);
+                    });
                 } catch (Exception e) {
                     Log.e(TAG, "Parse error (music)", e);
-                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-                } finally {
-                    setLoading(false);
+                    requireActivity().runOnUiThread(() -> {
+                        ErrorHandler.showToast(requireContext(), R.string.error_load_content);
+                        setLoading(false);
+                    });
                 }
             }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                setLoading(false);
-                ApiUtils.handleFailure(statusCode, throwable);
-                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            @Override public void onError(IOException e) {
+                Log.e(TAG, "Network error (music)", e);
+                requireActivity().runOnUiThread(() -> {
+                    ErrorHandler.showNetworkError(requireContext(), R.string.error_load_content);
+                    setLoading(false);
+                });
             }
         });
     }
@@ -5483,6 +5732,7 @@ import com.example.fludde.R;
 import com.example.fludde.adapters.PostAdapter;
 import com.example.fludde.model.PostUi;
 import com.example.fludde.utils.MockData;
+import com.example.fludde.utils.MockSessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.parse.LogOutCallback;
@@ -5495,7 +5745,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Profile with mock-mode support; shows a small list of your posts in mock. */
+/** 
+ * Profile with enhanced mock-mode support.
+ * Shows user profile data and their posts.
+ */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
 
@@ -5537,26 +5790,70 @@ public class ProfileFragment extends Fragment {
         rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
         rvPosts.setAdapter(adapter);
 
-        bindUser();
+        loadUserProfile();
         wireActions();
-        bindPosts();
     }
 
-    private void bindUser() {
+    /**
+     * Load user profile - checks mock mode first.
+     */
+    private void loadUserProfile() {
+        // ✅ NEW: Enhanced mock mode with MockSessionManager
         if (BuildConfig.MOCK_MODE) {
-            tvUsername.setText("johndoe2016");
-            tvEmail.setText("johndoe@youknow.com");
-
-            Glide.with(this)
-                    .load("https://i.pravatar.cc/150?img=12")
-                    .apply(new RequestOptions().transform(new CenterCrop()))
-                    .placeholder(R.drawable.placeholder_avatar)
-                    .error(R.drawable.placeholder_avatar)
-                    .into(ivAvatar);
-            Log.d(TAG, "Mock profile bound");
+            displayMockProfile();
             return;
         }
+        
+        // EXISTING: Real Parse query (unchanged)
+        bindRealUserProfile();
+    }
 
+    /**
+     * ✅ NEW METHOD: Display mock profile from session.
+     */
+    private void displayMockProfile() {
+        MockData.MockProfile profile = MockSessionManager.getCurrentUserProfile(requireContext());
+        
+        if (profile == null) {
+            Log.w(TAG, "No mock profile found - user may not be logged in");
+            // Show generic fallback
+            tvUsername.setText("demo");
+            tvEmail.setText("demo@example.com");
+            loadDefaultAvatar();
+            return;
+        }
+        
+        // Display profile data
+        tvUsername.setText(profile.username);
+        tvEmail.setText(profile.email);
+        
+        // Load profile picture
+        Glide.with(this)
+                .load(profile.profilePictureUrl)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .placeholder(R.drawable.placeholder_avatar)
+                .error(R.drawable.placeholder_avatar)
+                .into(ivAvatar);
+        
+        // Display user's posts
+        posts.clear();
+        if (profile.userPosts != null && !profile.userPosts.isEmpty()) {
+            posts.addAll(profile.userPosts);
+            rvPosts.setVisibility(View.VISIBLE);
+            emptyState.setVisibility(View.GONE);
+        } else {
+            rvPosts.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+        }
+        adapter.notifyDataSetChanged();
+        
+        Log.d(TAG, "Mock profile displayed for: " + profile.username + " with " + posts.size() + " posts");
+    }
+
+    /**
+     * Bind real user profile from Parse.
+     */
+    private void bindRealUserProfile() {
         try {
             ParseUser current = ParseUser.getCurrentUser();
             String username = current != null && current.getUsername() != null ? current.getUsername() : "";
@@ -5573,40 +5870,45 @@ public class ProfileFragment extends Fragment {
                     .error(R.drawable.placeholder_avatar)
                     .into(ivAvatar);
 
-            Log.d(TAG, "User profile bound");
+            Log.d(TAG, "Real user profile bound");
+            
+            // In real mode, show empty state until posts are implemented
+            rvPosts.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+            
         } catch (Exception e) {
             Log.e(TAG, "Failed to bind user profile", e);
             Toast.makeText(getContext(), getString(R.string.error_load_profile), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void bindPosts() {
-        if (BuildConfig.MOCK_MODE) {
-            posts.clear();
-            posts.addAll(MockData.mockPosts());
-            adapter.notifyDataSetChanged();
-
-            // Show list; hide empty state
-            rvPosts.setVisibility(View.VISIBLE);
-            emptyState.setVisibility(View.GONE);
-            return;
-        }
-
-        // Non-mock path: until wired, keep empty state visible
-        rvPosts.setVisibility(View.GONE);
-        emptyState.setVisibility(View.VISIBLE);
+    /**
+     * Load default avatar when no profile found.
+     */
+    private void loadDefaultAvatar() {
+        Glide.with(this)
+                .load(R.drawable.placeholder_avatar)
+                .apply(new RequestOptions().transform(new CenterCrop()))
+                .into(ivAvatar);
     }
 
+    /**
+     * Wire up button actions.
+     */
     private void wireActions() {
         btnEditProfile.setOnClickListener(v ->
                 Toast.makeText(requireContext(), getString(R.string.action_edit_profile), Toast.LENGTH_SHORT).show());
 
         btnLogout.setOnClickListener(v -> {
+            // ✅ UPDATED: Handle mock mode logout with MockSessionManager
             if (BuildConfig.MOCK_MODE) {
-                startActivity(new Intent(requireContext(), LoginActivity.class));
-                requireActivity().finish();
+                MockSessionManager.logout(requireContext());
+                Log.d(TAG, "Mock user logged out");
+                navigateToLogin();
                 return;
             }
+            
+            // EXISTING: Real Parse logout
             try {
                 ParseUser.logOutInBackground(new LogOutCallback() {
                     @Override public void done(ParseException e) {
@@ -5615,8 +5917,7 @@ public class ProfileFragment extends Fragment {
                             Toast.makeText(requireContext(), getString(R.string.error_generic), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        startActivity(new Intent(requireContext(), LoginActivity.class));
-                        requireActivity().finish();
+                        navigateToLogin();
                     }
                 });
             } catch (Exception ex) {
@@ -5628,220 +5929,13 @@ public class ProfileFragment extends Fragment {
         btnCreateFirstPost.setOnClickListener(v ->
                 Toast.makeText(requireContext(), getString(R.string.nav_compose), Toast.LENGTH_SHORT).show());
     }
-}
-</file>
 
-<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
-package com.example.fludde;
-
-import android.app.Application;
-import android.util.Log;
-
-import com.example.fludde.utils.ApiUtils;
-import com.parse.Parse;
-
-public class ParseApplication extends Application {
-
-    private static final String TAG = "ParseApplication";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Prefer v4 Bearer token; fall back to legacy v3 api_key only if needed.
-        if (BuildConfig.TMDB_BEARER != null && !BuildConfig.TMDB_BEARER.isEmpty()) {
-            ApiUtils.setApiKey(null);
-            ApiUtils.setBearer(BuildConfig.TMDB_BEARER);
-            Log.d(TAG, "TMDB auth configured with Bearer token.");
-        } else if (BuildConfig.TMDB_API_KEY != null && !BuildConfig.TMDB_API_KEY.isEmpty()) {
-            ApiUtils.setBearer(null);
-            ApiUtils.setApiKey(BuildConfig.TMDB_API_KEY);
-            Log.w(TAG, "Using legacy TMDB api_key. Consider switching to a v4 Bearer token.");
-        } else {
-            Log.e(TAG, "No TMDB credentials found. Set TMDB_BEARER (preferred) or TMDB_API_KEY.");
-        }
-
-        // --- Parse/Back4App initialization ---
-        // Only initialize if credentials are provided in local.properties
-        if (BuildConfig.BACK4APP_APP_ID != null && !BuildConfig.BACK4APP_APP_ID.isEmpty() &&
-            BuildConfig.BACK4APP_CLIENT_KEY != null && !BuildConfig.BACK4APP_CLIENT_KEY.isEmpty()) {
-            
-            Parse.initialize(new Parse.Configuration.Builder(this)
-                    .applicationId(BuildConfig.BACK4APP_APP_ID)
-                    .clientKey(BuildConfig.BACK4APP_CLIENT_KEY)
-                    .server(BuildConfig.BACK4APP_SERVER_URL)
-                    .build()
-            );
-            Log.d(TAG, "Parse/Back4App initialized successfully.");
-        } else {
-            Log.w(TAG, "Parse/Back4App credentials not found. Parse functionality will be disabled.");
-            Log.w(TAG, "Add BACK4APP_APP_ID, BACK4APP_CLIENT_KEY, and BACK4APP_SERVER_URL to local.properties");
-        }
-    }
-}
-</file>
-
-<file path="app/src/main/java/com/example/fludde/fragments/child/MovieChildFragment.java">
-package com.example.fludde.fragments.child;
-
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.fludde.BuildConfig;
-import com.example.fludde.R;
-import com.example.fludde.adapters.MovieChildAdapter;
-import com.example.fludde.model.MovieContent;
-import com.example.fludde.utils.ApiUtils;
-import com.example.fludde.utils.MockData;
-import com.example.fludde.utils.SpacesItemDecoration;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Movies tab carousel with TMDB trending content.
- */
-public class MovieChildFragment extends Fragment {
-
-    private static final String TAG = "MovieChildFragment";
-
-    private static final String TMDB_URL = 
-            "https://api.themoviedb.org/3/trending/movie/day?language=en-US";
-
-    private RecyclerView rv;
-    private ProgressBar progress;
-    private MovieChildAdapter adapter;
-    private final List<MovieContent> items = new ArrayList<>();
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_child_movie, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(v, savedInstanceState);
-
-        rv = v.findViewById(R.id.rvMovieHorizontalView);
-        progress = v.findViewById(R.id.progressBar);
-
-        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        adapter = new MovieChildAdapter(requireContext(), items, new MovieChildAdapter.OnMovieContentListener() {
-            @Override public void onMovieContentClick(int position) {}
-            @Override public void onMovieContentLongClick(int position) {}
-        });
-        rv.setAdapter(adapter);
-
-        // Carousel affordance: peeking edges + per-item snap
-        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
-        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
-        rv.setClipToPadding(false);
-        rv.setPadding(edgePeek, 0, edgePeek, 0);
-        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
-        new LinearSnapHelper().attachToRecyclerView(rv);
-
-        fetchMovies();
-    }
-
-    private void setLoading(boolean show) {
-        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
-    }
-
-    private void fetchMovies() {
-        setLoading(true);
-
-        // Mock mode: use canned data
-        if (BuildConfig.MOCK_MODE) {
-            try {
-                JSONObject mockData = MockData.tmdbTrendingJson();
-                JSONArray results = mockData.optJSONArray("results");
-                items.clear();
-                if (results != null) {
-                    items.addAll(MovieContent.fromJsonArray(results));
-                }
-                adapter.notifyDataSetChanged();
-                
-                Log.d(TAG, "Mock movies loaded ✓ count=" + items.size());
-                if (items.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Mock data error", e);
-                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-            } finally {
-                setLoading(false);
-            }
-            return;
-        }
-
-        // Real API call
-        Log.d(TAG, "Fetching movies: " + TMDB_URL);
-
-        ApiUtils.get(TMDB_URL, new ApiUtils.Callback() {
-            @Override
-            public void onSuccess(String body) {
-                try {
-                    JSONObject json = new JSONObject(body);
-                    JSONArray results = json.optJSONArray("results");
-                    items.clear();
-                    if (results != null) {
-                        items.addAll(MovieContent.fromJsonArray(results));
-                    }
-                    
-                    // Update UI on main thread
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            adapter.notifyDataSetChanged();
-                            Log.d(TAG, "Movies loaded ✓ count=" + items.size());
-                            
-                            if (items.isEmpty()) {
-                                Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
-                            }
-                            setLoading(false);
-                        });
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Parse error (movies)", e);
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-                            setLoading(false);
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onError(IOException e) {
-                Log.e(TAG, "Network error (movies)", e);
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        setLoading(false);
-                        Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-                    });
-                }
-            }
-        });
+    /**
+     * Navigate to login screen.
+     */
+    private void navigateToLogin() {
+        startActivity(new Intent(requireContext(), LoginActivity.class));
+        requireActivity().finish();
     }
 }
 </file>
@@ -6009,6 +6103,280 @@ public class PostFragment extends Fragment {
 }
 </file>
 
+<file path="app/src/main/java/com/example/fludde/ParseApplication.java">
+package com.example.fludde;
+
+import android.app.Application;
+import android.util.Log;
+
+import com.example.fludde.utils.ApiUtils;
+import com.parse.Parse;
+
+public class ParseApplication extends Application {
+
+    private static final String TAG = "ParseApplication";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        // Prefer v4 Bearer token; fall back to legacy v3 api_key only if needed.
+        if (BuildConfig.TMDB_BEARER != null && !BuildConfig.TMDB_BEARER.isEmpty()) {
+            ApiUtils.setApiKey(null);
+            ApiUtils.setBearer(BuildConfig.TMDB_BEARER);
+            Log.d(TAG, "TMDB auth configured with Bearer token.");
+        } else if (BuildConfig.TMDB_API_KEY != null && !BuildConfig.TMDB_API_KEY.isEmpty()) {
+            ApiUtils.setBearer(null);
+            ApiUtils.setApiKey(BuildConfig.TMDB_API_KEY);
+            Log.w(TAG, "Using legacy TMDB api_key. Consider switching to a v4 Bearer token.");
+        } else {
+            Log.e(TAG, "No TMDB credentials found. Set TMDB_BEARER (preferred) or TMDB_API_KEY.");
+        }
+
+        // --- NEW: Log MOCK_MODE status ---
+        Log.d(TAG, "MOCK_MODE = " + BuildConfig.MOCK_MODE);
+
+        // --- Parse/Back4App initialization ---
+        // Only initialize if NOT in mock mode
+        if (!BuildConfig.MOCK_MODE) {
+            // Only initialize if credentials are provided in local.properties
+            if (BuildConfig.BACK4APP_APP_ID != null && !BuildConfig.BACK4APP_APP_ID.isEmpty() &&
+                BuildConfig.BACK4APP_CLIENT_KEY != null && !BuildConfig.BACK4APP_CLIENT_KEY.isEmpty()) {
+                
+                Parse.initialize(new Parse.Configuration.Builder(this)
+                        .applicationId(BuildConfig.BACK4APP_APP_ID)
+                        .clientKey(BuildConfig.BACK4APP_CLIENT_KEY)
+                        .server(BuildConfig.BACK4APP_SERVER_URL)
+                        .build()
+                );
+                Log.d(TAG, "Parse/Back4App initialized successfully.");
+            } else {
+                Log.w(TAG, "Parse/Back4App credentials not found. Parse functionality will be disabled.");
+                Log.w(TAG, "Add BACK4APP_APP_ID, BACK4APP_CLIENT_KEY, and BACK4APP_SERVER_URL to local.properties");
+            }
+        } else {
+            // --- NEW: Mock mode else block ---
+            Log.d(TAG, "🎭 MOCK_MODE enabled - skipping Parse initialization");
+            Log.d(TAG, "🎭 App will run with mock data only");
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/AndroidManifest.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Keep permissions minimal. INTERNET is required for Parse + API calls. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".ParseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Fludde">
+
+        <!-- Main (single-activity) host that owns bottom navigation & fragment swaps -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Auth flow screens (no UI theming here; all styling via themes/styles) -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+
+        <!-- Note: FileProvider is omitted (keep manifest minimal) since we are not
+             currently attaching images from local storage. Add it only when needed. -->
+    </application>
+</manifest>
+</file>
+
+<file path="gradle.properties">
+# JVM heap + native-access flag to silence the JDK warning you saw
+org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
+
+# AndroidX flags
+android.useAndroidX=true
+android.enableJetifier=true
+android.nonTransitiveRClass=true
+</file>
+
+<file path="app/src/main/java/com/example/fludde/fragments/child/MovieChildFragment.java">
+package com.example.fludde.fragments.child;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fludde.BuildConfig;
+import com.example.fludde.R;
+import com.example.fludde.adapters.MovieChildAdapter;
+import com.example.fludde.model.MovieContent;
+import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.MockData;
+import com.example.fludde.utils.SpacesItemDecoration;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Movies tab carousel with TMDB trending content.
+ */
+public class MovieChildFragment extends Fragment {
+
+    private static final String TAG = "MovieChildFragment";
+
+    private static final String TMDB_URL = 
+            "https://api.themoviedb.org/3/trending/movie/day?language=en-US";
+
+    private RecyclerView rv;
+    private ProgressBar progress;
+    private MovieChildAdapter adapter;
+    private final List<MovieContent> items = new ArrayList<>();
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_child_movie, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+
+        rv = v.findViewById(R.id.rvMovieHorizontalView);
+        progress = v.findViewById(R.id.progressBar);
+
+        rv.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        adapter = new MovieChildAdapter(requireContext(), items, new MovieChildAdapter.OnMovieContentListener() {
+            @Override public void onMovieContentClick(int position) {}
+            @Override public void onMovieContentLongClick(int position) {}
+        });
+        rv.setAdapter(adapter);
+
+        // Carousel affordance: peeking edges + per-item snap
+        final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
+        final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
+        rv.setClipToPadding(false);
+        rv.setPadding(edgePeek, 0, edgePeek, 0);
+        rv.addItemDecoration(new SpacesItemDecoration(itemSpace));
+        new LinearSnapHelper().attachToRecyclerView(rv);
+
+        fetchMovies();
+    }
+
+    private void setLoading(boolean show) {
+        if (progress != null) progress.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (rv != null) rv.setAlpha(show ? 0.3f : 1f);
+    }
+
+    private void fetchMovies() {
+        setLoading(true);
+
+        // Mock mode: use canned data
+        if (BuildConfig.MOCK_MODE) {
+            try {
+                JSONObject mockData = MockData.tmdbTrendingJson();
+                JSONArray results = mockData.optJSONArray("results");
+                items.clear();
+                if (results != null) {
+                    items.addAll(MovieContent.fromJsonArray(results));
+                }
+                adapter.notifyDataSetChanged();
+                
+                Log.d(TAG, "Mock movies loaded ✓ count=" + items.size());
+                if (items.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock data error", e);
+                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        // Real API call
+        Log.d(TAG, "Fetching movies: " + TMDB_URL);
+
+        ApiUtils.get(TMDB_URL, new ApiUtils.Callback() {
+            @Override
+            public void onSuccess(String body) {
+                try {
+                    JSONObject json = new JSONObject(body);
+                    JSONArray results = json.optJSONArray("results");
+                    items.clear();
+                    if (results != null) {
+                        items.addAll(MovieContent.fromJsonArray(results));
+                    }
+                    
+                    // Update UI on main thread
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            adapter.notifyDataSetChanged();
+                            Log.d(TAG, "Movies loaded ✓ count=" + items.size());
+                            
+                            if (items.isEmpty()) {
+                                Toast.makeText(requireContext(), getString(R.string.empty_movies_message), Toast.LENGTH_SHORT).show();
+                            }
+                            setLoading(false);
+                        });
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Parse error (movies)", e);
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                            setLoading(false);
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onError(IOException e) {
+                Log.e(TAG, "Network error (movies)", e);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        setLoading(false);
+                        Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
+    }
+}
+</file>
+
 <file path="app/src/main/res/values/strings.xml">
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -6087,13 +6455,13 @@ public class PostFragment extends Fragment {
 
     <!-- Errors -->
     <string name="error_generic">Something went wrong.</string>
-    <string name="error_network">You're offline.</string>
+    <string name="error_network">You\'re offline.</string>
     <string name="error_timeout">This is taking too long.</string>
     <string name="error_api_limit">Service is busy. Try again later.</string>
-    <string name="error_load_profile">Couldn't load profile.</string>
-    <string name="error_load_feed">Couldn't load posts.</string>
-    <string name="error_load_content">Couldn't load content.</string>
-    <string name="error_search">Couldn't search right now.</string>
+    <string name="error_load_profile">Couldn\'t load profile.</string>
+    <string name="error_load_feed">Couldn\'t load posts.</string>
+    <string name="error_load_content">Couldn\'t load content.</string>
+    <string name="error_search">Couldn\'t search right now.</string>
     <string name="error_required_fields">Please fill in all fields.</string>
     <string name="error_incorrect_login">Incorrect username or password.</string>
     <string name="error_auth_required">Sign in to continue.</string>
@@ -6116,7 +6484,7 @@ public class PostFragment extends Fragment {
     <string name="api_error_status_code">API request failed with status code: %d</string>
     <string name="api_error_no_throwable">API request failed with status code: %d (no throwable provided)</string>
     <string name="api_error_message">Error message: %s</string>
-    <string name="api_request_failed">HTTP %d %s</string>
+    <string name="api_request_failed" formatted="false">HTTP %d %s</string>
     <string name="api_request_build_error">Request build error</string>
 
     <!-- Plurals -->
@@ -6137,7 +6505,7 @@ public class PostFragment extends Fragment {
 
     <!-- UI text used by the inline error block (fragment_home.xml) -->
     <string name="generic_error_title">Something went wrong</string>
-    <string name="generic_error_message">We couldn't load the feed. Please try again.</string>
+    <string name="generic_error_message">We couldn\'t load the feed. Please try again.</string>
     <string name="retry">Retry</string>
 
     <!-- Log tags (for consistency) -->
@@ -6146,55 +6514,6 @@ public class PostFragment extends Fragment {
     <string name="log_tag_signup" translatable="false">SignupActivity</string>
     <string name="log_tag_error_handler" translatable="false">ErrorHandler</string>
 </resources>
-</file>
-
-<file path="app/src/main/AndroidManifest.xml">
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Keep permissions minimal. INTERNET is required for Parse + API calls. -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <application
-        android:name=".ParseApplication"
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.Fludde">
-
-        <!-- Main (single-activity) host that owns bottom navigation & fragment swaps -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <!-- Auth flow screens (no UI theming here; all styling via themes/styles) -->
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SignupActivity"
-            android:exported="false" />
-
-        <!-- Note: FileProvider is omitted (keep manifest minimal) since we are not
-             currently attaching images from local storage. Add it only when needed. -->
-    </application>
-</manifest>
-</file>
-
-<file path="gradle.properties">
-# JVM heap + native-access flag to silence the JDK warning you saw
-org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED
-
-# AndroidX flags
-android.useAndroidX=true
-android.enableJetifier=true
-android.nonTransitiveRClass=true
 </file>
 
 <file path="app/src/main/java/com/example/fludde/fragments/child/BookChildFragment.java">
@@ -6215,36 +6534,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.R;
 import com.example.fludde.adapters.BookChildAdapter;
 import com.example.fludde.model.BooksContent;
 import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.ErrorHandler;
+import com.example.fludde.utils.MockData;
 import com.example.fludde.utils.SpacesItemDecoration;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
-
-/**
- * Books tab carousel with defensive parsing + noisy logs.
- */
+/** Horizontal books carousel (Google Books). */
 public class BookChildFragment extends Fragment {
 
     private static final String TAG = "BookChildFragment";
-
-    // Public Google Books query with friendly defaults (no key required).
     private static final String BOOKS_URL =
-            "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
+            "https://www.googleapis.com/books/v1/volumes?q=miami&maxResults=25";
 
     private RecyclerView rv;
     private ProgressBar progress;
-    private BookChildAdapter adapter;
+
     private final List<BooksContent> items = new ArrayList<>();
+    private BookChildAdapter adapter;
 
     @Nullable
     @Override
@@ -6268,7 +6585,7 @@ public class BookChildFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        // Carousel affordance: peeking edges + per-item snap
+        // carousel affordance
         final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
         final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
         rv.setClipToPadding(false);
@@ -6286,34 +6603,61 @@ public class BookChildFragment extends Fragment {
 
     private void fetchBooks() {
         setLoading(true);
+
+        if (BuildConfig.MOCK_MODE) {
+            try {
+                JSONObject mock = MockData.googleBooksJson();
+                JSONArray arr = mock.optJSONArray("items");
+                items.clear();
+                if (arr != null) {
+                    items.addAll(BooksContent.fromGoogleBooks(arr));
+                }
+                adapter.notifyDataSetChanged();
+                if (items.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.empty_books_message), Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock books parse error", e);
+                ErrorHandler.showToast(requireContext(), R.string.error_load_content);
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
         Log.d(TAG, "Fetching books: " + BOOKS_URL);
 
-        ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        ApiUtils.get(BOOKS_URL, new ApiUtils.Callback() {
+            @Override public void onSuccess(String body) {
                 try {
+                    JSONObject response = new JSONObject(body);
                     JSONArray arr = response.optJSONArray("items");
                     items.clear();
-                    items.addAll(BooksContent.fromGoogleBooks(arr));
-                    adapter.notifyDataSetChanged();
-
-                    Log.d(TAG, "Books loaded ✓ count=" + items.size());
-                    if (items.isEmpty()) {
-                        Toast.makeText(requireContext(), getString(R.string.empty_books_message), Toast.LENGTH_SHORT).show();
+                    if (arr != null) {
+                        items.addAll(BooksContent.fromGoogleBooks(arr));
                     }
+                    requireActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                        if (items.isEmpty()) {
+                            ErrorHandler.showToast(requireContext(), R.string.empty_books_message);
+                        }
+                        setLoading(false);
+                    });
                 } catch (Exception e) {
                     Log.e(TAG, "Parse error (books)", e);
-                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-                } finally {
-                    setLoading(false);
+                    requireActivity().runOnUiThread(() -> {
+                        ErrorHandler.showToast(requireContext(), R.string.error_load_content);
+                        setLoading(false);
+                    });
                 }
             }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                setLoading(false);
-                ApiUtils.handleFailure(statusCode, throwable);
-                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            @Override public void onError(IOException e) {
+                Log.e(TAG, "Network error (books)", e);
+                requireActivity().runOnUiThread(() -> {
+                    ErrorHandler.showNetworkError(requireContext(), R.string.error_load_content);
+                    setLoading(false);
+                });
             }
         });
     }
@@ -6470,25 +6814,49 @@ public class BooksContent {
 <file path="app/src/main/java/com/example/fludde/MainActivity.java">
 package com.example.fludde;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import com.example.fludde.fragments.ComposeParentFragment;
 import com.example.fludde.fragments.HomeFragment;
 import com.example.fludde.fragments.PostFragment;
 import com.example.fludde.fragments.ProfileFragment;
 import com.example.fludde.fragments.SearchFragment;
 import com.example.fludde.utils.InsetsUtils;
+import com.example.fludde.utils.MockSessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.ParseUser;
 
+/**
+ * Main Activity with session verification.
+ * 
+ * Features:
+ * - Session check on startup
+ * - Redirects to login if not authenticated
+ * - Bottom navigation for app sections
+ * - Supports both mock and real Parse authentication
+ */
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // 🔒 SESSION CHECK: Verify user is logged in
+        if (!isUserLoggedIn()) {
+            Log.w(TAG, "No valid session found, redirecting to login");
+            redirectToLogin();
+            return;
+        }
+        
         setContentView(R.layout.activity_main);
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
@@ -6515,8 +6883,44 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Default tab
+        // Set default fragment (Home)
         bottomNavigation.setSelectedItemId(R.id.action_home);
+    }
+
+    /**
+     * 🔒 Check if user is logged in.
+     * Handles both mock mode and real Parse authentication.
+     * 
+     * @return true if user is logged in, false otherwise
+     */
+    private boolean isUserLoggedIn() {
+        if (BuildConfig.MOCK_MODE) {
+            // Check mock session
+            boolean isLoggedIn = MockSessionManager.isLoggedIn(this);
+            if (isLoggedIn) {
+                Log.d(TAG, "Valid mock session found for user: " + MockSessionManager.getCurrentUsername(this));
+            }
+            return isLoggedIn;
+        } else {
+            // Check Parse session
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            if (currentUser != null) {
+                Log.d(TAG, "Valid Parse session found for user: " + currentUser.getUsername());
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Redirects to login activity when no valid session is found.
+     * Clears the back stack to prevent returning to MainActivity.
+     */
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
 </file>

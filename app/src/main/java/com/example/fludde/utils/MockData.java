@@ -18,19 +18,19 @@ public final class MockData {
         JSONArray results = new JSONArray();
 
         results.put(new JSONObject()
-                .put("poster_path", "kqjL17yufvn9OVLyXYpvtyrFfak.jpg")
+                .put("poster_path", "https://picsum.photos/500/750?random=1")
                 .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
                 .put("title", "Mock: The Lost City")
                 .put("overview", "Two brilliant adventurers embark on a mock journey."));
 
         results.put(new JSONObject()
-                .put("poster_path", "6DrHO1jr3qVrViUO6s6kFiAGM7.jpg")
+                .put("poster_path", "https://picsum.photos/500/750?random=2")
                 .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
                 .put("title", "Mock: Night Patrol")
                 .put("overview", "A stylish mystery that totally doesn't require an API key."));
 
         results.put(new JSONObject()
-                .put("poster_path", "t6HIqrRAclMCA60NsSmeqe9RmNV.jpg")
+                .put("poster_path", "https://picsum.photos/500/750?random=3")
                 .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
                 .put("title", "Mock: Ocean Deep")
                 .put("overview", "An epic dive into mock data excellence."));
@@ -66,11 +66,13 @@ public final class MockData {
     public static List<PostUi> mockPosts() {
         List<PostUi> list = new ArrayList<>();
 
+        // Fixed: Added contentImageUrl parameter (7 parameters total)
         list.add(new PostUi(
                 "Movie",
                 "Buddy cops wreak havoc while being lovable.",
                 "Bad Boys II",
                 "A classic turn-your-brain-off action flick.",
+                "https://image.tmdb.org/t/p/w500/kqjL17yufvn9OVLyXYpvtyrFfak.jpg", // contentImageUrl
                 "demo",
                 "https://i.pravatar.cc/150?img=1"
         ));
@@ -80,6 +82,7 @@ public final class MockData {
                 "Wizards, prophecies, and teenage angst—the whole package.",
                 "Harry Potter and the Order of the Phoenix",
                 "JK Rowling really keeps you guessing!",
+                "https://picsum.photos/200/300?image=1020", // contentImageUrl
                 "alice",
                 "https://i.pravatar.cc/150?img=4"
         ));
@@ -89,6 +92,7 @@ public final class MockData {
                 "This song speaks to my soul. Pure emotion.",
                 "Someone Like You",
                 "Adele never disappoints.",
+                "https://picsum.photos/200?image=1069", // contentImageUrl
                 "bob",
                 "https://i.pravatar.cc/150?img=6"
         ));
@@ -190,18 +194,18 @@ public final class MockData {
         }
     }
 
-    private static final List<MockUser> MOCK_AUTH_USERS = Arrays.asList(
+    private static final List<MockUser> MOCK_AUTH_USERS = new ArrayList<>(Arrays.asList(
         new MockUser("demo", "demo123", "demo@example.com", "https://i.pravatar.cc/150?img=1"),
         new MockUser("testuser", "test123", "test@example.com", "https://i.pravatar.cc/150?img=2"),
         new MockUser("alice", "alice123", "alice@example.com", "https://i.pravatar.cc/150?img=4"),
         new MockUser("bob", "bob123", "bob@example.com", "https://i.pravatar.cc/150?img=6"),
         new MockUser("charlie", "charlie123", "charlie@example.com", "https://i.pravatar.cc/150?img=7")
-    );
+    ));
 
     public static boolean isValidLogin(String username, String password) {
         if (username == null || password == null) return false;
         for (MockUser user : MOCK_AUTH_USERS) {
-            if (user.username.equals(username) && user.password.equals(username)) {
+            if (user.username.equals(username) && user.password.equals(password)) {
                 return true;
             }
         }
@@ -226,6 +230,12 @@ public final class MockData {
             }
         }
         return true; // Can register
+    }
+
+    // NEW: Method to register a new mock user
+    public static void registerMockUser(String username, String password, String email) {
+        String profilePictureUrl = "https://i.pravatar.cc/150?img=" + (MOCK_AUTH_USERS.size() + 10);
+        MOCK_AUTH_USERS.add(new MockUser(username, password, email, profilePictureUrl));
     }
 
     // ========== PROFILE MOCK DATA ==========

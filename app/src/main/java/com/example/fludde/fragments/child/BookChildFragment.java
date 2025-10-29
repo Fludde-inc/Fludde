@@ -15,36 +15,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fludde.BuildConfig;
 import com.example.fludde.R;
 import com.example.fludde.adapters.BookChildAdapter;
 import com.example.fludde.model.BooksContent;
 import com.example.fludde.utils.ApiUtils;
+import com.example.fludde.utils.ErrorHandler;
+import com.example.fludde.utils.MockData;
 import com.example.fludde.utils.SpacesItemDecoration;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
-
-/**
- * Books tab carousel with defensive parsing + noisy logs.
- */
+/** Horizontal books carousel (Google Books). */
 public class BookChildFragment extends Fragment {
 
     private static final String TAG = "BookChildFragment";
-
-    // Public Google Books query with friendly defaults (no key required).
     private static final String BOOKS_URL =
-            "https://www.googleapis.com/books/v1/volumes?q=subject:fiction&maxResults=20";
+            "https://www.googleapis.com/books/v1/volumes?q=miami&maxResults=25";
 
     private RecyclerView rv;
     private ProgressBar progress;
-    private BookChildAdapter adapter;
+
     private final List<BooksContent> items = new ArrayList<>();
+    private BookChildAdapter adapter;
 
     @Nullable
     @Override
@@ -68,7 +66,7 @@ public class BookChildFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        // Carousel affordance: peeking edges + per-item snap
+        // carousel affordance
         final int itemSpace = getResources().getDimensionPixelSize(R.dimen.space_12);
         final int edgePeek = getResources().getDimensionPixelSize(R.dimen.space_24);
         rv.setClipToPadding(false);
@@ -86,34 +84,61 @@ public class BookChildFragment extends Fragment {
 
     private void fetchBooks() {
         setLoading(true);
+
+        if (BuildConfig.MOCK_MODE) {
+            try {
+                JSONObject mock = MockData.googleBooksJson();
+                JSONArray arr = mock.optJSONArray("items");
+                items.clear();
+                if (arr != null) {
+                    items.addAll(BooksContent.fromGoogleBooks(arr));
+                }
+                adapter.notifyDataSetChanged();
+                if (items.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.empty_books_message), Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock books parse error", e);
+                ErrorHandler.showToast(requireContext(), R.string.error_load_content);
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
         Log.d(TAG, "Fetching books: " + BOOKS_URL);
 
-        ApiUtils.get(BOOKS_URL, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        ApiUtils.get(BOOKS_URL, new ApiUtils.Callback() {
+            @Override public void onSuccess(String body) {
                 try {
+                    JSONObject response = new JSONObject(body);
                     JSONArray arr = response.optJSONArray("items");
                     items.clear();
-                    items.addAll(BooksContent.fromGoogleBooks(arr));
-                    adapter.notifyDataSetChanged();
-
-                    Log.d(TAG, "Books loaded ✓ count=" + items.size());
-                    if (items.isEmpty()) {
-                        Toast.makeText(requireContext(), getString(R.string.empty_books_message), Toast.LENGTH_SHORT).show();
+                    if (arr != null) {
+                        items.addAll(BooksContent.fromGoogleBooks(arr));
                     }
+                    requireActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                        if (items.isEmpty()) {
+                            ErrorHandler.showToast(requireContext(), R.string.empty_books_message);
+                        }
+                        setLoading(false);
+                    });
                 } catch (Exception e) {
                     Log.e(TAG, "Parse error (books)", e);
-                    Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
-                } finally {
-                    setLoading(false);
+                    requireActivity().runOnUiThread(() -> {
+                        ErrorHandler.showToast(requireContext(), R.string.error_load_content);
+                        setLoading(false);
+                    });
                 }
             }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                setLoading(false);
-                ApiUtils.handleFailure(statusCode, throwable);
-                Toast.makeText(requireContext(), getString(R.string.error_load_content), Toast.LENGTH_SHORT).show();
+            @Override public void onError(IOException e) {
+                Log.e(TAG, "Network error (books)", e);
+                requireActivity().runOnUiThread(() -> {
+                    ErrorHandler.showNetworkError(requireContext(), R.string.error_load_content);
+                    setLoading(false);
+                });
             }
         });
     }

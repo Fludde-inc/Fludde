@@ -48,7 +48,7 @@ android {
     buildTypes {
         debug {
             // Set to true if you want to force mock data in debug
-            buildConfigField "boolean", "MOCK_MODE", "false"
+            buildConfigField "boolean", "MOCK_MODE", "true"
         }
         release {
             minifyEnabled false

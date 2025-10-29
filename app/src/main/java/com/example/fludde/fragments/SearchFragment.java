@@ -95,7 +95,8 @@ public class SearchFragment extends Fragment {
     }
 
     private String getQueryText() {
-        String q = etSearchFieldUser.getText() != null ? etSearchFieldUser.getText().toString().trim() : "";
+        String q = etSearchFieldUser.getText() != null ?
+                   etSearchFieldUser.getText().toString().trim() : "";
         return q;
     }
 
@@ -128,7 +129,18 @@ public class SearchFragment extends Fragment {
     private void lookForUser(String userName) {
         if (BuildConfig.MOCK_MODE) {
             allUsers.clear();
-            allUsers.addAll(MockData.mockUsers(userName));
+            // FIXED: MockData.mockUsers() takes no parameters
+            List<UserUi> mockUsers = MockData.mockUsers();
+            // Filter by username if a search term was provided
+            if (userName != null && !userName.isEmpty()) {
+                for (UserUi user : mockUsers) {
+                    if (user.getUsername().toLowerCase().contains(userName.toLowerCase())) {
+                        allUsers.add(user);
+                    }
+                }
+            } else {
+                allUsers.addAll(mockUsers);
+            }
             searchFragmentAdapter.notifyDataSetChanged();
             showEmptyState(allUsers.isEmpty());
             return;

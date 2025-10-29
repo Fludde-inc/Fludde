@@ -75,13 +75,13 @@
 
     <!-- Errors -->
     <string name="error_generic">Something went wrong.</string>
-    <string name="error_network">You're offline.</string>
+    <string name="error_network">You\'re offline.</string>
     <string name="error_timeout">This is taking too long.</string>
     <string name="error_api_limit">Service is busy. Try again later.</string>
-    <string name="error_load_profile">Couldn't load profile.</string>
-    <string name="error_load_feed">Couldn't load posts.</string>
-    <string name="error_load_content">Couldn't load content.</string>
-    <string name="error_search">Couldn't search right now.</string>
+    <string name="error_load_profile">Couldn\'t load profile.</string>
+    <string name="error_load_feed">Couldn\'t load posts.</string>
+    <string name="error_load_content">Couldn\'t load content.</string>
+    <string name="error_search">Couldn\'t search right now.</string>
     <string name="error_required_fields">Please fill in all fields.</string>
     <string name="error_incorrect_login">Incorrect username or password.</string>
     <string name="error_auth_required">Sign in to continue.</string>
@@ -104,7 +104,7 @@
     <string name="api_error_status_code">API request failed with status code: %d</string>
     <string name="api_error_no_throwable">API request failed with status code: %d (no throwable provided)</string>
     <string name="api_error_message">Error message: %s</string>
-    <string name="api_request_failed">HTTP %d %s</string>
+    <string name="api_request_failed" formatted="false">HTTP %d %s</string>
     <string name="api_request_build_error">Request build error</string>
 
     <!-- Plurals -->
@@ -125,7 +125,7 @@
 
     <!-- UI text used by the inline error block (fragment_home.xml) -->
     <string name="generic_error_title">Something went wrong</string>
-    <string name="generic_error_message">We couldn't load the feed. Please try again.</string>
+    <string name="generic_error_message">We couldn\'t load the feed. Please try again.</string>
     <string name="retry">Retry</string>
 
     <!-- Log tags (for consistency) -->

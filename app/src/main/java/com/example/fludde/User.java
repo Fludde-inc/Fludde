@@ -1,3 +1,5 @@
+package com.example.fludde;
+
 import com.parse.ParseUser;
 import com.parse.ParseException;
 

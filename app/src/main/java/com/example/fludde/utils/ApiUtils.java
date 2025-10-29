@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.util.Log;
 import androidx.annotation.Nullable;
 
+import com.example.fludde.BuildConfig;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -54,6 +56,14 @@ public final class ApiUtils {
     }
 
     public static void get(String url, final Callback cb) {
+        // ===== NEW: Mock mode check - return mock data without hitting network =====
+        if (BuildConfig.MOCK_MODE) {
+            handleMockRequest(url, cb);
+            return;
+        }
+        // ===== END MOCK MODE CHECK =====
+        
+        // ===== EXISTING: Real API call (unchanged) =====
         try {
             Request.Builder rb = new Request.Builder();
 
@@ -97,4 +107,47 @@ public final class ApiUtils {
             if (cb != null) cb.onError(new IOException("Request build error", e));
         }
     }
+
+    // ===== NEW METHOD: Handle mock requests =====
+    /**
+     * Handle mock requests by routing to appropriate mock data based on URL.
+     * Simulates network delay for realistic behavior.
+     * 
+     * @param url The requested URL
+     * @param cb Callback to return mock data
+     */
+    private static void handleMockRequest(String url, final Callback cb) {
+        // Simulate network delay (100-500ms)
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                String mockResponse = null;
+                
+                // Route based on URL to appropriate mock data
+                if (url.contains("themoviedb.org")) {
+                    mockResponse = MockData.tmdbTrendingJson().toString();
+                    Log.d(TAG, "Mock: Returning TMDB data");
+                } else if (url.contains("itunes.apple.com")) {
+                    mockResponse = MockData.itunesSearchJson().toString();
+                    Log.d(TAG, "Mock: Returning iTunes data");
+                } else if (url.contains("googleapis.com/books")) {
+                    mockResponse = MockData.googleBooksJson().toString();
+                    Log.d(TAG, "Mock: Returning Google Books data");
+                }
+                
+                if (mockResponse != null && cb != null) {
+                    cb.onSuccess(mockResponse);
+                } else {
+                    if (cb != null) {
+                        cb.onError(new IOException("Mock: Unknown endpoint - " + url));
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Mock error", e);
+                if (cb != null) {
+                    cb.onError(new IOException("Mock error", e));
+                }
+            }
+        }, 100 + (long)(Math.random() * 400)); // Random delay between 100-500ms
+    }
+    // ===== END NEW METHOD =====
 }
