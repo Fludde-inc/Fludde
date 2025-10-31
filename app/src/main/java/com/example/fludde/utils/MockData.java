@@ -18,50 +18,69 @@ public final class MockData {
         JSONArray results = new JSONArray();
 
         results.put(new JSONObject()
+                .put("id", 550001)  // ADDED
                 .put("poster_path", "https://picsum.photos/500/750?random=1")
                 .put("backdrop_path", "lNyLSOKMMeUPr1RsL4KcRuIXwHt.jpg")
                 .put("title", "Mock: The Lost City")
-                .put("overview", "Two brilliant adventurers embark on a mock journey."));
+                .put("overview", "Two brilliant adventurers embark on a mock journey.")
+                .put("release_date", "2024-01-15"));  // ADDED
 
         results.put(new JSONObject()
+                .put("id", 550002)  // ADDED
                 .put("poster_path", "https://picsum.photos/500/750?random=2")
                 .put("backdrop_path", "wcKFYIiVDvRURrzglV9kGu7fpfY.jpg")
                 .put("title", "Mock: Night Patrol")
-                .put("overview", "A stylish mystery that totally doesn't require an API key."));
+                .put("overview", "A stylish mystery that totally doesn't require an API key.")
+                .put("release_date", "2024-02-20"));  // ADDED
 
         results.put(new JSONObject()
+                .put("id", 550003)  // ADDED
                 .put("poster_path", "https://picsum.photos/500/750?random=3")
                 .put("backdrop_path", "s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg")
                 .put("title", "Mock: Ocean Deep")
-                .put("overview", "An epic dive into mock data excellence."));
+                .put("overview", "An epic dive into mock data excellence.")
+                .put("release_date", "2024-03-10"));  // ADDED
 
         JSONObject payload = new JSONObject();
         payload.put("results", results);
         return payload;
     }
+
+
+    // ========== FIX 2: itunesSearchJson() - Change 'name' to 'trackName', add 'trackId' and 'previewUrl' ==========
 
     public static JSONObject itunesSearchJson() throws Exception {
         JSONArray results = new JSONArray();
 
         results.put(new JSONObject()
-                .put("name", "Mock Song One")
+                .put("trackId", 1001)  // ADDED
+                .put("trackName", "Mock Song One")  // CHANGED from 'name' to 'trackName'
                 .put("artistName", "The Mockers")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1069"));
+                .put("artworkUrl100", "https://picsum.photos/200?image=1069")
+                .put("previewUrl", "https://example.com/preview1.m4a"));  // ADDED
 
         results.put(new JSONObject()
-                .put("name", "Dreams in JSON")
+                .put("trackId", 1002)  // ADDED
+                .put("trackName", "Dreams in JSON")  // CHANGED from 'name' to 'trackName'
                 .put("artistName", "Null & Void")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1027"));
+                .put("artworkUrl100", "https://picsum.photos/200?image=1027")
+                .put("previewUrl", "https://example.com/preview2.m4a"));  // ADDED
 
         results.put(new JSONObject()
-                .put("name", "Offline Anthem")
+                .put("trackId", 1003)  // ADDED
+                .put("trackName", "Offline Anthem")  // CHANGED from 'name' to 'trackName'
                 .put("artistName", "Airplane Mode")
-                .put("artworkUrl100", "https://picsum.photos/200?image=1003"));
+                .put("artworkUrl100", "https://picsum.photos/200?image=1003")
+                .put("previewUrl", "https://example.com/preview3.m4a"));  // ADDED
 
         JSONObject payload = new JSONObject();
         payload.put("results", results);
         return payload;
     }
+
+
+
+
 
     public static List<PostUi> mockPosts() {
         List<PostUi> list = new ArrayList<>();
@@ -156,8 +175,8 @@ public final class MockData {
     }
 
     private static JSONObject createBookItem(String title, String[] authors, 
-                                             String imageUrl, String description) 
-                                             throws Exception {
+                                            String imageUrl, String description) 
+                                            throws Exception {
         JSONArray authorsArray = new JSONArray();
         for (String author : authors) {
             authorsArray.put(author);
@@ -174,6 +193,7 @@ public final class MockData {
         volumeInfo.put("publishedDate", "2024");
         
         JSONObject item = new JSONObject();
+        item.put("id", "book_" + title.hashCode());  // ADDED: Generate unique ID from title
         item.put("volumeInfo", volumeInfo);
         return item;
     }
@@ -238,6 +258,82 @@ public final class MockData {
         MOCK_AUTH_USERS.add(new MockUser(username, password, email, profilePictureUrl));
     }
 
+    // ========== POST MOCK DATA FOR TESTS ==========
+
+    /**
+     * MockPost class for testing purposes.
+     * This provides a simple data structure with public fields for easy testing.
+     */
+    public static class MockPost {
+        public final String id;
+        public final String username;
+        public final String userImageUrl;
+        public final String contentType;
+        public final String title;
+        public final String timestamp;
+        public final String reviewText;
+        
+        public MockPost(String id, String username, String userImageUrl, String contentType,
+                       String title, String timestamp, String reviewText) {
+            this.id = id;
+            this.username = username;
+            this.userImageUrl = userImageUrl;
+            this.contentType = contentType;
+            this.title = title;
+            this.timestamp = timestamp;
+            this.reviewText = reviewText;
+        }
+    }
+
+    /**
+     * Returns a list of mock timeline posts for testing.
+     */
+    public static List<MockPost> mockTimelinePosts() {
+        List<MockPost> posts = new ArrayList<>();
+        
+        posts.add(new MockPost(
+            "post1",
+            "demo",
+            "https://i.pravatar.cc/150?img=1",
+            "Movie",
+            "Bad Boys II",
+            "2 hours ago",
+            "Buddy cops wreak havoc while being lovable."
+        ));
+        
+        posts.add(new MockPost(
+            "post2",
+            "alice",
+            "https://i.pravatar.cc/150?img=4",
+            "Book",
+            "Harry Potter and the Order of the Phoenix",
+            "5 hours ago",
+            "Wizards, prophecies, and teenage angst—the whole package."
+        ));
+        
+        posts.add(new MockPost(
+            "post3",
+            "bob",
+            "https://i.pravatar.cc/150?img=6",
+            "Music",
+            "Someone Like You",
+            "1 day ago",
+            "This song speaks to my soul. Pure emotion."
+        ));
+        
+        posts.add(new MockPost(
+            "post4",
+            "testuser",
+            "https://i.pravatar.cc/150?img=2",
+            "Movie",
+            "The Matrix",
+            "3 days ago",
+            "Mind-bending action that changed cinema forever."
+        ));
+        
+        return posts;
+    }
+
     // ========== PROFILE MOCK DATA ==========
 
     public static class MockProfile {
@@ -245,10 +341,10 @@ public final class MockData {
         public final String email;
         public final String profilePictureUrl;
         public final String bio;
-        public final List<PostUi> userPosts;
+        public final List<MockPost> userPosts;
         
         public MockProfile(String username, String email, String profilePictureUrl, 
-                          String bio, List<PostUi> userPosts) {
+                          String bio, List<MockPost> userPosts) {
             this.username = username;
             this.email = email;
             this.profilePictureUrl = profilePictureUrl;
@@ -261,16 +357,14 @@ public final class MockData {
         // Get user info
         MockUser user = getMockUser(username);
         if (user == null) {
-            // Default for unknown users
-            user = new MockUser(username, "", username + "@example.com", 
-                               "https://i.pravatar.cc/150?img=10");
+            return null; // Return null for non-existent users
         }
         
-        // Get user's posts (filter mockPosts by username)
-        List<PostUi> allPosts = mockPosts();
-        List<PostUi> userPosts = new ArrayList<>();
-        for (PostUi post : allPosts) {
-            if (post.getUserName().equals(username)) {
+        // Get user's posts from timeline posts
+        List<MockPost> allPosts = mockTimelinePosts();
+        List<MockPost> userPosts = new ArrayList<>();
+        for (MockPost post : allPosts) {
+            if (post.username.equals(username)) {
                 userPosts.add(post);
             }
         }

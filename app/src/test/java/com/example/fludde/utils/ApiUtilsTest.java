@@ -7,7 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
-
+import org.robolectric.shadows.ShadowLooper;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -135,13 +135,14 @@ public class ApiUtilsTest {
         // Given
         String url = "";
         
-        // When/Then - should handle empty URL gracefully
+        // When
         ApiUtils.get(url, mockCallback);
         
-        // Verify callback is eventually called (with error or success)
-        // Note: This is asynchronous, so in a real test you'd use CountDownLatch
-        // or a testing framework that handles async operations
-        verify(mockCallback, timeout(5000).atLeastOnce()).onError(any(IOException.class));
+        // Advance Robolectric scheduler to execute delayed callbacks
+        ShadowLooper.idleMainLooper();
+        
+        // Then
+        verify(mockCallback, times(1)).onError(any(IOException.class));
     }
 
     @Test

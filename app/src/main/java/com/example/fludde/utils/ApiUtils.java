@@ -56,7 +56,15 @@ public final class ApiUtils {
     }
 
     public static void get(String url, final Callback cb) {
-        // ===== NEW: Mock mode check - return mock data without hitting network =====
+        // ✅ ADD THIS - Validate URL first
+        if (url == null || url.trim().isEmpty()) {
+            if (cb != null) {
+                cb.onError(new IOException("URL cannot be null or empty"));
+            }
+            return;
+        }
+        
+        // Existing code continues below...
         if (BuildConfig.MOCK_MODE) {
             handleMockRequest(url, cb);
             return;

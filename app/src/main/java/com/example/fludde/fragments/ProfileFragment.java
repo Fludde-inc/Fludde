@@ -130,7 +130,18 @@ public class ProfileFragment extends Fragment {
         // Display user's posts
         posts.clear();
         if (profile.userPosts != null && !profile.userPosts.isEmpty()) {
-            posts.addAll(profile.userPosts);
+            // Convert MockPost objects to PostUi objects
+            for (MockData.MockPost mockPost : profile.userPosts) {
+                posts.add(new PostUi(
+                    mockPost.contentType,       // category
+                    mockPost.timestamp,          // description (using timestamp since MockPost doesn't have description)
+                    mockPost.title,              // title
+                    mockPost.reviewText,         // review
+                    "",                          // contentImageUrl (MockPost doesn't have this field)
+                    mockPost.username,           // userName
+                    mockPost.userImageUrl        // userImageUrl
+                ));
+            }
             rvPosts.setVisibility(View.VISIBLE);
             emptyState.setVisibility(View.GONE);
         } else {
